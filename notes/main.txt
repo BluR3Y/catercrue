@@ -1,0 +1,20 @@
+* The architecture of the application should follow "microservice" practices rather than "monolith" ones
+    * The reason for this is because the ambition of the developer to implement countless complex features leads to the application being relatively large-scale and complex with diverse functionality and high scalability requirements typically benefit from a microservice approach.
+* In regard to organizing and storing the microservice application, the platform should follow a "Monorepo" approach rather than a "Polyrepo" one
+
+* Independent deployable services:
+    Base:
+        * User Service: Manages user profiles, authentication, and authorization
+        * Worker Service: Manages worker profiles, onboarding, and availability
+        * Listing Service: Handles creation, management, and search of catering events
+        * Event Matching Service: Handles the matching of workers to event listings based on criteria like skills, location, and availability
+        * Payment Service: Processes payments from hosts and disburses payment to workers
+        * Review and Rating Service: Handles the review and rating system for workers and hosts
+        * Notification Service: Manages email, SMS, and push notifications to hosts and workers about event updates, confirmations, and reminders.
+        * Chat Service: Enables communication between hosts and workers
+        * Data Analytics Service: Collects and analyzes data to improve service, optimize, routes, and predict demand
+
+    Additions:
+        * Carpool Mapping and Navigation Service: Provides real-time routing, tranffic updates, and estimated times of arrival
+    
+ChatGPT conversation link: https://chatgpt.com/share/c8e463cf-64d9-4b4d-9164-9d59951a46ab
