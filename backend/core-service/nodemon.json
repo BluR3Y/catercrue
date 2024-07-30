@@ -1,5 +1,0 @@
-{
-    "watch": ["src"],
-    "ext": ".ts",
-    "exec": "ts-node -r dotenv/config ./src/index.ts dotenv_config_path=../../env/backend/core-service/.env.development"
-}

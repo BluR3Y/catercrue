@@ -1,11 +1,12 @@
 import express, { Application } from 'express';
-
-import { ready } from './config/database';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
+
 import router from './router';
+import { ready } from './config/database';
+import errorHandler from './middlewares/errorHandler';
 
 ready.then(_ => {
     const {
@@ -31,7 +32,8 @@ ready.then(_ => {
 
     // Set the router entry point
     app.use('/', router);
-
+    // Setup Error Handler Middleware
+    app.use(errorHandler);
     // Start the web server
     app.listen(3000, () => console.log(`Server is listening on http://localhost:3000`));
 });
