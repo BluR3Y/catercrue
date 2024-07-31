@@ -43,7 +43,7 @@ const mongoConnect = async (): Promise<void> => {
     }
 }
 
-let redisClient: Redis;
+let redisClient: Redis | null = null;
 const redisConnect = async (): Promise<void> => {
     const {
         REDIS_HOST,
@@ -79,8 +79,27 @@ const ready = Promise.all([
     redisConnect()
 ]);
 
+const closeDBConnections = async () => {
+    if (redisClient) {
+        try {
+            await redisClient.quit();
+            console.log('Redis connection closed');
+        } catch (err) {
+            console.error('Error closing Redis connection: ', err);
+        }
+    }
+
+    try {
+        await getMongoose.connection.close();
+        console.log('MongoDB connection closed');
+    } catch (err) {
+        console.error('Error closing MongoDB connection: ', err);
+    }
+}
+
 export {
     getMongoose,
     redisClient,
-    ready
+    ready,
+    closeDBConnections
 }
