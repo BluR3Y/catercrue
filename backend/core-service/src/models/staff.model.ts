@@ -1,12 +1,12 @@
 import { DataTypes, Model, Optional } from "sequelize";
 import { sequelize } from "../config/database";
 import User from "./user.model";
-import Address from "./address.model";
 
 interface StaffAttributes {
     id: string;
     userId: string;
-    addressId: string;
+    location: any;
+    address?: string;
     resumeUrl: string;
     bio: string;
 }
@@ -18,7 +18,8 @@ interface StaffCreationAttributes extends Optional<StaffAttributes, 'id'> {}
 class Staff extends Model<StaffAttributes, StaffCreationAttributes> implements StaffAttributes {
     public id!: string;
     public userId!: string;
-    public addressId!: string;
+    public location!: any;
+    public address?: string;
     public resumeUrl!: string;
     public bio!: string;
 }
@@ -40,13 +41,13 @@ Staff.init(
             },
             onDelete: 'CASCADE'
         },
-        addressId: {
-            type: DataTypes.UUID,
-            allowNull: false,
-            references: {
-                model: Address,
-                key: 'id'
-            }
+        location: {
+            type: DataTypes.GEOMETRY('POINT', 4326),
+            allowNull: false
+        },
+        address: {
+            type: new DataTypes.STRING(255),
+            allowNull: true
         },
         resumeUrl: {
             type: DataTypes.STRING(128),
