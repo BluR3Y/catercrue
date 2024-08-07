@@ -1,5 +1,6 @@
 import { DataTypes, Model, Optional } from "sequelize";
 import { sequelize } from "../config/database";
+import { compare, hash } from "bcrypt";
 
 // https://sequelize.org/docs/v6/core-concepts/validations-and-constraints/
 
@@ -30,6 +31,15 @@ class User extends Model<UserAttributes, UserCreationAttributes>
         // Timestamps
         public readonly dateRegisterd!: Date;
         public readonly dateUpdated!: Date;
+
+        static async hashPassword(password: string): Promise<string> {
+            const saltRounds = 12;
+            return hash(password, saltRounds);
+        }
+
+        async validatePassword(attempt: string): Promise<boolean> {
+            return compare(attempt, this.password);
+        }
     }
 
 // Initialize the User model
@@ -67,10 +77,7 @@ User.init(
         },
         password: {
             type: new DataTypes.STRING(128),
-            allowNull: false,
-            validate: {
-                len: [3, 30]
-            }
+            allowNull: false
         },
         avatarUrl: {
             type: new DataTypes.STRING(128),
@@ -82,6 +89,7 @@ User.init(
     },
     {
         tableName: 'users',
+        modelName: 'User',
         sequelize,
         validate: {
             eitherEmailOrPhone() {

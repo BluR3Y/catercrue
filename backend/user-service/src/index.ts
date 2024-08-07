@@ -7,6 +7,7 @@ import cookieParser from 'cookie-parser';
 import router from './router';
 import { ready, closeDBConnections } from './config/database';
 import errorHandler from './middlewares/errorHandler';
+import { passportAuthenicationMiddleware } from './utils/auth';
 import db from './models';
 
 ready
@@ -14,8 +15,7 @@ ready
 .then(_ => {
     try {
         const {
-            NODE_ENV,
-            EXPRESS_SESSION_SECRET
+            NODE_ENV
         } = process.env;
     
         const app: Application = express();
@@ -28,12 +28,14 @@ ready
     
         app.use(compression());
         // For parsing cookies
-        app.use(cookieParser(EXPRESS_SESSION_SECRET));
+        app.use(cookieParser('cookie_secret_key'));
         // For parsing application/json
         app.use(bodyParser.json());
         // For parsing application/x-www-form-urlencoded
         app.use(bodyParser.urlencoded({ extended: true }));
-    
+        
+        // Setup Authentication
+        passportAuthenicationMiddleware(app);
         // Set the router entry point
         app.use('/', router);
         // Setup Error Handler Middleware
