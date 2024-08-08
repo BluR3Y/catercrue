@@ -63,6 +63,7 @@ Staff.init(
     },
     {
         tableName: 'staff',
+        modelName: 'Staff',
         sequelize
     }
 );

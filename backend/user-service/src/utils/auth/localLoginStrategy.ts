@@ -15,21 +15,24 @@ export default function(passport: PassportStatic) {
         passReqToCallback: true
     } as IStrategyOptionsWithRequest,
     async function(req: Request, identifier: string, password: string, done: any) {
-        // Modify for password validation
-        const retrievedUser = await User.findOne({
-            where: {
-                [Op.or]: [
-                    { email: identifier },
-                    { phone: identifier }
-                ]
+        try {
+            const retrievedUser = await User.findOne({
+                where: {
+                    [Op.or]: [
+                        { email: identifier },
+                        { phone: identifier }
+                    ]
+                }
+            });
+
+            if (retrievedUser === null) {
+                return done(new AppError(404, 'NOT_FOUND', 'User does not exist'));
+            } else if (!await retrievedUser.validatePassword(password)) {
+                return done(new AppError(401, 'FORBIDDEN', 'Invalid credentials'));
             }
-        });
-        
-        if (retrievedUser === null) {
-            return done(new AppError(404, 'NOT_FOUND', 'User does not exist'));
-        } else if (!await retrievedUser.validatePassword(password)) {
-            return done(new AppError(401, 'FORBIDDEN', 'Invalid credentials'));
+            done(null, retrievedUser);
+        } catch (err) {
+            return done(err);
         }
-        done(null, retrievedUser);
     } as VerifyFunctionWithRequest));
 }

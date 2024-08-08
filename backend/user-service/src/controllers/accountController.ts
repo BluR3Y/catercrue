@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import db from "../models";
-import { authenticate } from "../utils/auth";
+import { authenticate, generateJWToken } from "../utils/auth";
 
 export const login = authenticate.localLogin;
 
@@ -19,7 +19,15 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
         
         throw 'lol'
     } catch (err) {
-        console.log(err)
+        next(err);
+    }
+}
+
+export const refreshToken = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const userId = (req as any).userId;
+        res.json({ token: generateJWToken({ userId }) });
+    } catch (err) {
         next(err);
     }
 }
