@@ -4,21 +4,21 @@ import User from "./user.model";
 import { randomUUID } from "crypto";
 
 interface RefreshTokenAttributes {
-    id?: string;
+    id: string;
     token?: string;
     userId: string;
-    expiredAt?: Date;
+    expiry?: Date;
 }
 
 interface RefreshTokenCreationAttributes extends Optional<RefreshTokenAttributes, 'id'> {}
 
 class RefreshToken extends Model<RefreshTokenAttributes, RefreshTokenCreationAttributes>
     implements RefreshTokenAttributes {
-        public id?: string;
-        public token?: string;
+        public id!: string;
+        public token!: string;
         public userId!: string;
 
-        public readonly expiredAt?: Date;
+        public readonly expiry!: Date;
     }
 
 RefreshToken.init(
@@ -31,7 +31,7 @@ RefreshToken.init(
         },
         token: {
             type: DataTypes.UUID,
-            defaultValue: randomUUID(),
+            defaultValue: randomUUID,
             allowNull: false
         },
         userId: {
@@ -43,12 +43,12 @@ RefreshToken.init(
             },
             onDelete: 'CASCADE'
         },
-        expiredAt: {
+        expiry: {
             type: DataTypes.DATE,
             defaultValue: function() {
-                let expiredAt = new Date();
-                expiredAt.setSeconds(expiredAt.getSeconds() + parseInt(process.env.REFRESH_TOKEN_DURATION!));
-                return expiredAt.getTime();
+                let expiry = new Date();
+                expiry.setSeconds(expiry.getSeconds() + parseInt(process.env.REFRESH_TOKEN_DURATION!));
+                return expiry;
             },
             allowNull: false
         }
@@ -56,9 +56,13 @@ RefreshToken.init(
     {
         tableName: 'refresh_tokens',
         modelName: 'RefreshToken',
-        sequelize
+        sequelize,
+        timestamps: true
     }
 );
-// Last Here
+
+// Associations
+User.hasMany(RefreshToken, { foreignKey: 'userId', as: 'refreshTokens' });
+RefreshToken.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
 export default RefreshToken;

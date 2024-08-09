@@ -39,33 +39,6 @@ export const generateJWToken = (payload: object) => {
     return jwt.sign(payload, JWT_KEY!, { expiresIn: JWT_DURATION ?? '1h' });
 }
 
-// function authenticationStrategyCallback(req: Request, res: Response, next: NextFunction) {
-//     return (err: any, user: User, info: any) => {
-//         if (err) return next(err);
-//         req.login(user, { session: false }, function(err) {
-//             if (err) return next(err);
-//             RefreshToken.create({
-//                 userId: user.id
-//             })
-//             .then(refreshToken => {
-//                 refreshToken.save()
-//                 .then(() => {
-//                     res.json({
-//                         accessToken: generateJWToken({ id: user.id }),
-//                         refreshToken: refreshToken.token
-//                     });
-//                 })
-//                 .catch(err => {
-//                     return next(err);
-//                 })
-//             })
-//             .catch(err => {
-//                 return next(err);
-//             });
-//         });
-//     }
-// }
-
 const authenticationStrategyCallback = (req: Request, res: Response, next: NextFunction) => {
     return (err: any, user: User, info: any) => {
         if (err) return next(err);
@@ -74,14 +47,15 @@ const authenticationStrategyCallback = (req: Request, res: Response, next: NextF
             if (err) return next(err);
 
             try {
+                // Generate a new refresh token
                 const refreshToken = await RefreshToken.create({ userId: user.id });
-                await refreshToken.save();
+                // Generate a new access token
+                const accessToken = generateJWToken({ userId: user.id });
 
                 res.json({
-                    accessToken: generateJWToken({ id: user.id }),
+                    accessToken,
                     refreshToken: refreshToken.token
                 });
-                // Last Here
             } catch (err) {
                 return next(err);
             }
@@ -105,15 +79,15 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
     if (!token) {
         throw new AppError(401, 'UNAUTHORIZED', 'Unauthorized request');
     }
-    const { JWT_KEY } = process.env;
-    jwt.verify(token, JWT_KEY!, (err: any, payload: any) => {
+
+    jwt.verify(token, process.env.JWT_KEY!, (err: any, payload: any) => {
         if (err) {
             if (err.name === 'TokenExpiredError') {
                 throw new AppError(403, 'Forbidden', 'Token expired');
             }
             throw new AppError(403, 'Forbidden', 'Failed to authenticate token');
         }
-        (req as any).userId = payload.id;
+        (req as any).userAccessToken = payload;
         next();
     });
 }
