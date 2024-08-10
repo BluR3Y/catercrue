@@ -1,23 +1,22 @@
 import { NextFunction, Request, Response } from "express";
 import db from "../models";
-import { authenticate, generateJWToken } from "../utils/auth";
+import { authenticate, blacklistToken, generateJWToken } from "../utils/auth";
 import AppError from "../utils/appError";
-import { redisClient } from "../config/database";
 
 export const login = authenticate.localLogin;
 
 export const logout = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { userId } = (req as any).userAccessToken;
+        const userId = (req as any).userId;
         const refreshToken = await db.RefreshToken.findOne({ where: { userId: userId } });
         await refreshToken?.destroy();
 
         const accessToken = req.headers['authorization']!.split(' ')[1];
-        // Last Here: Access Token Blacklist on Redis cache
+        await blacklistToken(accessToken);
 
         res.status(204).send();
     } catch (err) {
-
+        next(err);
     }
 }
 
@@ -40,6 +39,7 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
     }
 }
 
+// Modify: Implement access token blacklisting
 export const refreshToken = async (req: Request, res: Response, next: NextFunction) => {
     const { refreshToken: requestToken } = req.body;
     if (!requestToken) {
@@ -79,6 +79,10 @@ export const refreshToken = async (req: Request, res: Response, next: NextFuncti
             // Create a new refresh token
             refreshToken = await db.RefreshToken.create({ userId: user.id });
         }
+
+        // Blacklist the access token used to make the request
+        const accessToken = req.headers['authorization']!.split(' ')[1];
+        await blacklistToken(accessToken);
 
         res.status(200).json({
             accessToken: generateJWToken({ id: user.id }),

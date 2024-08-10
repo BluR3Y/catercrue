@@ -6,6 +6,7 @@ import { MulterError } from "multer";
 
 export default function(err: any, req: Request, res: Response, next: NextFunction) {
     if (err instanceof AppError) {
+        console.log('marker')
         return err.errorResponse(res);
     } 
     // else if (err instanceof CaslError) {
