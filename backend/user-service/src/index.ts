@@ -19,6 +19,7 @@ ready
         } = process.env;
     
         const app: Application = express();
+        app.set('trust proxy', true);
         app.use(cors({
             origin: NODE_ENV === 'development'
                 ? 'http://localhost:3001'

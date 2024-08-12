@@ -4,11 +4,12 @@ import User from "../../models/user.model";
 import RefreshToken from "../../models/refreshToken.model";
 import AppError from "../appError";
 import { Application } from "express";
-import jwt, { Secret } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 
 // Import Login Strategies:
 import localLoginStrategy from "./localLoginStrategy";
 import { redisClient } from "../../config/database";
+import Device from "../../models/device.model";
 
 // Configure passport authentication middleware 
 export const passportAuthenicationMiddleware = (app: Application) => {
@@ -33,8 +34,17 @@ const authenticationStrategyCallback = (req: Request, res: Response, next: NextF
         req.login(user, { session: false }, async (err) => {
             if (err) return next(err);
             try {
+                // Get device associated with user's ip address
+                let clientDevice = await Device.findOne({ where: { userId: user.id, ipAddress: req.ip } });
+
+                // Check if device is not registered
+                if (!clientDevice) {
+                    // Register user's device
+                   clientDevice = await Device.create({ userId: user.id, ipAddress: req.ip! });
+                }
+                
                 // Generate a new refresh token
-                const refreshToken = await RefreshToken.create({ userId: user.id });
+                const refreshToken = await RefreshToken.create({ deviceId: clientDevice.id });
                 // Generate a new access token
                 const accessToken = generateJWToken({ userId: user.id });
                 res.json({
@@ -57,46 +67,59 @@ export const authenticate = {
 }
 
 // Middleware to authenticate token
-export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
-    // Retrieve the 'authorization' property from the request header
-    const authHeader = req.headers['authorization'];
-    // Extract the access token from the header
-    const token = authHeader && authHeader.split(' ')[1];
+export const authenticateToken = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        // Retrieve the 'authorization' property from the request header
+        const authHeader = req.headers['authorization'];
+        // Extract the acess token from the header
+        const token = authHeader && authHeader.split(' ')[1];
 
-    // Check if an access token was provided
-    if (!token) {
-        return next(new AppError(401, 'UNAUTHORIZED', 'Unauthorized request'));
-    }
-
-    // Verify that the jwt is valid
-    jwt.verify(token, process.env.JWT_KEY!, (err: any, payload: any) => {
-        if (err) {
-            // Check if the access token is expired
-            if (err.name === 'TokenExpiredError') {
-                return next(new AppError(403, 'Forbidden', 'Token expired'));
-            }
-            return next(new AppError(403, 'Forbidden', 'Failed to authenticate token'));
+        // Check if the acess token was provided
+        if (!token) {
+            throw new AppError(401, 'UNAUTHORIZED', 'Unauthorized request');
         }
-        // Check if the access token is blacklisted
-        redisClient.get(`token_blacklist_${token}`, (err: any, result: any) => {
-            if (err) {
-                return next(new AppError(403, 'Forbidden', 'Failed to authenticate token'));
+
+        let jwtPayload: any;
+        try {
+            jwtPayload = jwt.verify(token, process.env.JWT_KEY!);
+        } catch (err: any) {
+            if (err.name === 'TokenExpiredError') {
+                throw new AppError(403, 'Forbidden', 'Token expired');
             }
-            // If token is blacklisted and belonged to the user
-            if (result && result === payload.userId) {
-                return next(new AppError(403, 'Forbidden', 'Token is blacklisted'));
+            throw new AppError(403, 'Forbidden', 'Failed to authenticate token');
+        }
+
+        const deviceData = await Device.findOne({
+            where: {
+                userId: jwtPayload.userId,
+                ipAddress: req.ip
             }
-            (req as any).userId = payload.userId;
-            next();
         });
-    });
+        if (!deviceData) {
+            throw new AppError(403, 'Forbidden', 'No token is associated with device');
+        }
+        
+        let redisQuery: any;
+        try {
+            redisQuery = await redisClient.get(`token_blacklist_${token}`);
+        } catch (err: any) {
+            throw new AppError(403, 'Forbidden', 'Failed to authenticate token');
+        }
+
+        if (redisQuery && redisQuery === deviceData.id) {
+            throw new AppError(403, 'Forbidden', 'Token is blacklisted');
+        }
+
+        (req as any).userId = jwtPayload.userId;
+        next();
+    } catch (err) {
+        next(err);
+    }
 }
 
-// Method for blacklisting Access Tokens
-// ** Future Modification: Bind blacklisted tokens to devices/ips rather than users (Important for multiple device use case)
-export const blacklistToken = async (token: string) => {
+export const blacklistToken = async (token: string, deviceId: string) => {
     // Decode jwt to extract contents
-    const { userId, iat, exp } = (jwt.decode(token) as any);
+    const { exp } = (jwt.decode(token) as any);
     const tokenExpiry = new Date(exp * 1000);
     const currentTime = new Date();
     // Check if the current time has not exceeded the tokens expiry
@@ -104,6 +127,6 @@ export const blacklistToken = async (token: string) => {
         // Determine how long before the token expires (seconds)
         const timeRemaining = tokenExpiry.getTime() - currentTime.getTime();
         // Temporarily store in redis the blacklisted access token
-        await redisClient.set(`token_blacklist_${token}`, userId, 'PX', timeRemaining);
+        await redisClient.set(`token_blacklist_${token}`, deviceId, 'PX', timeRemaining);
     }
 }

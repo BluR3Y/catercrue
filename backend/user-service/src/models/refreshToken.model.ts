@@ -1,12 +1,12 @@
 import { DataTypes, Model, Optional } from "sequelize";
 import { sequelize } from "../config/database";
-import User from "./user.model";
-import { randomUUID } from "crypto";
+// import { randomUUID } from "crypto";
+import Device from "./device.model";
 
 interface RefreshTokenAttributes {
     id: string;
     token?: string;
-    userId: string;
+    deviceId: string;
     expiry?: Date;
 }
 
@@ -16,7 +16,7 @@ class RefreshToken extends Model<RefreshTokenAttributes, RefreshTokenCreationAtt
     implements RefreshTokenAttributes {
         public id!: string;
         public token!: string;
-        public userId!: string;
+        public deviceId!: string;
 
         public readonly expiry!: Date;
     }
@@ -31,14 +31,14 @@ RefreshToken.init(
         },
         token: {
             type: DataTypes.UUID,
-            defaultValue: randomUUID,
+            defaultValue: DataTypes.UUIDV4,
             allowNull: false
         },
-        userId: {
+        deviceId: {
             type: DataTypes.UUID,
             allowNull: false,
             references: {
-                model: User,
+                model: Device,
                 key: 'id'
             },
             onDelete: 'CASCADE'
@@ -62,7 +62,7 @@ RefreshToken.init(
 );
 
 // Associations
-User.hasMany(RefreshToken, { foreignKey: 'userId', as: 'refreshTokens' });
-RefreshToken.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+Device.hasMany(RefreshToken, { foreignKey: 'deviceId', as: 'refreshTokens' });
+RefreshToken.belongsTo(Device, { foreignKey: 'deviceId', as: 'device' });
 
 export default RefreshToken;
