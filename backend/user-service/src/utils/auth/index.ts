@@ -1,15 +1,15 @@
 import passport from "passport";
 import { Request, Response, NextFunction } from "express";
 import User from "../../models/user.model";
-import RefreshToken from "../../models/refreshToken.model";
+// import RefreshToken from "../../models/refreshToken.model";
 import AppError from "../appError";
 import { Application } from "express";
 import jwt from 'jsonwebtoken';
 
 // Import Login Strategies:
 import localLoginStrategy from "./localLoginStrategy";
-import { redisClient } from "../../config/database";
-import Device from "../../models/device.model";
+import { redisClient } from "../../configs/database";
+// import Device from "../../models/device.model";
 
 // Configure passport authentication middleware 
 export const passportAuthenicationMiddleware = (app: Application) => {

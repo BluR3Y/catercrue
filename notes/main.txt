@@ -2,6 +2,10 @@
     * The reason for this is because the ambition of the developer to implement countless complex features leads to the application being relatively large-scale and complex with diverse functionality and high scalability requirements typically benefit from a microservice approach.
 * In regard to organizing and storing the microservice application, the platform should follow a "Monorepo" approach rather than a "Polyrepo" one
 
+* When developing a platform with a microservice architecture, communication occurs with two types of entities: clients and services. The approach to handling communication between client and service should be different from the method between service and other services. 
+    - Client-to-Service: REST API
+    - Service-to-Service: Message Brokers (RabbitMQ, Kafka)
+
 Mission: Develop a platform for event coordinators to assist with various stages of the event coordination process, including booking, scheduling, recruiting, execution, and analysis. Additionally, provide food-service industry workers with a platform to find contract work arrangements.
 
 * Independent deployable services:

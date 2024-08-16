@@ -5,7 +5,7 @@ import compression from 'compression';
 import cookieParser from 'cookie-parser';
 
 import router from './router';
-import { ready, closeDBConnections } from './config/database';
+import { ready, closeDBConnections } from './configs/database';
 import errorHandler from './middlewares/errorHandler';
 import { passportAuthenicationMiddleware } from './utils/auth';
 import db from './models';

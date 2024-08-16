@@ -1,5 +1,5 @@
 import { DataTypes, Model, Optional } from "sequelize";
-import { sequelize } from "../config/database";
+import { sequelize } from "../configs/database";
 import Staff from "./staff.model";
 import StaffRole from "./staffRole.model";
 

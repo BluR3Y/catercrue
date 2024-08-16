@@ -1,12 +1,10 @@
 import { DataTypes, Model, Optional } from "sequelize";
-import { sequelize } from "../config/database";
-// import { randomUUID } from "crypto";
-import Device from "./device.model";
+import { sequelize } from "../configs/database";
 
 interface RefreshTokenAttributes {
     id: string;
+    userId: string;
     token?: string;
-    deviceId: string;
     expiry?: Date;
 }
 
@@ -15,9 +13,9 @@ interface RefreshTokenCreationAttributes extends Optional<RefreshTokenAttributes
 class RefreshToken extends Model<RefreshTokenAttributes, RefreshTokenCreationAttributes>
     implements RefreshTokenAttributes {
         public id!: string;
+        public userId!: string;
         public token!: string;
-        public deviceId!: string;
-
+        
         public readonly expiry!: Date;
     }
 
@@ -29,19 +27,14 @@ RefreshToken.init(
             primaryKey: true,
             allowNull: false
         },
+        userId: {
+            type: DataTypes.UUID,
+            allowNull: false
+        },
         token: {
             type: DataTypes.UUID,
             defaultValue: DataTypes.UUIDV4,
             allowNull: false
-        },
-        deviceId: {
-            type: DataTypes.UUID,
-            allowNull: false,
-            references: {
-                model: Device,
-                key: 'id'
-            },
-            onDelete: 'CASCADE'
         },
         expiry: {
             type: DataTypes.DATE,
@@ -60,9 +53,5 @@ RefreshToken.init(
         timestamps: true
     }
 );
-
-// Associations
-Device.hasMany(RefreshToken, { foreignKey: 'deviceId', as: 'refreshTokens' });
-RefreshToken.belongsTo(Device, { foreignKey: 'deviceId', as: 'device' });
 
 export default RefreshToken;

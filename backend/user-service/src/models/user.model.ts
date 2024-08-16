@@ -1,6 +1,5 @@
 import { DataTypes, Model, Optional } from "sequelize";
-import { sequelize } from "../config/database";
-import { compare, hash } from "bcrypt";
+import { sequelize } from "../configs/database";
 
 // https://sequelize.org/docs/v6/core-concepts/validations-and-constraints/
 
@@ -9,10 +8,8 @@ interface UserAttributes {
     name: string;
     email?: string;
     phone?: string;
-    password: string;
+    passwordId: string;
     avatarUrl?: string;
-    dateRegisterd?: Date;
-    dateUpdated?: Date;
 }
 
 // Define attributes that are optional for model creation
@@ -25,21 +22,9 @@ class User extends Model<UserAttributes, UserCreationAttributes>
         public name!: string;
         public email!: string;
         public phone!: string;
-        public password!: string;
+        public passwordId!: string;
         public avatarUrl!: string;
 
-        // Timestamps
-        public readonly dateRegisterd!: Date;
-        public readonly dateUpdated!: Date;
-
-        static async hashPassword(password: string): Promise<string> {
-            const saltRounds = 12;
-            return hash(password, saltRounds);
-        }
-
-        async validatePassword(attempt: string): Promise<boolean> {
-            return compare(attempt, this.password);
-        }
     }
 
 // Initialize the User model
@@ -75,8 +60,8 @@ User.init(
                 }
             }
         },
-        password: {
-            type: new DataTypes.STRING(128),
+        passwordId: {
+            type: DataTypes.UUID,
             allowNull: false
         },
         avatarUrl: {
@@ -97,7 +82,8 @@ User.init(
                     throw new Error('At least one of email or phone must be provided');
                 }
             }
-        }
+        },
+        timestamps: true
     }
 );
 

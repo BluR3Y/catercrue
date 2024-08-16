@@ -5,17 +5,21 @@ import compression from 'compression';
 import cookieParser from 'cookie-parser';
 
 import router from './router';
-import { ready, closeDBConnections } from './config/database';
+import { ready, closeDBConnections } from './configs/database';
 import errorHandler from './middlewares/errorHandler';
+// import { passportAuthenicationMiddleware } from './utils/auth';
+import db from './models';
 
-ready.then(_ => {
+ready
+.then(() => db.sequelize.sync())
+.then(_ => {
     try {
         const {
-            NODE_ENV,
-            EXPRESS_SESSION_SECRET
+            NODE_ENV
         } = process.env;
     
         const app: Application = express();
+        app.set('trust proxy', true);
         app.use(cors({
             origin: NODE_ENV === 'development'
                 ? 'http://localhost:3001'
@@ -25,12 +29,14 @@ ready.then(_ => {
     
         app.use(compression());
         // For parsing cookies
-        app.use(cookieParser(EXPRESS_SESSION_SECRET));
+        app.use(cookieParser('cookie_secret_key'));
         // For parsing application/json
         app.use(bodyParser.json());
         // For parsing application/x-www-form-urlencoded
         app.use(bodyParser.urlencoded({ extended: true }));
-    
+        
+        // Setup Authentication
+        // passportAuthenicationMiddleware(app);
         // Set the router entry point
         app.use('/', router);
         // Setup Error Handler Middleware
