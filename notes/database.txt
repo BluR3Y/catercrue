@@ -1,2 +1,11 @@
 Create a Redis docker container
-docker run -d -p 6379:6379 --name redis_development_container --hostname redis --env-file C:\Users\reyhe\Documents\catercrue\env\database\redis\.env.development -v C:/Users/reyhe/Documents/catercrue/database/redis/init:/usr/local/etc/redis redis:latest sh -c 'exec redis-server /usr/local/etc/redis/redis.conf --requirepass ${REDIS_PASSWORD}'
+docker run -d -p 6379:6379 --name redis_development_container --hostname redis --env-file C:/Users/reyhe/Documents/catercrue/env/database/redis/.env.development -v C:/Users/reyhe/Documents/catercrue/database/redis/init:/usr/local/etc/redis:ro redis:latest sh -c 'exec redis-server /usr/local/etc/redis/redis.conf --requirepass ${REDIS_PASSWORD}'
+
+Create a MongoDB container:
+docker run -d -p 27017:27017 --name mongo_development_container --hostname mongo --env-file C:/Users/reyhe/Documents/catercrue/env/database/mongo/.env.development -v C:/Users/reyhe/Documents/catercrue/database/mongo/init:/docker-entrypoint-initdb.d:ro mongo:latest
+
+Create a Postgres container:
+docker run -d -p 5432:5432 --name postgres_development_container --hostname postgres --env-file C:/Users/reyhe/Documents/catercrue/env/database/postgres/.env.development -v C:/Users/reyhe/Documents/catercrue/database/postgres/init:/docker-entrypoint-initdb.d:ro postgres:latest
+
+* Articles:
+    * https://www.youtube.com/watch?v=9mdadNspP_M&ab_channel=High-PerformanceProgramming
