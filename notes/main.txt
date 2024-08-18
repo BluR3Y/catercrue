@@ -2,9 +2,16 @@
     * The reason for this is because the ambition of the developer to implement countless complex features leads to the application being relatively large-scale and complex with diverse functionality and high scalability requirements typically benefit from a microservice approach.
 * In regard to organizing and storing the microservice application, the platform should follow a "Monorepo" approach rather than a "Polyrepo" one
 
-* When developing a platform with a microservice architecture, communication occurs with two types of entities: clients and services. The approach to handling communication between client and service should be different from the method between service and other services. 
-    - Client-to-Service: REST API
-    - Service-to-Service: Message Brokers (RabbitMQ, Kafka)
+* When developing a platform with a microservice architecture, choosing the right communication architecture between services is crucial for achieving robust and efficient communication:
+
+    - Synchronous Architectures:
+        * REST API: Ideal for client-to-service communication due to its simplicity, stateless nature, and widespread support across platforms.
+        * gRPC: Ideal for service-to-service communication, offering performance benefits, strong typing, and support for streaming.
+
+    - Asynchronous Architectures:
+        * Message Brokers: Ideal for scenarios where immediate responses are not expected, enabling service decoupling and improving fault tolerance. Common use cases include notifications, background processing, and distributed transactions."
+
+    ** The choice between synchronous and asynchronous communication should be guided by the specific needs and performance requirements of your application, with an understanding of the trade-offs each approach entails.
 
 Mission: Develop a platform for event coordinators to assist with various stages of the event coordination process, including booking, scheduling, recruiting, execution, and analysis. Additionally, provide food-service industry workers with a platform to find contract work arrangements.
 
