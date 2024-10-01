@@ -6,3 +6,7 @@ Articles:
     * Ideal package for file uploads: https://bytearcher.com/articles/formidable-vs-busboy-vs-multer-vs-multiparty/
     * https://virtualspirit.me/insights/276/the-difference-between-development-staging-and-production
     * https://www.geopostcodes.com/blog/best-practices-storing-addresses/
+
+    * Tokens:
+        * Clean Expired Tokens from Database: https://stackoverflow.com/questions/62767043/how-to-clean-expired-tokens-from-database
+        * Where To Store JWT Refresh Tokens: https://security.stackexchange.com/questions/271157/where-to-store-jwt-refresh-tokens

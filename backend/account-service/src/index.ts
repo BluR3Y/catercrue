@@ -7,7 +7,7 @@ import cookieParser from 'cookie-parser';
 import router from './router';
 import { ready, closeDBConnections } from './configs/database';
 import errorHandler from './middlewares/errorHandler';
-import { passportAuthenicationMiddleware } from './utils/auth';
+import { passportAuthenicationMiddleware } from './auth';
 import db from './models';
 
 ready

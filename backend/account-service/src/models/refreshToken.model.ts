@@ -1,12 +1,15 @@
 import { DataTypes, Model, Optional } from "sequelize";
 import { sequelize } from "../configs/database";
 import User from "./user.model";
+import { randomBytes } from "crypto";
+import { hash, compare } from "bcrypt";
 
 interface RefreshTokenAttributes {
     id: string;
     userId: string;
     token?: string;
     expiry?: Date;
+    // Future feature: Associate token with devices
 }
 
 interface RefreshTokenCreationAttributes extends Optional<RefreshTokenAttributes, 'id'> {}
@@ -18,6 +21,10 @@ class RefreshToken extends Model<RefreshTokenAttributes, RefreshTokenCreationAtt
         public token!: string;
         
         public readonly expiry!: Date;
+
+        async validateRefreshToken(attempt: string): Promise<boolean> {
+            return compare(attempt, this.token);
+        }
     }
 
 RefreshToken.init(
@@ -38,8 +45,8 @@ RefreshToken.init(
             onDelete: 'CASCADE'
         },
         token: {
-            type: DataTypes.UUID,
-            defaultValue: DataTypes.UUIDV4,
+            type: DataTypes.STRING(128),
+            defaultValue: () => randomBytes(64).toString('hex'),    // Generates a 128-character token
             allowNull: false
         },
         expiry: {
@@ -63,5 +70,10 @@ RefreshToken.init(
 // Associations
 User.hasMany(RefreshToken, { foreignKey: 'userId', as: 'refreshTokens' });
 RefreshToken.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
+RefreshToken.beforeSave(async (rt, options) => {
+    const saltRounds = 12;
+    rt.token = await hash(rt.token, saltRounds);
+});
 
 export default RefreshToken;

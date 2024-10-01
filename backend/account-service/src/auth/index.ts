@@ -1,12 +1,12 @@
 import passport from "passport";
 import { Request, Response, NextFunction } from "express";
-import User from "../../models/user.model";
+import User from "../models/user.model";
 // import RefreshToken from "../../models/refreshToken.model";
-import AppError from "../appError";
+import AppError from "../utils/appError";
 import { Application } from "express";
 import jwt from 'jsonwebtoken';
-import { redisClient } from "../../configs/database";
-import RefreshToken from "../../models/refreshToken.model";
+import { redisClient } from "../configs/database";
+import RefreshToken from "../models/refreshToken.model";
 
 // Import Login Strategies:
 import localLoginStrategy from "./localLoginStrategy";
@@ -64,14 +64,15 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
     try {
         // Retrieve the 'authorization' property from the request header
         const authHeader = req.headers['authorization'];
-        // Extract the acess token from the header
+        // Extract the access token from the header
         const token = authHeader && authHeader.split(' ')[1];
 
-        // Check if the acess token was provided
+        // Check if the access token was provided
         if (!token) {
             throw new AppError(401, 'UNAUTHORIZED', 'Unauthorized request');
         }
 
+        // Check the validity of the access token
         let jwtPayload: any;
         try {
             jwtPayload = jwt.verify(token, process.env.JWT_KEY!);
@@ -82,6 +83,7 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
             throw new AppError(403, 'Forbidden', 'Failed to authenticate token');
         }
         
+        // Check if the access token is blacklisted
         let redisQuery: any;
         try {
             redisQuery = await redisClient.get(`token_blacklist_${token}`);
