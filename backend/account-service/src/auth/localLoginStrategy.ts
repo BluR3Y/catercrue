@@ -2,9 +2,9 @@ import passport, { PassportStatic } from 'passport';
 import { IStrategyOptionsWithRequest, Strategy, VerifyFunctionWithRequest } from 'passport-local';
 import { Op, where } from 'sequelize';
 
-import User from '../../models/user.model';
+import User from '../models/user.model';
 import { Request } from 'express';
-import AppError from '../appError';
+import AppError from '../utils/appError';
 
 
 // Local strategy for login

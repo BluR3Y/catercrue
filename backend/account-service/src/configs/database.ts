@@ -4,6 +4,7 @@ import { Sequelize } from "sequelize";
 let sequelize: Sequelize;
 const postgresConnect = async (): Promise<void> => {
     const {
+        NODE_ENV,
         POSTGRES_HOST,
         POSTGRES_PORT,
         POSTGRES_ACCESS_USER,
@@ -18,6 +19,11 @@ const postgresConnect = async (): Promise<void> => {
     try {
         sequelize = new Sequelize(`postgres://${POSTGRES_ACCESS_USER}:${POSTGRES_ACCESS_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB_NAME}`);
         await sequelize.authenticate();
+
+        if (NODE_ENV === 'development') {
+            await sequelize.sync({ alter: true });
+        }
+
         console.log('Postgres connection established successfully');
     } catch (err) {
         console.error('Failed to connect to Postgres', err);

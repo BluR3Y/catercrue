@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import db from "../models";
-import { authenticate, blacklistToken, generateJWToken } from "../utils/auth";
+import { authenticate, blacklistToken, generateJWToken } from "../auth";
 import AppError from "../utils/appError";
 
 

@@ -1,12 +1,12 @@
 import passport from "passport";
 import { Request, Response, NextFunction } from "express";
-import User from "../../models/user.model";
+import User from "../models/user.model";
 // import RefreshToken from "../../models/refreshToken.model";
-import AppError from "../appError";
+import AppError from "../utils/appError";
 import { Application } from "express";
 import jwt from 'jsonwebtoken';
-import { redisClient } from "../../configs/database";
-import RefreshToken from "../../models/refreshToken.model";
+import { redisClient } from "../configs/database";
+import RefreshToken from "../models/refreshToken.model";
 
 // Import Login Strategies:
 import localLoginStrategy from "./localLoginStrategy";

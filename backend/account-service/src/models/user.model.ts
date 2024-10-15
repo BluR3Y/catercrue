@@ -71,10 +71,13 @@ User.init(
         },
         password: {
             type: new DataTypes.STRING(128),
-            allowNull: false
+            allowNull: false,
+            validate: {
+                len: [8, 128]
+            }
         },
         avatarUrl: {
-            type: new DataTypes.STRING(128),
+            type: new DataTypes.STRING(255),
             allowNull: true,
             validate: {
                 isUrl: true
@@ -95,5 +98,19 @@ User.init(
         timestamps: true
     }
 );
+
+// A hook, a.k.a a lifecycle event, that hashes the user's password before the object is created
+User.beforeCreate(async (user, options) => {
+    const saltRounds = 12;
+    user.password = await hash(user.password, saltRounds);
+});
+
+// Password hashing before update (on change)
+User.beforeUpdate(async (user, options) => {
+    if (user.changed('password')) {
+        const saltRounds = 12;
+        user.password = await hash(user.password, saltRounds);
+    }
+});
 
 export default User;

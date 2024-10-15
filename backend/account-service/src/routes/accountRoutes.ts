@@ -1,7 +1,7 @@
 import { Router } from "express";
 import * as authController from "../controllers/authController";
 import * as registerController from "../controllers/registerController";
-import { authenticateToken } from "../utils/auth";
+import { authenticateToken } from "../auth";
 
 export default function(router: Router) {
     router.post('/accounts/login', authController.login);
