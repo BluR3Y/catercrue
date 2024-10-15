@@ -4,7 +4,7 @@ import User from "../models/user.model";
 // import RefreshToken from "../../models/refreshToken.model";
 import AppError from "../utils/appError";
 import { Application } from "express";
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import { redisClient } from "../configs/database";
 import RefreshToken from "../models/refreshToken.model";
 
@@ -65,35 +65,40 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
         // Retrieve the 'authorization' property from the request header
         const authHeader = req.headers['authorization'];
         // Extract the acess token from the header
-        const token = authHeader && authHeader.split(' ')[1];
+        const token = authHeader?.split(' ')[1];
 
         // Check if the acess token was provided
         if (!token) {
-            throw new AppError(401, 'UNAUTHORIZED', 'Unauthorized request');
+            throw new AppError(401, 'UNAUTHORIZED', 'Invalid access token');
         }
 
-        let jwtPayload: any;
+        // Verify the JWT token
+        let jwtPayload: JwtPayload;
         try {
-            jwtPayload = jwt.verify(token, process.env.JWT_KEY!);
+            jwtPayload = jwt.verify(token, process.env.JWT_KEY!) as JwtPayload;
         } catch (err: any) {
             if (err.name === 'TokenExpiredError') {
-                throw new AppError(403, 'Forbidden', 'Token expired');
+                throw new AppError(401, 'Unauthorized', 'Token expired');
             }
-            throw new AppError(403, 'Forbidden', 'Failed to authenticate token');
+            throw new AppError(401, 'Unauthorized', 'Failed to authenticate token');
         }
         
-        let redisQuery: any;
+        // Check if the token is blacklisted in Redis
+        let redisQuery: string | null;
         try {
             redisQuery = await redisClient.get(`token_blacklist_${token}`);
-        } catch (err: any) {
-            throw new AppError(403, 'Forbidden', 'Failed to authenticate token');
+        } catch (err) {
+            console.error('Redis lookup failed:', err);
+            return next(new AppError(500, 'Internal Server Error', 'Authentication service unavailable'));
         }
 
         if (redisQuery && redisQuery === jwtPayload.userId) {
             throw new AppError(403, 'Forbidden', 'Token is blacklisted');
         }
 
+        // Store values in request object
         (req as any).userId = jwtPayload.userId;
+        (req as any).accessToken = token;
         next();
     } catch (err) {
         next(err);
