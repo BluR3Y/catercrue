@@ -40,7 +40,7 @@ authService()
 .then(async () => {
     const sequelize = getSequelizeInstance();
     if (sequelize && process.env.NODE_ENV === 'development') {
-        await sequelize.sync({force: true});
+        await sequelize.sync({force: false});
         logger.info("Postgres tables synchronized with sequelize models.");
     }
 })

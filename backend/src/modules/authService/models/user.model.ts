@@ -27,6 +27,10 @@ class User extends Model<UserAttributes, UserCreationAttributes>
 
         public readonly createdAt!: Date;
         public readonly updatedAt!: Date;
+
+        get fullName(): string {
+            return `${this.firstName} ${this.lastName}`;
+        }
     }
 
 // Initialize the User model
@@ -38,7 +42,6 @@ User.init(
             primaryKey: true,
             allowNull: false
         },
-        
         firstName: {
             type: new DataTypes.STRING(128),
             allowNull: false
@@ -53,18 +56,22 @@ User.init(
             unique: true,
             validate: {
                 isEmail: true,
-                isLowercase: true
+                notEmpty: { msg: "Email cannot be empty" }
+            },
+            set(value: string) {
+                this.setDataValue("email", value?.toLocaleLowerCase().trim());
             }
         },
         phone: {
-            type: new DataTypes.STRING(128),
+            type: new DataTypes.STRING(15),
             allowNull: false,
             unique: true,
             validate: {
                 is: {
                     args: /^\+?[1-9]\d{1,14}$/, // Follows E.164 format
                     msg: 'Invalid phone number format'
-                }
+                },
+                notEmpty: { msg: "Phone number cannot be empty" }
             }
         },
         avatarUrl: {

@@ -5,5 +5,5 @@ import { otpAuthMiddleware } from "../middlewares/otp.middleware";
 
 export default function(router: Router): void {
     router.get('/register/:phoneNumber', registerController.getPhoneAvailability);
-    router.post('/register/first-step', otpAuthMiddleware, registerController.postFirstStep);
+    router.post('/register/main', otpAuthMiddleware, registerController.postMainRegister);
 }

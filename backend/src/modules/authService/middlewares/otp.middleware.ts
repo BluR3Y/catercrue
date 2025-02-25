@@ -2,7 +2,7 @@ import { NextFunction, Request, RequestHandler, Response } from "express";
 import { redisClient } from "../../../config/redis";
 
 export const otpAuthMiddleware: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
-    const otpSessionToken = req.headers["x-opt-session-token"] as string;
+    const otpSessionToken = req.headers["x-otp-session-token"] as string;
 
     if (!otpSessionToken) {
         res.status(401).json({ message: "OTP verification required" });

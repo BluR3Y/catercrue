@@ -15,8 +15,11 @@ class RefreshToken extends Model<RefreshTokenAttributes, RefreshTokenCreationAtt
     implements RefreshTokenAttributes {
         public id!: string;
         public userId!: string;
-
         public readonly expiry!: Date;
+
+        public isExpired(): boolean {
+            return new Date() > this.expiry;
+        }
     }
 
 RefreshToken.init(
@@ -24,8 +27,8 @@ RefreshToken.init(
         id: {
             type: DataTypes.STRING(255),
             defaultValue: () => crypto.randomBytes(32).toString("hex"),
+            primaryKey: true,
             allowNull: false,
-            primaryKey: true
         },
         userId: {
             type: DataTypes.UUID,
@@ -39,9 +42,8 @@ RefreshToken.init(
         expiry: {
             type: DataTypes.DATE,
             defaultValue: function() {
-                let expiry = new Date();
-                expiry.setSeconds(expiry.getSeconds() + parseInt(process.env.REFRESH_TOKEN_DURATION!));
-                return expiry;
+                const duration = Number(process.env.REFRESH_TOKEN_DURATION) || 604800;  // Default 7 days
+                return new Date(Date.now() + duration * 1000);
             },
             allowNull: false
         }
@@ -54,5 +56,10 @@ RefreshToken.init(
         updatedAt: false
     }
 );
+
+// Prevent expiry updates
+RefreshToken.beforeUpdate(() => {
+    throw new Error("Record cannot be updated.");
+});
 
 export default RefreshToken

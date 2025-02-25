@@ -15,7 +15,7 @@ export const getPhoneAvailability: RequestHandler = async (req: Request, res: Re
     }
 }
 
-export const postFirstStep: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+export const postMainRegister: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const {
             firstName,
@@ -24,7 +24,7 @@ export const postFirstStep: RequestHandler = async (req: Request, res: Response,
             phoneNumber,
             password
         } = req.body;
-
+        
         const transaction = await db.sequelize.transaction();
 
         try {
@@ -37,7 +37,7 @@ export const postFirstStep: RequestHandler = async (req: Request, res: Response,
             await db.Password.create({
                 userId: user.id,
                 password
-            });
+            }, { transaction });
 
             // Commit transaction if both create operations succeed
             await transaction.commit();
