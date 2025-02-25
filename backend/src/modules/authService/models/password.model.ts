@@ -2,14 +2,12 @@ import { DataTypes, Model, Optional } from "sequelize";
 import { getSequelizeInstance } from "../../../config/postgres";
 import { compare, hash } from "bcrypt";
 
-const sequelize = getSequelizeInstance();
-
 interface PasswordAttributes {
     id?: string;
     userId: string;
     password: string;
-    isActive: boolean;
-    createdAt: Date;
+    isActive?: boolean;
+    createdAt?: Date;
 }
 
 interface PasswordCreationAttributes extends Optional<PasswordAttributes, 'id'> {}
@@ -51,7 +49,7 @@ Password.init(
         isActive: {
             type: DataTypes.BOOLEAN,
             allowNull: false,
-            defaultValue: false
+            defaultValue: true
         },
         createdAt: {
             type: DataTypes.DATE,
@@ -62,7 +60,7 @@ Password.init(
     {
         tableName: 'passwords',
         modelName: 'Password',
-        sequelize,
+        sequelize: getSequelizeInstance(),
         indexes: [
             { fields: ['userId'] },
             { unique: true, fields: ["userId", "isActive"], where: { isActive: true } }
@@ -75,6 +73,7 @@ Password.init(
 // Hook triggered before record is created to ensure password is hashed
 Password.beforeCreate(async (passwordInstance) => {
     passwordInstance.password = await hash(passwordInstance.password, 12);
+
 });
 
 export default Password

@@ -3,6 +3,7 @@ import { setupAssociations } from "./associations";
 
 import User from "./user.model";
 import Password from "./password.model";
+import RefreshToken from "./refreshToken.model";
 
 const sequelize = getSequelizeInstance();
 
@@ -13,7 +14,8 @@ setupAssociations();
 const db = {
     sequelize,  // Sequelize instance
     User,
-    Password
+    Password,
+    RefreshToken
 };
 
 export default db;

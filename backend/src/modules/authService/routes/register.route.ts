@@ -1,13 +1,9 @@
 import { Router } from "express";
 import * as registerController from '../controllers/register.controller';
+import { otpAuthMiddleware } from "../middlewares/otp.middleware";
 // import { authenticateToken } from "../utils/auth";
 
-// export const connectRoutes = (router: Router) => {
-//     router.get('/tester', (req: any, res: any, next: any) => { res.status(200).send('Hello') });
-//     router.post('/register_step_one', registerController.firstStep);
-// }
-
 export default function(router: Router): void {
-    router.get('/tester', (req: any, res: any, next: any) => { res.status(200).send('Hello') });
-    router.post('/register_step_one', registerController.firstStep);
+    router.get('/register/:phoneNumber', registerController.getPhoneAvailability);
+    router.post('/register/first-step', otpAuthMiddleware, registerController.postFirstStep);
 }

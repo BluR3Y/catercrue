@@ -1,11 +1,10 @@
 import { DataTypes, Model, Optional } from "sequelize";
 import { getSequelizeInstance } from "../../../config/postgres";
 
-const sequelize = getSequelizeInstance();
-
 interface UserAttributes {
     id: string;
-    name: string;
+    firstName: string;
+    lastName: string;
     email?: string;
     phone: string;
     avatarUrl?: string;
@@ -20,7 +19,8 @@ interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {}
 class User extends Model<UserAttributes, UserCreationAttributes>
     implements UserAttributes {
         public id!: string;
-        public name!: string;
+        public firstName!: string;
+        public lastName!: string;
         public email?: string;
         public phone!: string;
         public avatarUrl?: string;
@@ -38,7 +38,12 @@ User.init(
             primaryKey: true,
             allowNull: false
         },
-        name: {
+        
+        firstName: {
+            type: new DataTypes.STRING(128),
+            allowNull: false
+        },
+        lastName: {
             type: new DataTypes.STRING(128),
             allowNull: false
         },
@@ -73,7 +78,7 @@ User.init(
     {
         tableName: 'users',
         modelName: 'User',
-        sequelize,
+        sequelize: getSequelizeInstance(),
         indexes: [
             { unique: true, fields: ['email'] },
             { unique: true, fields: ['phone'] }

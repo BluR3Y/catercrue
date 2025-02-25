@@ -4,7 +4,8 @@ import cors from "cors";
 import compression from "compression";
 import cookieParser from "cookie-parser";
 
-import errorHandler from "./middlewares/errorHandler";
+import { passportAuthenticationMiddleware } from "./auth";
+import errorMiddleware from "./middlewares/error.middleware";
 import logger from "../../config/winston";
 import router from "./routes";
 
@@ -26,9 +27,11 @@ export default async function() {
         app.use(bodyParser.json());
         app.use(bodyParser.urlencoded({ extended: true }));
 
+        passportAuthenticationMiddleware(app);
+
         app.use('/', router);
 
-        app.use(errorHandler);
+        app.use(errorMiddleware);
 
         app.listen(api_port, () => logger.info(`Authentication Server running on http://${api_client}:${api_port}`));
     } catch (error) {

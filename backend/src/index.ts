@@ -4,11 +4,13 @@ import { createServer } from 'http';
 
 import { postgresReady, closePostgresConnection, getSequelizeInstance } from './config/postgres';
 import { redisReady, closeRedisConnection } from './config/redis';
+import { twilioReady } from './config/twilio';
 import authService from './modules/authService';
 import logger from './config/winston';
 
 postgresReady
 redisReady
+twilioReady
 // Auth Module
 authService()
 // Other module apis
