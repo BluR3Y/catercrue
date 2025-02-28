@@ -1,11 +1,11 @@
 import { RequestHandler, Request, Response, NextFunction } from "express";
 import db from "../models";
-import { blacklistToken, generateJWT } from "../auth";
+import { blacklistToken, generateJWT } from "../../../utils/manageJWT";
 
 // Request Handler that generates a new access token
 export const postRefreshToken: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { userId } = req.user!;
+        const user = req.user as any;
         const { refreshToken } = req.body;
 
         if (!refreshToken) {
@@ -34,7 +34,7 @@ export const postRefreshToken: RequestHandler = async (req: Request, res: Respon
             const transaction = await db.sequelize.transaction();
             try {
                 // Generate a new refresh token
-                const newRefreshToken = await db.RefreshToken.create({ userId });
+                const newRefreshToken = await db.RefreshToken.create({ userId: user.id });
                 // Remove the expiring token from the database
                 await rtData.destroy();
                 // Assign the new token
@@ -52,7 +52,7 @@ export const postRefreshToken: RequestHandler = async (req: Request, res: Respon
         await blacklistToken(accessToken);
 
         res.status(201).json({
-            accessToken: generateJWT({ userId }),
+            accessToken: generateJWT({ userId: user.id }),
             refreshToken: rtData.id
         });
     } catch(err) {

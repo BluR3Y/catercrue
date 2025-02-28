@@ -4,7 +4,7 @@ import cors from "cors";
 import compression from "compression";
 import cookieParser from "cookie-parser";
 
-import { passportAuthenticationMiddleware } from "./auth";
+import { passportAuthenticationMiddleware } from "./middlewares/auth";
 import errorMiddleware from "./middlewares/error.middleware";
 import logger from "../../config/winston";
 import router from "./routes";

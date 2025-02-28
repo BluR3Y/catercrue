@@ -3,7 +3,7 @@ import { IStrategyOptionsWithRequest, Strategy, VerifyFunctionWithRequest } from
 import { Request } from "express";
 import { Op } from "sequelize";
 
-import db from "../models";
+import db from "../../models";
 
 // Logcal strategy for login
 export default function(passport: PassportStatic) {
