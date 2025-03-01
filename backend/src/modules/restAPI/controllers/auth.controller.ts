@@ -1,14 +1,27 @@
 import { RequestHandler, Request, Response, NextFunction } from "express";
 import crypto from "crypto";
 
-import { authenticate } from "../middlewares/auth";
 import orm from "../../../models";
 import { blacklistToken, generateJWT } from "../../../utils/manageJWT";
 import { twilioClient } from "../../../config/twilio";
 import { redisClient } from "../../../config/redis";
 
-
-export const localLogin = authenticate.localLogin;
+// export const localLogin = authenticate.localLogin;
+export const login: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = req.user as any;
+        // Generate Refresh Token
+        const refreshToken = await orm.RefreshToken.create({ userId: user.id });
+        // Generate Access Token
+        const accessToken = generateJWT({ userId: user.id });
+        res.status(201).json({
+            accessToken: accessToken,
+            refreshToken: refreshToken.id
+        });
+    } catch (err) {
+        next(err);
+    }
+}
 
 // Request Handler that generates a new access token
 export const refreshToken: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {

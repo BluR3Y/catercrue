@@ -1,5 +1,6 @@
 import { RequestHandler, Request, Response, NextFunction } from "express";
 import orm from "../../../models";
+import { login } from "./auth.controller";
 
 export const identifierAvailability: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -44,8 +45,8 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
             // Commit transaction if both create operations succeed
             await transaction.commit();
 
-            // Missing jwt logic
-            res.json({ message: "User Created" })
+            req.user = user;
+            login(req, res, next);
         } catch (err) {
             // Rollback transactio if any operation fails
             await transaction.rollback();
