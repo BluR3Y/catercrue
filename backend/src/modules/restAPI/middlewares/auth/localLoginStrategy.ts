@@ -3,7 +3,7 @@ import { IStrategyOptionsWithRequest, Strategy, VerifyFunctionWithRequest } from
 import { Request } from "express";
 import { Op } from "sequelize";
 
-import db from "../../models";
+import orm from "../../../../models";
 
 // Logcal strategy for login
 export default function(passport: PassportStatic) {
@@ -13,7 +13,7 @@ export default function(passport: PassportStatic) {
         passReqToCallback: true,
     } as IStrategyOptionsWithRequest,
     async function(req: Request, identifier: string, password: string, done: any) {
-        const retrievedUser = await db.User.findOne({
+        const retrievedUser = await orm.User.findOne({
             where: {
                 [Op.or]: [
                     { email: identifier },
@@ -26,7 +26,7 @@ export default function(passport: PassportStatic) {
             return done("User does not exist");
         }
         
-        const activePassword = await db.Password.findOne({
+        const activePassword = await orm.Password.findOne({
             where: {
                 userId: retrievedUser.id,
                 isActive: true

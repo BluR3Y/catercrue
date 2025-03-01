@@ -5,8 +5,8 @@ import { generateJWT } from "../../../../utils/manageJWT";
 
 // Import Login Strategies
 import localLoginStrategy from "./localLoginStrategy";
-import db from "../../models";
-import User from "../../models/user.model";
+import orm from "../../../../models";
+import User from "../../../../models/user.model";
 
 // Configure passport authentication middleware
 export const passportAuthenticationMiddleware = (app: Application) => {
@@ -21,7 +21,7 @@ const authenticationStrategyCallback = (req: Request, res: Response, next: NextF
         if (err) return res.status(401).json({ message: err });
         const userId = user.id;
         // Generate new refresh token
-        db.RefreshToken.create({ userId })
+        orm.RefreshToken.create({ userId })
         .then((refreshToken) => {
             // Generate a new access token
             const accessToken = generateJWT({ userId });

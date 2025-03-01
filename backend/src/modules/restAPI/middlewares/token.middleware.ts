@@ -1,7 +1,7 @@
 import { RequestHandler, Request, Response, NextFunction } from "express";
 import { isBlackListed, verifyJWT } from "../../../utils/manageJWT";
 import { JwtPayload } from "jsonwebtoken";
-import db from "../models";
+import orm from "../../../models";
 
 const authenticateToken: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -28,7 +28,7 @@ const authenticateToken: RequestHandler = async (req: Request, res: Response, ne
             return
         }
 
-        const userData = db.User.findOne({ where: { id: jwtPayload['userId'] } });
+        const userData = orm.User.findOne({ where: { id: jwtPayload['userId'] } });
         if (!userData) {
             res.status(404).json({ message: "User does not exist" });
             return
