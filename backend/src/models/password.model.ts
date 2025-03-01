@@ -1,11 +1,12 @@
 import { DataTypes, Model, Optional } from "sequelize";
 import { getSequelizeInstance } from "../config/postgres";
-import { compare, hash } from "bcrypt";
+import crypto from "crypto";
 
 interface PasswordAttributes {
     id?: string;
     userId: string;
-    password: string;
+    salt?: string;
+    hash: string;
     isActive?: boolean;
     createdAt?: Date;
 }
@@ -16,12 +17,30 @@ class Password extends Model<PasswordAttributes, PasswordCreationAttributes>
     implements PasswordAttributes {
         public id!: string;
         public userId!: string;
-        public password!: string;
+        public salt!: string;
+        public hash!: string;
         public isActive!: boolean;
-        public createdAt!: Date;
+
+        public readonly createdAt!: Date;
+
+        static hashPassword(password: string): Promise<[string, string]> {
+            return new Promise((resolve, reject) => {
+                // Generate a random salt
+                const salt = crypto.randomBytes(16).toString('hex');
+                crypto.scrypt(password, salt, 64, (err, hash) => {
+                    if (err) return reject(err);
+                    resolve([salt, hash.toString('hex')]);
+                })
+            });
+        }
 
         async validatePassword(attempt: string): Promise<boolean> {
-            return compare(attempt, this.password);
+            return new Promise((resolve, reject) => {
+                crypto.scrypt(attempt, this.salt, 64, (err, attemptHash) => {
+                    if (err) return reject(err);
+                    resolve(this.hash === attemptHash.toString('hex'));
+                });
+            })
         }
     }
 
@@ -42,19 +61,18 @@ Password.init(
             },
             onDelete: 'CASCADE'
         },
-        password: {
-            type: DataTypes.STRING(255),
+        salt: {
+            type: DataTypes.STRING(32), // Each byte is represented by 2 hex characters
+            allowNull: false
+        },
+        hash: {
+            type: DataTypes.STRING(128),
             allowNull: false
         },
         isActive: {
             type: DataTypes.BOOLEAN,
             allowNull: false,
             defaultValue: true
-        },
-        createdAt: {
-            type: DataTypes.DATE,
-            allowNull: false,
-            defaultValue: DataTypes.NOW
         }
     },
     {
@@ -70,10 +88,17 @@ Password.init(
     }
 );
 
-// Hook triggered before record is created to ensure password is hashed
-Password.beforeCreate(async (passwordInstance) => {
-    passwordInstance.password = await hash(passwordInstance.password, 12);
+// Hook triggered before record is created
+Password.beforeCreate(async (passwordInstance: Password) => {
+    // Hash the password before saving
+    const [salt, hash] = await Password.hashPassword(passwordInstance.hash);
+    passwordInstance.salt = salt;
+    passwordInstance.hash = hash;
 
+    // Deactive existing active password
+    await Password.update({ isActive: false }, {
+        where: { userId: passwordInstance.userId, isActive: true }
+    });
 });
 
 export default Password
