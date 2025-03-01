@@ -90,15 +90,23 @@ Password.init(
 
 // Hook triggered before record is created
 Password.beforeCreate(async (passwordInstance: Password) => {
-    // Hash the password before saving
-    const [salt, hash] = await Password.hashPassword(passwordInstance.hash);
-    passwordInstance.salt = salt;
-    passwordInstance.hash = hash;
-
     // Deactive existing active password
     await Password.update({ isActive: false }, {
         where: { userId: passwordInstance.userId, isActive: true }
     });
+});
+
+// Hook triggered before record is updated
+Password.beforeUpdate(async (passwordInstance: Password) => {
+    if (
+        passwordInstance.changed('id') ||
+        passwordInstance.changed('userId') ||
+        passwordInstance.changed('salt') ||
+        passwordInstance.changed('hash') ||
+        passwordInstance.changed('createdAt')
+    ) {
+        throw new Error("Can not modify password records");
+    }
 });
 
 export default Password

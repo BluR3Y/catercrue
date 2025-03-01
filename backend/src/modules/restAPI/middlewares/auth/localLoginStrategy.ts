@@ -1,42 +1,42 @@
-import passport, { PassportStatic } from "passport";
+import { PassportStatic } from "passport";
 import { IStrategyOptionsWithRequest, Strategy, VerifyFunctionWithRequest } from "passport-local";
 import { Request } from "express";
-import { Op } from "sequelize";
 
 import orm from "../../../../models";
 
-// Logcal strategy for login
+// Local Strategy for login authentication
 export default function(passport: PassportStatic) {
     passport.use('local-login', new Strategy({
         usernameField: 'identifier',
         passwordField: 'password',
-        passReqToCallback: true,
+        passReqToCallback: true
     } as IStrategyOptionsWithRequest,
     async function(req: Request, identifier: string, password: string, done: any) {
-        const retrievedUser = await orm.User.findOne({
-            where: {
-                [Op.or]: [
-                    { email: identifier },
-                    { phone: identifier }
-                ]
+        try {
+            const { identifierType } = req.params;
+            const retrievedUser = await orm.User.findOne({
+                where: { [identifierType]: identifier }
+            });
+            if (!retrievedUser) return done(null, null, { message: "User does not exist" });
+
+            const activePassword = await orm.Password.findOne({
+                where: {
+                    userId: retrievedUser.id,
+                    isActive: true
+                }
+            });
+            if (!activePassword) return done(null, null, { message: "Password not set." });
+
+            const validPassword = await activePassword.validatePassword(password);
+
+            if (!validPassword) {
+                // Future feature: Check num invalid attempts and deactivate password
+                return done(null, null, { message: "Incorrect password" });
             }
-        });
 
-        if (!retrievedUser) {
-            return done("User does not exist");
+            done(null, retrievedUser);
+        } catch (err) {
+            done(err);
         }
-        
-        const activePassword = await orm.Password.findOne({
-            where: {
-                userId: retrievedUser.id,
-                isActive: true
-            }
-        });
-
-        if (! await activePassword!.validatePassword(password)) {
-            return done("Invalid credentials");
-        }
-
-        done(null, retrievedUser);
     } as VerifyFunctionWithRequest));
 }

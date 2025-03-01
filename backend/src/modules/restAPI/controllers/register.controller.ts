@@ -1,31 +1,26 @@
 import { RequestHandler, Request, Response, NextFunction } from "express";
 import orm from "../../../models";
 
-// export const getPhoneAvailability: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
-//     try {
-//         const { phoneNumber } = req.params;
-//         const isPhoneAvailable = await orm.User.count({
-//             where: { phone: phoneNumber }
-//         })
-//         .then(count => count === 0)
-
-//         res.json({ available: isPhoneAvailable });
-//     } catch (err) {
-//         next(err);
-//     }
-// }
-
 export const identifierAvailability: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
-    
+    try {
+        const { identifierType, identifierValue } = req.params;
+        const isIdentifierAvailable = await orm.User.count({
+            where: { [identifierType]: identifierValue }
+        })
+        .then(count => count === 0);
+        res.json({ available: isIdentifierAvailable });
+    } catch (err) {
+        next(err);
+    }
 }
 
-export const register: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+export const register = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const {
             firstName,
             lastName,
             email,
-            phoneNumber,
+            phone,
             password
         } = req.body;
         
@@ -35,18 +30,22 @@ export const register: RequestHandler = async (req: Request, res: Response, next
             const user = await orm.User.create({
                 firstName,
                 lastName,
-                phone: phoneNumber,
+                phone,
                 email
             }, { transaction });
+
+            const [salt, hash] = await orm.Password.hashPassword(password);
             await orm.Password.create({
                 userId: user.id,
-                password
+                salt,
+                hash
             }, { transaction });
 
             // Commit transaction if both create operations succeed
             await transaction.commit();
 
-            // ** Missing login logic
+            // Missing jwt logic
+            res.json({ message: "User Created" })
         } catch (err) {
             // Rollback transactio if any operation fails
             await transaction.rollback();

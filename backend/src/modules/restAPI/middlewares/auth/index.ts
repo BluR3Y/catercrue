@@ -1,42 +1,24 @@
 import passport from "passport";
-import { Application, RequestHandler, Request, Response, NextFunction } from "express";
-import { generateJWT } from "../../../../utils/manageJWT";
+import { Application } from "express";
 
-
-// Import Login Strategies
+// Import Auth Strategies
 import localLoginStrategy from "./localLoginStrategy";
-import orm from "../../../../models";
-import User from "../../../../models/user.model";
+import jwtStrategy from "./jwtStrategy";
 
 // Configure passport authentication middleware
 export const passportAuthenticationMiddleware = (app: Application) => {
-    // Install Login Strategies
+    // Install Auth Strategies
     localLoginStrategy(passport);
-    
-    app.use(passport.initialize());
-}
+    jwtStrategy(passport);
 
-const authenticationStrategyCallback = (req: Request, res: Response, next: NextFunction) => {
-    return (err: string | null, user: User, info: any) => {
-        if (err) return res.status(401).json({ message: err });
-        const userId = user.id;
-        // Generate new refresh token
-        orm.RefreshToken.create({ userId })
-        .then((refreshToken) => {
-            // Generate a new access token
-            const accessToken = generateJWT({ userId });
-            res.status(201).json({ accessToken, refreshToken: refreshToken.id });
-        })
-        .catch((err) => {
-            next(err);
-        });
-    }
+    // Initialize Passport.js
+    app.use(passport.initialize());
 }
 
 // Pass through the Auth routes
 export const authenticate = {
-    // Email/Password
-    localLogin: async function(req: Request, res: Response, next: NextFunction) {
-        return passport.authenticate('local-login', authenticationStrategyCallback(req, res, next))(req, res, next);
-    }
+    // Email/Phone & Password (Local Login)
+    localLogin: passport.authenticate('local-login', { session: false }),
+    // JWT
+    jwt: passport.authenticate('jwt', { session: false })
 }

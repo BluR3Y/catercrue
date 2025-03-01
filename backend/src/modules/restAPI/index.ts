@@ -9,7 +9,7 @@ import errorMiddleware from "./middlewares/error.middleware";
 import logger from "../../config/winston";
 import router from "./routes";
 
-export default function() {
+export default function(): [string, string] {
     try {
         const app: Application = express();
         app.set("trust proxy", true);
@@ -39,6 +39,7 @@ export default function() {
         app.use(errorMiddleware);
 
         app.listen(server_port, () => logger.info(`REST Server running on http://${server_client}:${server_port}`));
+        return [server_client, server_port]
     } catch (error) {
         logger.error("REST Server startup error", { error });
         throw new Error(`Failed to startup REST Server: ${error}`);
