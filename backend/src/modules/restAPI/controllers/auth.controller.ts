@@ -9,6 +9,7 @@ import { redisClient } from "../../../config/redis";
 // export const localLogin = authenticate.localLogin;
 export const login: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        // ** Future feature, check if login is suspecious
         const user = req.user as any;
         // Generate Refresh Token
         const refreshToken = await orm.RefreshToken.create({ userId: user.id });

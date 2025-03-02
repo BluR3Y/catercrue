@@ -13,7 +13,15 @@ redisReady
 twilioReady
 .then(_ => {
     // Start REST API
-    const [rest_api_client, rest_api_port] = restAPI();
+    const restServer = restAPI();
+    const restAddressInfo = restServer.address();
+    if (!restAddressInfo) {
+        throw new Error("Failed to retrieve REST server address");
+    }
+    const restAddress = typeof restAddressInfo === "string"
+        ? restAddressInfo
+        : `http://localhost:${restAddressInfo.port}`;
+
     const app: Application = express();
     const httpServer: Server = createServer(app);   // Needed for websocket (future feature)
     
@@ -30,16 +38,14 @@ twilioReady
 
     // Proxy REST API
     app.use('/api', createProxyMiddleware({
-        target: `http://${rest_api_client}:${rest_api_port}`,
+        target: restAddress,
         changeOrigin: true
     }));
     // Proxy GraphQL api
     // Proxy ws api
 
     // Start the gateway
-    const proxyClient = backend_client;
-    const proxyPort = backend_port;
-    httpServer.listen(proxyPort, () => logger.info(`API Gateway running on http://${proxyClient}:${proxyPort}`));
+    httpServer.listen(backend_port, () => logger.info(`API Gateway running on http://${backend_client}:${backend_port}`));
 })
 .then(async () => {
     const sequelize = getSequelizeInstance();

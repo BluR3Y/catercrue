@@ -1,6 +1,7 @@
 import { PassportStatic } from "passport";
 import { IStrategyOptionsWithRequest, Strategy, VerifyFunctionWithRequest } from "passport-local";
 import { Request } from "express";
+import UAParser from "ua-parser-js";
 
 import orm from "../../../../models";
 
@@ -17,7 +18,10 @@ export default function(passport: PassportStatic) {
             const retrievedUser = await orm.User.findOne({
                 where: { [identifierType]: identifier }
             });
-            if (!retrievedUser) return done(null, null, { message: "User does not exist" });
+            if (!retrievedUser) return done(null, false, "User does not exist");
+
+            const prohibitReason = await orm.LoginAttempt.prohibitLogin(retrievedUser.id);
+            if (prohibitReason) return done(null, false, prohibitReason);
 
             const activePassword = await orm.Password.findOne({
                 where: {
@@ -25,13 +29,13 @@ export default function(passport: PassportStatic) {
                     isActive: true
                 }
             });
-            if (!activePassword) return done(null, null, { message: "Password not set." });
+            if (!activePassword) return done(null, false, "Password not set");
 
             const validPassword = await activePassword.validatePassword(password);
 
             if (!validPassword) {
-                // Future feature: Check num invalid attempts and deactivate password
-                return done(null, null, { message: "Incorrect password" });
+                // Last Here: Implementing LoginAttempts
+                return done(null, false, "Incorrect password");
             }
 
             done(null, retrievedUser);

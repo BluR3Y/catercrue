@@ -6,9 +6,10 @@ import Password from "./password.model";
 import RefreshToken from "./refreshToken.model";
 
 import Contractee from "./contractee.model";
-import EventType from "./event_type.model";
+import EventType from "./eventType.model";
 import Event from "./event.model";
-import EventItinerary from "./event_itinerary.model";
+import EventItinerary from "./eventItinerary.model";
+import LoginAttempt from "./loginAttempt.model";
 
 const sequelize = getSequelizeInstance();
 
@@ -20,6 +21,7 @@ const orm = {
     sequelize,
     User,
     Password,
+    LoginAttempt,
     RefreshToken,
     Contractee,
     EventType,

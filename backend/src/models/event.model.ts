@@ -1,7 +1,7 @@
 import { DataTypes, Model, Optional } from "sequelize";
 import { getSequelizeInstance } from "../config/postgres";
 import Contractee from "./contractee.model";
-import EventType from "./event_type.model";
+import EventType from "./eventType.model";
 
 interface EventAttributes {
     id: string;

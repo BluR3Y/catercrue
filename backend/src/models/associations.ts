@@ -1,11 +1,12 @@
 import User from "./user.model";
 import Password from "./password.model";
+import LoginAttempt from "./loginAttempt.model";
 import RefreshToken from "./refreshToken.model";
 
 import Contractee from "./contractee.model";
-import EventType from "./event_type.model";
+import EventType from "./eventType.model";
 import Event from "./event.model";
-import EventItinerary from "./event_itinerary.model";
+import EventItinerary from "./eventItinerary.model";
 
 
 export default function() {
@@ -18,9 +19,19 @@ export default function() {
         foreignKey: 'userId',
         as: 'RefreshTokens'
     });
+    User.hasMany(LoginAttempt, {
+        foreignKey: 'userId',
+        as: 'LoginAttempts'
+    })
 
     // Password Associations
     Password.belongsTo(User, {
+        foreignKey: 'userId',
+        as: 'user'
+    });
+
+    // LogIn Attempts
+    LoginAttempt.belongsTo(User, {
         foreignKey: 'userId',
         as: 'user'
     });

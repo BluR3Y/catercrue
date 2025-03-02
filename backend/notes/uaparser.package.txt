@@ -1,0 +1,13 @@
+IData {
+  ua: 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Mobile Safari/537.36',
+  browser: IData {
+    name: 'Mobile Chrome',
+    version: '133.0.0.0',
+    major: '133',
+    type: undefined
+  },
+  cpu: IData { architecture: undefined },
+  device: IData { type: 'mobile', model: 'K', vendor: undefined },
+  engine: IData { name: 'Blink', version: '133.0.0.0' },
+  os: IData { name: 'Android', version: '10' }
+}
