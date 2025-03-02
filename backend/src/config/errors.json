@@ -1,0 +1,29 @@
+{
+    "login": {
+        "AUTH": [
+            "INCORRECT_PASSWORD",
+            "PASSWORD_EXPIRED",
+            "PASSWORD_RECENTLY_CHANGED"
+        ],
+        "ACCOUNT": [
+            "ACCOUNT_LOCKED",
+            "ACCOUNT_SUSPENDED",
+            "ACCOUNT_NOT_VERIFIED",
+            "ACCOUNT_DELETED",
+            "ACCOUNT_BANNED"
+        ],
+        "SECURITY": [
+            "TOO_MANY_ATTEMPTS",
+            "NEW_DEVICE_VERIFICATION_REQUIRED",
+            "NEW_LOCATION_VERIFICATION_REQUIRED",
+            "SUSPICIOUS_ACTIVITY_DETECTED",
+            "CAPTCHA_REQUIRED"
+        ],
+        "MFA": [
+            "MFA_REQUIRED",
+            "MFA_INCORRECT_CODE",
+            "MFA_EXPIRED_CODE",
+            "MFA_SETUP_INCOMPLETE"
+        ]
+    }
+}

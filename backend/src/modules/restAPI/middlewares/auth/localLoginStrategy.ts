@@ -1,7 +1,6 @@
 import { PassportStatic } from "passport";
 import { IStrategyOptionsWithRequest, Strategy, VerifyFunctionWithRequest } from "passport-local";
 import { Request } from "express";
-import UAParser from "ua-parser-js";
 
 import orm from "../../../../models";
 
@@ -14,30 +13,42 @@ export default function(passport: PassportStatic) {
     } as IStrategyOptionsWithRequest,
     async function(req: Request, identifier: string, password: string, done: any) {
         try {
+            // Either phone/email
             const { identifierType } = req.params;
+            // Look for user based on given parameters
             const retrievedUser = await orm.User.findOne({
                 where: { [identifierType]: identifier }
             });
-            if (!retrievedUser) return done(null, false, "User does not exist");
+            // Indicate error if user doesn't exist
+            if (!retrievedUser) return done(null, false, "USER_NOT_FOUND");
 
-            const prohibitReason = await orm.LoginAttempt.prohibitLogin(retrievedUser.id);
-            if (prohibitReason) return done(null, false, prohibitReason);
-
+            // Retrieve the active password associated with the user
             const activePassword = await orm.Password.findOne({
-                where: {
-                    userId: retrievedUser.id,
-                    isActive: true
-                }
+                where: { userId: retrievedUser.id, isActive: true }
             });
-            if (!activePassword) return done(null, false, "Password not set");
-
+            // If no active password exists, indicate error
+            if (!activePassword) return done(null, false, "PASSWORD_NOT_SET");
+            
+            // Check if the password given by the user matches the active password
             const validPassword = await activePassword.validatePassword(password);
-
             if (!validPassword) {
-                // Last Here: Implementing LoginAttempts
-                return done(null, false, "Incorrect password");
+                const maxConsecutiveAttempts = 5;
+                const latestAttempts = await orm.LoginAttempt.findAll({
+                    where: { userId: retrievedUser.id },
+                    limit: 4,
+                    order: [['createdAt', 'DESC']]
+                });
+                const incorrectPasswordAttempts = latestAttempts.filter(
+                    (attempt) => attempt.failureReason === "INCORRECT_PASSWORD"
+                );
+                // If all 5 attempts, including current attempt, failed due to "INCORRECT_PASSWORD", deactivate password
+                if (incorrectPasswordAttempts.length + 1 === maxConsecutiveAttempts) {
+                    await activePassword.update({ isActive: false });
+                }
+                // Indicate the error to the callback fn
+                return done(null, retrievedUser, "INCORRECT_PASSWORD");
             }
-
+            // Return the user to the callback fn
             done(null, retrievedUser);
         } catch (err) {
             done(err);

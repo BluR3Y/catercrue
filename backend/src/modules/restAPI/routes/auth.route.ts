@@ -13,8 +13,7 @@ export default function(router: Router) {
     router.get('/auth/tester', (req, res, next) => {
         //console.log(req.useragent)  // use
         //console.log(UAParser(req.useragent?.source)); // use
-        console.log(req.clientIp)
-        // console.log(UAParser(req.headers['user-agent']))
+        // console.log(req.clientIp) use
         res.json({message: req.user})
     })
 }

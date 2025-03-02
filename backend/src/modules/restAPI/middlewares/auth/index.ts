@@ -8,6 +8,8 @@ import { Request, Response, NextFunction, RequestHandler } from "express";
 import localLoginStrategy from "./localLoginStrategy";
 import jwtStrategy from "./jwtStrategy";
 import User from "../../../../models/user.model";
+import orm from "../../../../models";
+import { UAParser } from "ua-parser-js";
 
 // Configure passport authentication middleware
 export const passportAuthenticationMiddleware = (app: Application) => {
@@ -25,9 +27,25 @@ export const passportAuthenticationMiddleware = (app: Application) => {
 
 // Callback that handles custom error messages
 const authStrategyCallback = (req: Request, res: Response, next: NextFunction) => {
-    return (err: string | null, user: User | false, info: string | null) => {
+    return async (err: string | null, user: User | false, info: string | null) => {
         if (err) return next(err);
         if (!user) return res.status(401).json({ message: info || 'unauthorized' });
+        
+        const userAgent = req.useragent;
+        // Device related data
+        // const uaparser = UAParser(userAgent?.source);
+        const clientIp = req.clientIp;
+        await orm.LoginAttempt.create({
+            userId: user.id,
+            ipAddress: clientIp!,
+            userAgent: userAgent!.source,
+            validation: !info,
+            failureReason: info
+        });
+
+        if (user && info) return res.status(401).json({ message: info });
+
+        req.user = user;
         next();
     }
 }
@@ -42,5 +60,4 @@ export const authenticate = {
     jwt: async function(req: Request, res: Response, next: NextFunction) {
         return passport.authenticate('jwt', authStrategyCallback(req, res, next))(req, res, next);
     }
-    // jwt: passport.authenticate('jwt', { session: false })
 }

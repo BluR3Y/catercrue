@@ -1,16 +1,15 @@
 import { DataTypes, Model, Optional } from "sequelize";
 import { getSequelizeInstance } from "../config/postgres";
 import User from "./user.model";
+import errorData from "../config/errors.json";
 
-enum failureReasons {
-    'INCORRECT_PASSWORD',
-    'PASSWORD_EXPIRED',
-    'PASSWORD_NOT_SET',
-    'ACCOUNT_LOCKED',
-    'ACCOUNT_SUSPENDED',
-    'ACCOUNT_BANNED',
-    'ACCOUNT_DELETED'
-}
+const loginErrors = errorData.login;
+const allErrors = [
+    ...loginErrors.ACCOUNT,
+    ...loginErrors.AUTH,
+    ...loginErrors.MFA,
+    ...loginErrors.SECURITY
+];
 
 interface LoginAttemptAttributes {
     id?: string;
@@ -19,7 +18,7 @@ interface LoginAttemptAttributes {
     userAgent: string;
     location?: string;
     validation: boolean;
-    failureReason?: failureReasons;
+    failureReason?: string | null;
     createdAt?: Date;
 }
 
@@ -33,7 +32,7 @@ class LoginAttempt extends Model<LoginAttemptAttributes, LoginAttemptCreationAtt
         public userAgent!: string;
         public location?: string;
         public validation!: boolean;
-        public failureReason?: failureReasons;
+        public failureReason?: string;
 
         public readonly createdAt!: Date;
 
@@ -46,15 +45,30 @@ class LoginAttempt extends Model<LoginAttemptAttributes, LoginAttemptCreationAtt
                 order: [ ['createdAt', 'DESC'] ]
             });
 
-            if (latestAttempts) {
-                for (let i = 0; i < latestAttempts.length; i++) {
-                    console.log('latest loop')
-                }
+            if (!latestAttempts) return null;
+
+            const firstAttempt = latestAttempts[0];
+
+            // These failure reasons immediately prohibit login
+            const UNCHANGING_REASONS = allErrors.slice(1);
+
+            if (UNCHANGING_REASONS.includes(firstAttempt.failureReason!)) {
+                return firstAttempt.failureReason!;
+            }
+
+            // If all 5 attempts failed due to "INCORRECT_PASSWORD", prohibit login
+            const incorrectPasswordAttempts = latestAttempts.filter(
+                (attempt) => attempt.failureReason === "INCORRECT_PASSWORD"
+            );
+
+            if (incorrectPasswordAttempts.length === 5) {
+                return "TOO_MANY_ATTEMPTS";
             }
 
             return null;
         }
     }
+
 
 LoginAttempt.init(
     {
@@ -74,7 +88,7 @@ LoginAttempt.init(
             onDelete: 'CASCADE'
         },
         ipAddress: {
-            type: DataTypes.STRING(255),
+            type: DataTypes.STRING(45),
             allowNull: false
         },
         userAgent: {
@@ -90,8 +104,11 @@ LoginAttempt.init(
             allowNull: false
         },
         failureReason: {
-            type: DataTypes.STRING(128),
-            allowNull: true
+            type: DataTypes.STRING(50),
+            allowNull: true,
+            validate: {
+                isIn: [allErrors],
+            }
         }
     },
     {
@@ -99,11 +116,22 @@ LoginAttempt.init(
         modelName: 'LoginAttempt',
         sequelize: getSequelizeInstance(),
         indexes: [
-            { fields: ['userId'] }
+            { fields: ['userId'] },
+            { fields: ['ipAddress'] },
+            { fields: ['createdAt'] }
         ],
         timestamps: true,
         updatedAt: false
     }
 )
+
+LoginAttempt.beforeValidate(async (attemptInstance: LoginAttempt) => {
+    if (!attemptInstance.validation && !attemptInstance.failureReason) {
+        throw new Error("Failure reason must be provided when validation is false");
+    }
+    if (attemptInstance.validation && attemptInstance.failureReason) {
+        throw new Error("Failure reason should not be provided when validation is true")
+    }
+});
 
 export default LoginAttempt;
