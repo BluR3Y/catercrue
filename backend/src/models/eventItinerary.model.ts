@@ -1,6 +1,5 @@
 import { DataTypes, Model, Optional } from "sequelize";
 import { getSequelizeInstance } from "../config/postgres";
-import Event from "./event.model";
 
 interface EventItineraryAttributes {
     id: string;
@@ -36,7 +35,7 @@ EventItinerary.init(
             type: DataTypes.UUID,
             allowNull: false,
             references: {
-                model: Event,
+                model: 'events',
                 key: 'id'
             },
             onDelete: 'CASCADE'

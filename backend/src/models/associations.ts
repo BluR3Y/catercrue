@@ -3,11 +3,11 @@ import Password from "./password.model";
 import LoginAttempt from "./loginAttempt.model";
 import RefreshToken from "./refreshToken.model";
 
-import Contractee from "./contractee.model";
+import Coordinator from "./coordinator.model";
 import EventType from "./eventType.model";
 import Event from "./event.model";
 import EventItinerary from "./eventItinerary.model";
-
+import EventStaff from "./eventStaff.model";
 
 export default function() {
     // User Associations
@@ -42,5 +42,5 @@ export default function() {
         as: 'user'
     });
 
-    // 
+    
 }

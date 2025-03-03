@@ -1,23 +1,23 @@
 import { DataTypes, Model, Optional } from "sequelize";
 import { getSequelizeInstance } from "../config/postgres";
 
-interface ContracteeAttributes {
+interface CoordinatorAttributes {
     id: string;
     userId: string;
     createdAt?: Date;
 }
 
-interface ContracteeCreationAttributes extends Optional<ContracteeAttributes, 'id'> {}
+interface CoordinatorCreationAttributes extends Optional<CoordinatorAttributes, 'id'> {}
 
-class Contractee extends Model<ContracteeAttributes, ContracteeCreationAttributes>
-    implements ContracteeAttributes {
+class Coordinator extends Model<CoordinatorAttributes, CoordinatorCreationAttributes>
+    implements CoordinatorAttributes {
         public id!: string;
         public userId!: string;
 
         public readonly createdAt!: Date;
     }
 
-Contractee.init(
+Coordinator.init(
     {
         id: {
             type: DataTypes.UUID,
@@ -28,16 +28,20 @@ Contractee.init(
         userId: {
             type: DataTypes.UUID,
             allowNull: false,
+            references: {
+                model: 'users',
+                key: 'id'
+            },
             unique: true
         },
     },
     {
-        tableName: 'contractee',
-        modelName: 'Contractee',
+        tableName: 'coordinators',
+        modelName: 'Coordinator',
         sequelize: getSequelizeInstance(),
         timestamps: true,
         updatedAt: false
     }
 );
 
-export default Contractee;
+export default Coordinator;

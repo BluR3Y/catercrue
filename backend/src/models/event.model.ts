@@ -1,11 +1,10 @@
 import { DataTypes, Model, Optional } from "sequelize";
 import { getSequelizeInstance } from "../config/postgres";
-import Contractee from "./contractee.model";
 import EventType from "./eventType.model";
 
 interface EventAttributes {
     id: string;
-    contracteeId: string;
+    coordinatorId: string;
     eventTypeId: string;
     location: string;
     scheduledDate: Date,
@@ -19,7 +18,7 @@ interface EventCreationAttributes extends Optional<EventAttributes, 'id'> {}
 class Event extends Model<EventAttributes, EventCreationAttributes>
     implements EventAttributes {
         public id!: string;
-        public contracteeId!: string;
+        public coordinatorId!: string;
         public eventTypeId!: string;
         public location!: string;
         public scheduledDate!: Date;
@@ -37,11 +36,11 @@ Event.init(
             primaryKey: true,
             allowNull: false
         },
-        contracteeId: {
+        coordinatorId: {
             type: DataTypes.UUID,
             allowNull: false,
             references: {
-                model: Contractee,
+                model: 'coordinators',
                 key: 'id'
             },
             onDelete: 'CASCADE'

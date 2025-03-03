@@ -4,12 +4,15 @@ import associations from "./associations";
 import User from "./user.model";
 import Password from "./password.model";
 import RefreshToken from "./refreshToken.model";
+import LoginAttempt from "./loginAttempt.model";
 
-import Contractee from "./contractee.model";
+import Coordinator from "./coordinator.model";
 import EventType from "./eventType.model";
 import Event from "./event.model";
 import EventItinerary from "./eventItinerary.model";
-import LoginAttempt from "./loginAttempt.model";
+import EventStaff from "./eventStaff.model";
+
+import ClockLog from "./clockLog.model";
 
 const sequelize = getSequelizeInstance();
 
@@ -23,10 +26,12 @@ const orm = {
     Password,
     LoginAttempt,
     RefreshToken,
-    Contractee,
+    Coordinator,
     EventType,
     Event,
-    EventItinerary
+    EventItinerary,
+    EventStaff,
+    ClockLog
 }
 
 export default orm;

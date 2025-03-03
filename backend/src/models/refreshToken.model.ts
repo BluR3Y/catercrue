@@ -1,7 +1,6 @@
 import { DataTypes, Model, Optional } from "sequelize";
 import { getSequelizeInstance } from "../config/postgres";
 import crypto from "crypto";
-import User from "./user.model";
 
 interface RefreshTokenAttributes {
     id: string;
@@ -34,7 +33,7 @@ RefreshToken.init(
             type: DataTypes.UUID,
             allowNull: false,
             references: {
-                model: User,
+                model: 'users',
                 key: 'id'
             },
             onDelete: 'CASCADE'
