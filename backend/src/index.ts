@@ -11,17 +11,19 @@ import logger from './config/winston';
 import websocket from './modules/websocket';
 import graphql from './modules/graphql';
 import orm from './models/sequelize';
+import odm from './models/mongoose';
 
 const devConfig = async () => {
     const sequelize = getSequelizeInstance();
-    const force = true;
+    const force = false;
     await sequelize.sync({force});
     logger.info("Postgres tables synchronized with sequelize models.");
     // Test Data
     if (force) {
         const transaction = await sequelize.transaction();
         try {
-            const testUser = await orm.User.create({
+            // User One
+            const testUserOne = await orm.User.create({
                 firstName: "Rey",
                 lastName: "Flores",
                 email: "reyhector1234@gmail.com",
@@ -29,13 +31,70 @@ const devConfig = async () => {
             }, {transaction});
             const [salt, hash] = await orm.Password.hashPassword("Password@1234")
             const testPassword = await orm.Password.create({
-                userId: testUser.id,
+                userId: testUserOne.id,
                 salt,
                 hash,
             },{transaction});
+
+            // User Two
+            const testUserTwo = await orm.User.create({
+                firstName: "John",
+                lastName: "Doe",
+                email: "johnDoe@gmail.com",
+                phone: "+19163456543"
+            },{transaction});
+            const [salty, hashy] = await orm.Password.hashPassword("Password@1234");
+            const testPasswordTwo = await orm.Password.create({
+                userId: testUserTwo.id,
+                salt: salty,
+                hash: hashy
+            }, {transaction});
+
             await transaction.commit();
+
+            // Direct Message Room
+            const testRoom = await odm.directMessageModel.create({
+                members: [testUserOne.id, testUserTwo.id]
+            })
+            // DM
+            await odm.messageModel.create({
+                roomId: testRoom.id,
+                sender: testUserOne.id,
+                content: "Hello World!"
+            });
+
+            // Group Chat
+            const testChat = await odm.chatModel.create({
+                name: "Test Group Chat",
+                admin: testUserTwo.id,
+                members: [testUserOne.id]
+            });
+            const testChannel = await odm.channelModel.create({
+                name: "Test Channel",
+                chatId: testChat.id,
+                members: [testUserOne.id]
+            });
+            await odm.messageModel.create({
+                roomId: testChannel.id,
+                sender: testUserOne.id,
+                content: "Hello Chat!",
+            });
+
+            // const testChat = await odm.chatModel.create({
+            //     admin: testUserOne.id
+            // });
+            // const testChannel = await odm.channelModel.create({
+            //     name: "Test Channel",
+            //     chatId: testChat.id
+            // });
+            // const testMessage = await odm.messageModel.create({
+            //     channelId: testChannel.id,
+            //     sender: testUserOne.id,
+            //     content: "Test Message"
+            // });
         } catch (err) {
             await transaction.rollback();
+            throw err;
         }
     }
 }
