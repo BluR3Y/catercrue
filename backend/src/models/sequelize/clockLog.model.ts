@@ -1,5 +1,5 @@
 import { DataTypes, Model, Optional } from "sequelize";
-import { getSequelizeInstance } from "../config/postgres";
+import { getSequelizeInstance } from "../../config/postgres";
 
 interface ClockLogAttributes {
     id: string;

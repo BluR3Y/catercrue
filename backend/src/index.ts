@@ -3,14 +3,14 @@ import { createServer } from 'http';
 import cors from "cors";
 
 import { postgresReady, closePostgresConnection, getSequelizeInstance } from './config/postgres';
-import { mongooseReady } from './config/mongoose';
+import { closeMongooseConnection, mongooseReady } from './config/mongoose';
 import { redisReady, closeRedisConnection } from './config/redis';
 import { twilioReady } from './config/twilio';
 import restAPI from './modules/restAPI';
 import logger from './config/winston';
 import websocket from './modules/websocket';
 import graphql from './modules/graphql';
-import orm from './models';
+import orm from './models/sequelize';
 
 const devConfig = async () => {
     const sequelize = getSequelizeInstance();
@@ -78,6 +78,7 @@ async function startServer() {
         logger.error("Error occurred while starting the server: ", { error });
         await closePostgresConnection();
         await closeRedisConnection();
+        await closeMongooseConnection();
         process.exit(1);
     }
 }

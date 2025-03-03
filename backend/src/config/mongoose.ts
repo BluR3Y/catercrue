@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import logger from "./winston";
 
 let  mongooseClient: mongoose.Mongoose | null = null;
 
@@ -24,7 +25,14 @@ const mongooseConnect = async (): Promise<void> => {
 }
 
 const closeMongooseConnection = async (): Promise<void> => {
-
+    if (mongooseClient) {
+        try {
+            await mongooseClient.disconnect();
+            logger.info("Mongo connection successfully closed");
+        } catch (error) {
+            logger.error("Error occured while closing connection to Mongo database:", {error});
+        }
+    }
 }
 
 const getMongooseInstance = (): mongoose.Mongoose => {

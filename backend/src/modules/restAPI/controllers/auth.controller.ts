@@ -1,7 +1,7 @@
 import { RequestHandler, Request, Response, NextFunction } from "express";
 import crypto from "crypto";
 
-import orm from "../../../models";
+import orm from "../../../models/sequelize";
 import { blacklistToken, generateJWT } from "../../../utils/manageJWT";
 import { twilioClient } from "../../../config/twilio";
 import { redisClient } from "../../../config/redis";

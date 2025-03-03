@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction, RequestHandler } from "express";
-import orm from "../../../models";
+import orm from "../../../models/sequelize";
 
 export const clockIn: RequestHandler = async (req, res, next) => {
     try {

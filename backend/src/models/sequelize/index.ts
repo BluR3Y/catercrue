@@ -1,4 +1,4 @@
-import { getSequelizeInstance } from "../config/postgres";
+import { getSequelizeInstance } from "../../config/postgres";
 import associations from "./associations";
 
 import User from "./user.model";

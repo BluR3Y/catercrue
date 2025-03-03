@@ -1,7 +1,7 @@
 import { DataTypes, Model, Optional } from "sequelize";
-import { getSequelizeInstance } from "../config/postgres";
+import { getSequelizeInstance } from "../../config/postgres";
 import User from "./user.model";
-import errorData from "../config/errors.json";
+import errorData from "../../config/errors.json";
 
 const loginErrors = errorData.login;
 const allErrors = [

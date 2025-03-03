@@ -1,5 +1,5 @@
 import { RequestHandler, Request, Response, NextFunction } from "express";
-import orm from "../../../models";
+import orm from "../../../models/sequelize";
 import { login } from "./auth.controller";
 
 export const identifierAvailability: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {

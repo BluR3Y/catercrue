@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction, RequestHandler } from "express";
-import orm from "../../../models";
-import StaffRole from "../../../models/staffRole.model";
+import orm from "../../../models/sequelize";
+import StaffRole from "../../../models/sequelize/staffRole.model";
 
 export const getEventTypes = async (req: Request, res: Response, next: NextFunction) => {
     try {

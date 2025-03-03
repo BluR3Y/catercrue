@@ -7,8 +7,8 @@ import { Request, Response, NextFunction, RequestHandler } from "express";
 // Import Auth Strategies
 import localLoginStrategy from "./localLoginStrategy";
 import jwtStrategy from "./jwtStrategy";
-import User from "../../../../models/user.model";
-import orm from "../../../../models";
+import User from "../../../../models/sequelize/user.model";
+import orm from "../../../../models/sequelize";
 import { UAParser } from "ua-parser-js";
 
 // Configure passport authentication middleware

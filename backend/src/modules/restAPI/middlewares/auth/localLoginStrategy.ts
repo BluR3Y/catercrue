@@ -2,7 +2,7 @@ import { PassportStatic } from "passport";
 import { IStrategyOptionsWithRequest, Strategy, VerifyFunctionWithRequest } from "passport-local";
 import { Request } from "express";
 
-import orm from "../../../../models";
+import orm from "../../../../models/sequelize";
 
 // Local Strategy for login authentication
 export default function(passport: PassportStatic) {
