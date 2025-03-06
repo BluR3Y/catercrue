@@ -11,7 +11,8 @@ export interface IContractor extends IWorker {
     experience?: IExperience[];
     achievements?: IAchievement[];
     education?: IEducation[];
-    // skills?: Types.ObjectId[];
+    resumeUrl?: string;
+    skills?: string[];
     // interests?: Types.ObjectId[];
 }
 
@@ -32,7 +33,14 @@ export const contractorSchema = new Schema<IContractor>(
         },
         education: {
             type: [educationSchema]
-        }
+        },
+        skills: [{
+            type: Schema.Types.String
+        }],
+        resumeUrl: {
+            type: Schema.Types.String
+        },
+        variant: 'Contractor'
     },
     {
         timestamps: true,

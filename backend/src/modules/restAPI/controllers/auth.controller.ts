@@ -1,4 +1,4 @@
-import { RequestHandler, Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from "express";
 import crypto from "crypto";
 
 import orm from "../../../models/sequelize";
@@ -7,7 +7,7 @@ import { twilioClient } from "../../../config/twilio";
 import { redisClient } from "../../../config/redis";
 
 // export const localLogin = authenticate.localLogin;
-export const login: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+export const login = async (req: Request, res: Response, next: NextFunction) => {
     try {
         // ** Future feature, check if login is suspecious
         const user = req.user as any;
@@ -24,8 +24,63 @@ export const login: RequestHandler = async (req: Request, res: Response, next: N
     }
 }
 
+export const identifierAvailability = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { identifierType, identifierValue } = req.params;
+        const isIdentifierAvailable = await orm.User.count({
+            where: { [identifierType]: identifierValue }
+        })
+        .then(count => count === 0);
+        res.json({ available: isIdentifierAvailable });
+    } catch (err) {
+        next(err);
+    }
+}
+
+export const register = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const {
+            firstName,
+            lastName,
+            email,
+            phone,
+            password
+        } = req.body;
+        
+        const transaction = await orm.sequelize.transaction();
+
+        try {
+            const user = await orm.User.create({
+                firstName,
+                lastName,
+                phone,
+                email
+            }, { transaction });
+
+            const [salt, hash] = await orm.Password.hashPassword(password);
+            await orm.Password.create({
+                userId: user.id,
+                salt,
+                hash
+            }, { transaction });
+
+            // Commit transaction if both create operations succeed
+            await transaction.commit();
+
+            req.user = user;
+            login(req, res, next);
+        } catch (err) {
+            // Rollback transactio if any operation fails
+            await transaction.rollback();
+            throw err;
+        }
+    } catch (err) {
+        next(err);
+    }
+}
+
 // Request Handler that generates a new access token
-export const refreshToken: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+export const refreshToken = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const user = req.user as any;
         const { refreshToken } = req.body;
@@ -82,7 +137,7 @@ export const refreshToken: RequestHandler = async (req: Request, res: Response, 
     }
 }
 
-export const requestOTP: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+export const requestOTP = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { phoneNumber } = req.body;
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -101,7 +156,7 @@ export const requestOTP: RequestHandler = async (req: Request, res: Response, ne
     }
 }
 
-export const verifyOTP: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+export const verifyOTP = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { phoneNumber, otp } = req.body;
         const storedOtpKey = `otp:${phoneNumber}`;

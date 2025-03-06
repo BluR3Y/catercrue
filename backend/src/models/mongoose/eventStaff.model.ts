@@ -2,7 +2,7 @@ import { Document, model, Schema, Types } from "mongoose";
 
 interface IEventStaff extends Document {
     eventId: Types.ObjectId;
-    userId: Types.UUID;
+    workerId: Types.ObjectId;
     role: string;
     shift: {
         start: Date;
@@ -19,9 +19,10 @@ const eventStaffSchema = new Schema<IEventStaff>(
             required: true,
             ref: 'Event'
         },
-        userId: {
-            type: Schema.Types.UUID,
-            required: true
+        workerId: {
+            type: Schema.Types.ObjectId,
+            required: true,
+            ref: 'Worker'
         },
         role: {
             type: Schema.Types.String,
@@ -48,5 +49,3 @@ const eventStaffSchema = new Schema<IEventStaff>(
 eventStaffSchema.index({ userId: 1 });
 
 export default model<IEventStaff>("EventStaff", eventStaffSchema);
-
-// Last Here
