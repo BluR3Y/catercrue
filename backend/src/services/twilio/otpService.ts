@@ -15,6 +15,7 @@ export const sendOTP = async (phoneNumber: string, otp: string = generateOTP()) 
 
         redisClient!.setex(`otp:${phoneNumber}`, 300, otp);
     } catch (err) {
+        console.log(`Twilio Error: ${err}`);
         throw new Error(`Failed to send message: ${err}`);
     }
 }

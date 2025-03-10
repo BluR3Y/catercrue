@@ -61,4 +61,4 @@ RefreshToken.beforeUpdate(() => {
     throw new Error("Record cannot be updated.");
 });
 
-export default RefreshToken
+export default RefreshToken;

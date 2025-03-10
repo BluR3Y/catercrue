@@ -5,6 +5,6 @@ import { IJobListing, jobListingSchema } from "./jobListing.schema";
 
 export const listingModel = model<IListing>("Listing", listingSchema);
 
-export const contractListingModel = model<IContractListing>("ContractListing", contractListingSchema);
+export const contractListingModel = listingModel.discriminator("ContractListing", contractListingSchema);
 
-export const jobListingModel = model<IJobListing>("JobListing", jobListingSchema);
+export const jobListingModel = listingModel.discriminator<IJobListing>("JobListing", jobListingSchema);

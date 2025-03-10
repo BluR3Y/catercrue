@@ -1,7 +1,7 @@
-import { Schema, model, Document, Types } from "mongoose";
+import { Document, model, Schema } from "mongoose";
 
-export interface IWorker extends Document {
-    userId: Types.UUID;
+interface IWorker extends Document {
+    userId: string;
     availability: {
         weekDay: 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday' | 'Sunday';
         timeSlots: {
@@ -19,12 +19,12 @@ export interface IWorker extends Document {
     }[];
     createdAt?: Date;
     updatedAt?: Date;
-    variant: string;
 }
-export const workerSchema = new Schema<IWorker>(
+
+const workerSchema = new Schema<IWorker>(
     {
         userId: {
-            type: Schema.Types.UUID,
+            type: Schema.Types.String,
             required: true
         },
         availability: [
@@ -60,10 +60,11 @@ export const workerSchema = new Schema<IWorker>(
     },
     {
         timestamps: true,
-        collection: 'workers',
-        discriminatorKey: 'variant'
+        collection: 'workers'
     }
 );
 
 workerSchema.index({ userId: 1 });
 workerSchema.index({ 'exceptions.date': 1 });
+
+export default model<IWorker>("Worker", workerSchema);

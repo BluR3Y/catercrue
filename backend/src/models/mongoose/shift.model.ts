@@ -1,7 +1,8 @@
 import { Document, model, Schema, Types } from "mongoose";
 
-interface IEventStaff extends Document {
+interface IShift extends Document {
     eventId: Types.ObjectId;
+    coordinatorId: Types.ObjectId;
     workerId: Types.ObjectId;
     role: string;
     shift: {
@@ -12,12 +13,17 @@ interface IEventStaff extends Document {
     updatedAt?: Date;
 }
 
-const eventStaffSchema = new Schema<IEventStaff>(
+const shiftSchema = new Schema<IShift>(
     {
         eventId: {
             type: Schema.Types.ObjectId,
             required: true,
             ref: 'Event'
+        },
+        coordinatorId: {
+            type: Schema.Types.ObjectId,
+            required: true,
+            ref: 'Coordinator'
         },
         workerId: {
             type: Schema.Types.ObjectId,
@@ -41,11 +47,11 @@ const eventStaffSchema = new Schema<IEventStaff>(
     },
     {
         timestamps: true,
-        collection: 'event_staff'
+        collection: 'shifts'
     }
 );
 
 // Quicker querying by userId
-eventStaffSchema.index({ userId: 1 });
+shiftSchema.index({ workerId: 1 });
 
-export default model<IEventStaff>("EventStaff", eventStaffSchema);
+export default model<IShift>("Shift", shiftSchema);

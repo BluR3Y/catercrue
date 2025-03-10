@@ -16,7 +16,6 @@ export const channelSchema = new Schema<IChannel>(
             type: Schema.Types.ObjectId,
             required: true,
             ref: 'Chat'
-        },
-        variant: 'Channel'
+        }
     }
 );

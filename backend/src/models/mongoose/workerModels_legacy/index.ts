@@ -6,6 +6,6 @@ import { IEmployee, employeeSchema } from "./employeeModel";
 
 export const workerModel = model<IWorker>("Worker", workerSchema);
 
-export const contractorModel = model<IContractor>("Contractor", contractorSchema);
+export const contractorModel = workerModel.discriminator<IContractor>("Contractor", contractorSchema);
 
-export const employeeModel = model<IEmployee>("Employee", employeeSchema);
+export const employeeModel = workerModel.discriminator<IEmployee>("Employee", employeeSchema);

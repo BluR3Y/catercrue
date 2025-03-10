@@ -26,8 +26,8 @@ const devConfig = async () => {
             const testUserOne = await orm.User.create({
                 firstName: "Rey",
                 lastName: "Flores",
-                email: "reyhector1234@gmail.com",
-                phone: "+19295697692"
+                // email: "reyhector1234@gmail.com",
+                // phone: "+19295697692"
             }, {transaction});
             const [salt, hash] = await orm.Password.hashPassword("Password@1234")
             const testPassword = await orm.Password.create({
@@ -36,13 +36,34 @@ const devConfig = async () => {
                 hash,
             },{transaction});
 
+            await orm.ContactMethod.create({
+                userId: testUserOne.id,
+                type: 'email',
+                value: 'reyhector1234@gmail.com',
+                isPrimary: true
+            },{transaction});
+            await orm.ContactMethod.create({
+                userId: testUserOne.id,
+                type: 'phone',
+                value: '+19295697692',
+                isPrimary: false
+            }, {transaction});
+
             // User Two
             const testUserTwo = await orm.User.create({
                 firstName: "John",
                 lastName: "Doe",
-                email: "johnDoe@gmail.com",
-                phone: "+19163456543"
+                // email: "johnDoe@gmail.com",
+                // phone: "+19163456543"
             },{transaction});
+
+            await orm.ContactMethod.create({
+                userId: testUserTwo.id,
+                type: 'phone',
+                value: '+19163456543',
+                isPrimary: false
+            },{transaction});
+
             const [salty, hashy] = await orm.Password.hashPassword("Password@1234");
             const testPasswordTwo = await orm.Password.create({
                 userId: testUserTwo.id,
@@ -52,45 +73,32 @@ const devConfig = async () => {
 
             await transaction.commit();
 
-            // Direct Message Room
-            const testRoom = await odm.directMessageModel.create({
-                members: [testUserOne.id, testUserTwo.id]
-            })
-            // DM
-            await odm.messageModel.create({
-                roomId: testRoom.id,
-                sender: testUserOne.id,
-                content: "Hello World!"
-            });
+            // // Direct Message Room
+            // const testRoom = await odm.privateRoomModel.create({
+            //     members: [testUserOne.id, testUserTwo.id]
+            // })
+            // // DM
+            // await odm.messageModel.create({
+            //     roomId: testRoom.id,
+            //     sender: testUserOne.id,
+            //     content: "Hello World!"
+            // });
 
-            // Group Chat
-            const testChat = await odm.chatModel.create({
-                name: "Test Group Chat",
-                admin: testUserTwo.id,
-                members: [testUserOne.id]
-            });
-            const testChannel = await odm.channelModel.create({
-                name: "Test Channel",
-                chatId: testChat.id,
-                members: [testUserOne.id]
-            });
-            await odm.messageModel.create({
-                roomId: testChannel.id,
-                sender: testUserOne.id,
-                content: "Hello Chat!",
-            });
-
+            // // Group Chat
             // const testChat = await odm.chatModel.create({
-            //     admin: testUserOne.id
+            //     name: "Test Group Chat",
+            //     admin: testUserTwo.id,
+            //     members: [testUserOne.id]
             // });
             // const testChannel = await odm.channelModel.create({
             //     name: "Test Channel",
-            //     chatId: testChat.id
+            //     chatId: testChat.id,
+            //     members: [testUserOne.id]
             // });
-            // const testMessage = await odm.messageModel.create({
-            //     channelId: testChannel.id,
+            // await odm.messageModel.create({
+            //     roomId: testChannel.id,
             //     sender: testUserOne.id,
-            //     content: "Test Message"
+            //     content: "Hello Chat!",
             // });
         } catch (err) {
             await transaction.rollback();

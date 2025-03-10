@@ -2,12 +2,11 @@ import passport from "passport";
 import { Application } from "express";
 import requestIp from "request-ip";
 import useragent from "express-useragent";
-import { Request, Response, NextFunction, RequestHandler } from "express";
+import { Request, Response, NextFunction } from "express";
 
 // Import Auth Strategies
 import localLoginStrategy from "./localLoginStrategy";
 import jwtStrategy from "./jwtStrategy";
-import User from "../../../../models/sequelize/user.model";
 import orm from "../../../../models/sequelize";
 import { UAParser } from "ua-parser-js";
 
@@ -27,7 +26,7 @@ export const passportAuthenticationMiddleware = (app: Application) => {
 
 // Callback that handles custom error messages
 const authStrategyCallback = (req: Request, res: Response, next: NextFunction) => {
-    return async (err: string | null, user: User | false, info: string | null) => {
+    return async (err: string | null, user: string | false, info: string | null) => {
         if (err) return next(err);
         if (!user) return res.status(401).json({ message: info || 'unauthorized' });
         
@@ -36,7 +35,7 @@ const authStrategyCallback = (req: Request, res: Response, next: NextFunction) =
         // const uaparser = UAParser(userAgent?.source);
         const clientIp = req.clientIp;
         await orm.LoginAttempt.create({
-            userId: user.id,
+            userId: user,
             ipAddress: clientIp!,
             userAgent: userAgent!.source,
             validation: !info,
@@ -45,7 +44,10 @@ const authStrategyCallback = (req: Request, res: Response, next: NextFunction) =
 
         if (user && info) return res.status(401).json({ message: info });
 
-        req.user = user;
+        const userData = await orm.User.findByPk(user);
+        if (!userData) return next(new Error(`Authenticated user not found: ${user}`));
+
+        req.user = userData;
         next();
     }
 }

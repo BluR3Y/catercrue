@@ -27,7 +27,6 @@ export const contractListingSchema = new Schema<IContractListing>(
                 type: Schema.Types.Number,
                 required: true
             }
-        },
-        variant: 'ContractListing'
+        }
     }
 );

@@ -11,7 +11,6 @@ export const teamRoomSchema = new Schema<ITeamRoom>(
             type: Schema.Types.ObjectId,
             required: true,
             ref: 'Events'
-        },
-        variant: 'TeamRoom'
+        }
     }
 );

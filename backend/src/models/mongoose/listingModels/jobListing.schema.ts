@@ -36,8 +36,7 @@ export const jobListingSchema = new Schema<IJobListing>(
                 type: Schema.Types.Number,
                 required: true
             }]
-        },
-        variant: 'JobListing'
+        }
     }
 );
 

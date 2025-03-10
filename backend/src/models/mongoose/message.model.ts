@@ -2,7 +2,7 @@ import { Schema, model, Document, Types } from "mongoose";
 
 interface IMessage extends Document {
     roomId: Types.ObjectId;
-    sender: Types.UUID;
+    sender: string;
     content: string;
     createdAt?: Date;
     updatedAt?:Date;
@@ -15,7 +15,7 @@ const messageSchema = new Schema<IMessage>({
         ref: 'Room'
     },
     sender: {
-        type: Schema.Types.UUID,
+        type: Schema.Types.String,
         required: true
     },
     content: {

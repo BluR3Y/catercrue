@@ -5,9 +5,9 @@ import RefreshToken from "./refreshToken.model";
 
 import Coordinator from "./coordinator.model";
 import EventType from "./eventType.model";
-import Event from "./event.model";
-import EventItinerary from "./eventItinerary.model";
-import EventStaff from "./eventStaff.model";
+// import Event from "./event.model";
+// import EventItinerary from "./eventItinerary.model";
+// import EventStaff from "./eventStaff.model";
 
 export default function() {
     // User Associations

@@ -5,8 +5,6 @@ interface UserAttributes {
     id: string;
     firstName: string;
     lastName: string;
-    email?: string;
-    phone: string;
     avatarUrl?: string;
     createdAt?: Date;
     updatedAt?: Date;
@@ -21,8 +19,6 @@ class User extends Model<UserAttributes, UserCreationAttributes>
         public id!: string;
         public firstName!: string;
         public lastName!: string;
-        public email?: string;
-        public phone!: string;
         public avatarUrl?: string;
 
         public readonly createdAt!: Date;
@@ -50,30 +46,6 @@ User.init(
             type: new DataTypes.STRING(128),
             allowNull: false
         },
-        email: {
-            type: new DataTypes.STRING(128),
-            allowNull: true,
-            unique: true,
-            validate: {
-                isEmail: true,
-                notEmpty: { msg: "Email cannot be empty" }
-            },
-            set(value: string) {
-                this.setDataValue("email", value?.toLocaleLowerCase().trim());
-            }
-        },
-        phone: {
-            type: new DataTypes.STRING(15),
-            allowNull: false,
-            unique: true,
-            validate: {
-                is: {
-                    args: /^\+?[1-9]\d{1,14}$/, // Follows E.164 format
-                    msg: 'Invalid phone number format'
-                },
-                notEmpty: { msg: "Phone number cannot be empty" }
-            }
-        },
         avatarUrl: {
             type: new DataTypes.STRING(255),
             allowNull: true,
@@ -86,19 +58,8 @@ User.init(
         tableName: 'users',
         modelName: 'User',
         sequelize: getSequelizeInstance(),
-        indexes: [
-            { unique: true, fields: ['email'] },
-            { unique: true, fields: ['phone'] }
-        ],
         timestamps: true
     }
 );
-
-// Hook triggered before record is saved (created, updated)
-User.beforeSave(async (userInstance) => {
-    if (userInstance.changed('email')) {
-        userInstance.email = userInstance.email?.toLowerCase().trim();
-    }
-});
 
 export default User;

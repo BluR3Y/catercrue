@@ -2,16 +2,17 @@ import { Document, model, Schema, Types } from "mongoose";
 import { IItinerary, itinerarySchema } from "./itinerary.schema";
 
 interface IEvent extends Document {
-    coordinatorId: Types.UUID;
+    coordinatorId: Types.ObjectId;  // Event Coordinator
     eventTypeId: string;
+    status: 'drafted' | 'scheduled' | 'ongoing' | 'completed' | 'canceled';
     location: {
         type: 'Point';
         coordinates: [number, number];
     };
-    eventStaff: Types.ObjectId[];
+    scheduledStart: Date;
+    scheduledEnd: Date;
+    caterers: Types.ObjectId[];
     itinerary?: IItinerary;
-    scheduledDate: Date;
-    duration: number;
     createdAt?: Date;
     updatedAt?: Date;
 }
@@ -19,11 +20,17 @@ interface IEvent extends Document {
 const eventSchema = new Schema<IEvent>(
     {
         coordinatorId: {
-            type: Schema.Types.UUID,
-            required: true
+            type: Schema.Types.ObjectId,
+            required: true,
+            ref: 'Coordinators'
         },
         eventTypeId: {
             type: Schema.Types.String,
+            required: true
+        },
+        status: {
+            type: Schema.Types.String,
+            enum: ['scheduled', 'ongoing', 'completed', 'canceled'],
             required: true
         },
         location: {
@@ -37,20 +44,21 @@ const eventSchema = new Schema<IEvent>(
                 required: true
             }
         },
-        eventStaff: [{
-            type: Schema.Types.ObjectId,
-            ref: 'EventStaff'
-        }],
-        itinerary: {
-            type: itinerarySchema
-        },
-        scheduledDate: {
+        scheduledStart: {
             type: Schema.Types.Date,
             required: true
         },
-        duration: {
-            type: Schema.Types.Number,
+        scheduledEnd: {
+            type: Schema.Types.Date,
             required: true
+        },
+        caterers: [{
+            type: Schema.Types.ObjectId,
+            required: true,
+            ref: 'Coordinators'
+        }],
+        itinerary: {
+            type: itinerarySchema
         }
     },
     {

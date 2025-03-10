@@ -24,12 +24,7 @@ export default function(passport: PassportStatic) {
                 return done(null, false, "Token is blacklisted");
             }
 
-            const user = await orm.User.findOne({ where: { id: payload['userId'] } });
-            if (!user) {
-                return done(null, false, "User does not exist");
-            }
-
-            done(null, user);
+            done(payload['userId']);
         } catch (err: any) {
             if (err.name === "TokenExpiredError") return done(null, false, "Token expired");
             if (err.name === "JsonWebTokenError") return done(null, false, "Invalid Token");

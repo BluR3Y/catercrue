@@ -1,20 +1,26 @@
 import chatModel from "./chat.model";
-import { roomModel, dmModel, channelModel, teamRoomModel } from "./roomModels";
+import { roomModel, privateRoomModel, channelModel, teamRoomModel } from "./roomModels";
 import messageModel from "./message.model";
-import { workerModel, employeeModel, contractorModel } from "./workerModels";
+import coordinatorModel from "./coordinator.model";
+import workerModel from "./worker.model";
 import eventModel from "./eventModel";
+import shiftModel from "./shift.model";
+import { getMongooseInstance } from "../../config/mongoose";
+
+const mongo = getMongooseInstance();
 
 const odm = {
+    mongo,
     chatModel,
     roomModel,
     channelModel,
     teamRoomModel,
-    dmModel,
+    privateRoomModel,
     messageModel,
     eventModel,
+    coordinatorModel,
     workerModel,
-    employeeModel,
-    contractorModel,
+    shiftModel
 };
 
 export default odm;

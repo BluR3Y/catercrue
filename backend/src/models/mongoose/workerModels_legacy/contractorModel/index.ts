@@ -19,7 +19,7 @@ export interface IContractor extends IWorker {
 export const contractorSchema = new Schema<IContractor>(
     {
         userId: {
-            type: Schema.Types.UUID,
+            type: Schema.Types.String,
             required: true
         },
         bio: {
@@ -39,8 +39,7 @@ export const contractorSchema = new Schema<IContractor>(
         }],
         resumeUrl: {
             type: Schema.Types.String
-        },
-        variant: 'Contractor'
+        }
     },
     {
         timestamps: true,

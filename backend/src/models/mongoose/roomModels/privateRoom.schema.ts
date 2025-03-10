@@ -1,13 +1,11 @@
 import { Document, model, Schema, Types } from "mongoose";
 import { IRoom } from "./room.schema";
 
-export const dmSchema = new Schema<IRoom>(
-    {
-        variant: 'DirectMessage'
-    }
-);
+export interface IPrivateRoom extends IRoom {}
 
-dmSchema.pre("save", function(next) {
+export const privateRoomSchema = new Schema<IPrivateRoom>();
+
+privateRoomSchema.pre("save", function(next) {
     if (this.members.length !== 2) {
         throw new Error("DMRoom must have exactly two participants");
     }

@@ -14,27 +14,32 @@ export default function(passport: PassportStatic) {
     async function(req: Request, identifier: string, password: string, done: any) {
         try {
             // Either phone/email
-            const { identifierType } = req.params;
-            // Look for user based on given parameters
-            const retrievedUser = await orm.User.findOne({
-                where: { [identifierType]: identifier }
+            const { identifierType } = req.body;
+
+            // Retrieve verified contact method 
+            const contactMethod = await orm.ContactMethod.findOne({
+                where: {
+                    type: identifierType,
+                    value: identifier
+                }
             });
-            // Indicate error if user doesn't exist
-            if (!retrievedUser) return done(null, false, "USER_NOT_FOUND");
+            // Indicate error if no user is registered with given credentials
+            if (!contactMethod) return done(null, false, "USER_NOT_FOUND");
+            const userId = contactMethod.userId;
 
             // Retrieve the active password associated with the user
             const activePassword = await orm.Password.findOne({
-                where: { userId: retrievedUser.id, isActive: true }
+                where: { userId, isActive: true }
             });
-            // If no active password exists, indicate error
+            // Indicate error if no active password exists
             if (!activePassword) return done(null, false, "PASSWORD_NOT_SET");
-            
+
             // Check if the password given by the user matches the active password
             const validPassword = await activePassword.validatePassword(password);
             if (!validPassword) {
                 const maxConsecutiveAttempts = 5;
                 const latestAttempts = await orm.LoginAttempt.findAll({
-                    where: { userId: retrievedUser.id },
+                    where: { userId },
                     limit: 4,
                     order: [['createdAt', 'DESC']]
                 });
@@ -46,12 +51,14 @@ export default function(passport: PassportStatic) {
                     await activePassword.update({ isActive: false });
                 }
                 // Indicate the error to the callback fn
-                return done(null, retrievedUser, "INCORRECT_PASSWORD");
+                return done(null, userId, "INCORRECT_PASSWORD");
             }
             // Return the user to the callback fn
-            done(null, retrievedUser);
+            done(null, userId);
         } catch (err) {
             done(err);
         }
     } as VerifyFunctionWithRequest));
 }
+
+// Last Here: Implementing OTP

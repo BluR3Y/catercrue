@@ -5,12 +5,10 @@ import User from "./user.model";
 import Password from "./password.model";
 import RefreshToken from "./refreshToken.model";
 import LoginAttempt from "./loginAttempt.model";
+import ContactMethod from "./contactMethod.model";
 
 import Coordinator from "./coordinator.model";
 import EventType from "./eventType.model";
-import Event from "./event.model";
-import EventItinerary from "./eventItinerary.model";
-import EventStaff from "./eventStaff.model";
 
 import ClockLog from "./clockLog.model";
 
@@ -24,13 +22,11 @@ const orm = {
     sequelize,
     User,
     Password,
+    ContactMethod,
     LoginAttempt,
     RefreshToken,
     Coordinator,
     EventType,
-    Event,
-    EventItinerary,
-    EventStaff,
     ClockLog
 }
 
