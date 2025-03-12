@@ -27,16 +27,6 @@ export default function(passport: PassportStatic) {
             if (!contactMethod) return done(null, false, { message: "User not found", code: "USER_NOT_FOUND" });
             const userId = contactMethod.userId;
 
-            // Retrieve the record of the user from the table of the selected role
-            let roleData = null;
-            if (role === 'coordinator') {
-                roleData = await odm.coordinatorModel.findOne({ userId });
-            } else if (role === 'worker') {
-                roleData = await odm.workerModel.findOne({ userId });
-            }
-
-            if (!roleData) return done(null, false, { message: "User is not registered for role", code: "UNREGISTERED_ROLE" });
-
             // Retrieve the active password associated with the user
             const activePassword = await orm.Password.findOne({
                 where: { userId, isActive: true }
@@ -47,10 +37,10 @@ export default function(passport: PassportStatic) {
             // Check if the password given by the user matches the active password
             const validPassword = await activePassword.validatePassword(password);
             if (!validPassword) {
-                return done(null, {userId, role, roleId: roleData.id}, { message: "Invalid password", code: "INCORRECT_PASSWORD" });
+                return done(null, userId, { message: "Invalid password", code: "INCORRECT_PASSWORD" });
             }
 
-            done(null, { userId, role, roleId: roleData.id });
+            done(null, userId);
         } catch (err) {
             done(err);
         }
