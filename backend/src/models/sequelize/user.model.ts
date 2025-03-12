@@ -1,33 +1,19 @@
-import { DataTypes, Model, Optional } from "sequelize";
+import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional, NonAttribute } from "sequelize";
 import { getSequelizeInstance } from "../../config/postgres";
 
-interface UserAttributes {
-    id: string;
-    firstName: string;
-    lastName: string;
-    avatarUrl?: string;
-    createdAt?: Date;
-    updatedAt?: Date;
-}
+class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
+    public id!: CreationOptional<string>;
+    public firstName!: string;
+    public lastName!: string;
+    public avatarUrl!: CreationOptional<string>;
 
-// Define attributes that are optional for model creation
-interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {}
+    public readonly createdAt!: CreationOptional<Date>;
+    public readonly updatedAt!: CreationOptional<Date>;
 
-// Define the User model
-class User extends Model<UserAttributes, UserCreationAttributes>
-    implements UserAttributes {
-        public id!: string;
-        public firstName!: string;
-        public lastName!: string;
-        public avatarUrl?: string;
-
-        public readonly createdAt!: Date;
-        public readonly updatedAt!: Date;
-
-        get fullName(): string {
-            return `${this.firstName} ${this.lastName}`;
-        }
+    get fullName(): NonAttribute<string> {
+        return `${this.firstName} ${this.lastName}`;
     }
+}
 
 // Initialize the User model
 User.init(
@@ -50,8 +36,22 @@ User.init(
             type: new DataTypes.STRING(255),
             allowNull: true,
             validate: {
-                isUrl: true
+                isUrl: true,
+                isValidUrl(value: string) {
+                    if (value && !/^https?:\/\/.+/.test(value)) {
+                        throw new Error("Avatar URL must start with http:// or https://");
+                    }
+                }
             }
+        },
+        createdAt: {
+            type: DataTypes.DATE,
+            allowNull: false,
+            defaultValue: DataTypes.NOW
+        },
+        updatedAt: {
+            type: DataTypes.DATE,
+            allowNull: false
         }
     },
     {
@@ -61,5 +61,15 @@ User.init(
         timestamps: true
     }
 );
+
+// Hook triggered before saving (creating/updating)
+User.beforeSave((user) => {
+    if (user.changed('firstName')) {
+        user.firstName = user.firstName.charAt(0).toUpperCase() + user.firstName.slice(1);
+    }
+    if (user.changed('lastName')) {
+        user.lastName = user.lastName.charAt(0).toUpperCase() + user.lastName.slice(1);
+    }
+});
 
 export default User;

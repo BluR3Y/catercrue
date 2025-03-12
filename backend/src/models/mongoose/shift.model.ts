@@ -1,17 +1,5 @@
-import { Document, model, Schema, Types } from "mongoose";
-
-interface IShift extends Document {
-    eventId: Types.ObjectId;
-    coordinatorId: Types.ObjectId;
-    workerId: Types.ObjectId;
-    role: string;
-    shift: {
-        start: Date;
-        end: Date;
-    };
-    createdAt?: Date;
-    updatedAt?: Date;
-}
+import { model, Schema } from "mongoose";
+import { IShift } from "@/types";
 
 const shiftSchema = new Schema<IShift>(
     {
@@ -34,15 +22,13 @@ const shiftSchema = new Schema<IShift>(
             type: Schema.Types.String,
             required: true
         },
-        shift: {
-            start: {
-                type: Schema.Types.Date,
-                required: true
-            },
-            end: {
-                type: Schema.Types.Date,
-                required: true
-            }
+        shiftStart: {
+            type: Schema.Types.Date,
+            required: true
+        },
+        shiftEnd: {
+            type: Schema.Types.Date,
+            required: true
         }
     },
     {

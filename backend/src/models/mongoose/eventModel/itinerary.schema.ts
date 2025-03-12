@@ -1,11 +1,5 @@
-import { Document, model, Schema, Types } from "mongoose";
-
-export interface IItinerary extends Document {
-    title: string;
-    description: string;
-    numAttendees: number;
-    updatedAt?: Date;
-}
+import { Schema } from "mongoose";
+import { IItinerary } from "@/types";
 
 export const itinerarySchema = new Schema<IItinerary>(
     {

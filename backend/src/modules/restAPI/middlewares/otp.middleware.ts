@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { redisClient } from "../../../config/redis";
-import orm from "../../../models/sequelize";
+import { orm } from "@/models";
 
 export default async function(req: Request, res: Response, next: NextFunction) {
     try {

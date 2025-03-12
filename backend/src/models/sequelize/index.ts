@@ -7,7 +7,6 @@ import RefreshToken from "./refreshToken.model";
 import LoginAttempt from "./loginAttempt.model";
 import ContactMethod from "./contactMethod.model";
 
-import Coordinator from "./coordinator.model";
 import EventType from "./eventType.model";
 
 import ClockLog from "./clockLog.model";
@@ -25,7 +24,6 @@ const orm = {
     ContactMethod,
     LoginAttempt,
     RefreshToken,
-    Coordinator,
     EventType,
     ClockLog
 }

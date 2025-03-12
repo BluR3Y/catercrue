@@ -1,7 +1,8 @@
-import { DataTypes, Model, Optional } from "sequelize";
+import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional } from "sequelize";
 import { getSequelizeInstance } from "../../config/postgres";
-import User from "./user.model";
 import errorData from "../../config/errors.json";
+import orm from ".";
+import { Op } from "sequelize";
 
 const loginErrors = errorData.login;
 const allErrors = [
@@ -11,64 +12,49 @@ const allErrors = [
     ...loginErrors.SECURITY
 ];
 
-interface LoginAttemptAttributes {
-    id?: string;
-    userId: string;
-    ipAddress: string;
-    userAgent: string;
-    location?: string;
-    validation: boolean;
-    failureReason?: string | null;
-    createdAt?: Date;
+class LoginAttempt extends Model<InferAttributes<LoginAttempt>, InferCreationAttributes<LoginAttempt>> {
+    public id!: CreationOptional<string>;
+    public userId!: string;
+    public ipAddress!: string;
+    public userAgent!: string;
+    public location!: CreationOptional<string>;
+    public validation!: boolean;
+    public failureReason!: CreationOptional<string>;
+
+    public readonly createdAt!: CreationOptional<Date>;
+
+    // static async prohibitLogin(userId: string): Promise<string | null> {
+    //     const latestAttempts = await this.findAll({
+    //         where: {
+    //             userId
+    //         },
+    //         limit: 5,
+    //         order: [ ['createdAt', 'DESC'] ]
+    //     });
+
+    //     if (!latestAttempts) return null;
+
+    //     const firstAttempt = latestAttempts[0];
+
+    //     // These failure reasons immediately prohibit login
+    //     const UNCHANGING_REASONS = allErrors.slice(1);
+
+    //     if (UNCHANGING_REASONS.includes(firstAttempt.failureReason!)) {
+    //         return firstAttempt.failureReason!;
+    //     }
+
+    //     // If all 5 attempts failed due to "INCORRECT_PASSWORD", prohibit login
+    //     const incorrectPasswordAttempts = latestAttempts.filter(
+    //         (attempt) => attempt.failureReason === "INCORRECT_PASSWORD"
+    //     );
+
+    //     if (incorrectPasswordAttempts.length === 5) {
+    //         return "TOO_MANY_ATTEMPTS";
+    //     }
+
+    //     return null;
+    // }
 }
-
-interface LoginAttemptCreationAttributes extends Optional<LoginAttemptAttributes, 'id'> {}
-
-class LoginAttempt extends Model<LoginAttemptAttributes, LoginAttemptCreationAttributes>
-    implements LoginAttemptAttributes {
-        public id!: string;
-        public userId!: string;
-        public ipAddress!: string;
-        public userAgent!: string;
-        public location?: string;
-        public validation!: boolean;
-        public failureReason?: string;
-
-        public readonly createdAt!: Date;
-
-        static async prohibitLogin(userId: string): Promise<string | null> {
-            const latestAttempts = await this.findAll({
-                where: {
-                    userId
-                },
-                limit: 5,
-                order: [ ['createdAt', 'DESC'] ]
-            });
-
-            if (!latestAttempts) return null;
-
-            const firstAttempt = latestAttempts[0];
-
-            // These failure reasons immediately prohibit login
-            const UNCHANGING_REASONS = allErrors.slice(1);
-
-            if (UNCHANGING_REASONS.includes(firstAttempt.failureReason!)) {
-                return firstAttempt.failureReason!;
-            }
-
-            // If all 5 attempts failed due to "INCORRECT_PASSWORD", prohibit login
-            const incorrectPasswordAttempts = latestAttempts.filter(
-                (attempt) => attempt.failureReason === "INCORRECT_PASSWORD"
-            );
-
-            if (incorrectPasswordAttempts.length === 5) {
-                return "TOO_MANY_ATTEMPTS";
-            }
-
-            return null;
-        }
-    }
-
 
 LoginAttempt.init(
     {
@@ -109,6 +95,11 @@ LoginAttempt.init(
             validate: {
                 isIn: [allErrors],
             }
+        },
+        createdAt: {
+            type: DataTypes.DATE,
+            allowNull: false,
+            defaultValue: DataTypes.NOW
         }
     },
     {
@@ -116,9 +107,8 @@ LoginAttempt.init(
         modelName: 'LoginAttempt',
         sequelize: getSequelizeInstance(),
         indexes: [
-            { fields: ['userId'] },
-            { fields: ['ipAddress'] },
-            { fields: ['createdAt'] }
+            { fields: ['userId', 'createdAt'] },
+            { fields: ['ipAddress'] }
         ],
         timestamps: true,
         updatedAt: false
@@ -131,6 +121,45 @@ LoginAttempt.beforeValidate(async (attemptInstance: LoginAttempt) => {
     }
     if (attemptInstance.validation && attemptInstance.failureReason) {
         throw new Error("Failure reason should not be provided when validation is true")
+    }
+});
+
+LoginAttempt.afterCreate(async (attemptInstance: LoginAttempt) => {
+    // Not efficient: Move to redis cache for better performance
+    if (!attemptInstance.validation && attemptInstance.failureReason === "INCORRECT_PASSWORD") {
+        const lockoutTime = 15 * 60000; // 15 minutes
+        const maxFailedAttempts = 5;
+
+        const lastSuccessfulAttempt = await LoginAttempt.findOne({
+            where: {
+                userId: attemptInstance.userId,
+                validation: true,
+                createdAt: {
+                    [Op.gte]: new Date(Date.now() - lockoutTime)
+                }
+            },
+            order: [['createdAt','DESC']]
+        });
+        const lastAttemptTime = lastSuccessfulAttempt ? lastSuccessfulAttempt.createdAt : new Date(Date.now() - lockoutTime);
+
+        // Count incorrect password attempts within the last X minutes and after last successful attempt
+        const incorrectAttemptsCount = await LoginAttempt.count({
+            where: {
+                userId: attemptInstance.userId,
+                failureReason: "INCORRECT_PASSWORD",
+                createdAt: {
+                    [Op.gte]: lastAttemptTime
+                }
+            }
+        });
+
+        // Lock account if attempts exceed max limit within the time window
+        if (incorrectAttemptsCount >= maxFailedAttempts) {
+            await orm.Password.update(
+                { isActive: false },
+                { where: { userId: attemptInstance.userId, isActive: true } }
+            );
+        }
     }
 });
 

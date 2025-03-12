@@ -1,14 +1,5 @@
-import { Schema, model, Document, Types } from "mongoose";
-import { IListing } from "./listing.schema";
-
-export interface IContractListing extends IListing {
-    events: Types.ObjectId[];
-    wage: {
-        rate: 'Hour' | 'Day';
-        amount: number;
-    },
-    variant: 'ContractListing'
-}
+import { Schema } from "mongoose";
+import { IContractListing } from "@/types";
 
 export const contractListingSchema = new Schema<IContractListing>(
     {

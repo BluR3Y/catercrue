@@ -1,48 +1,36 @@
-import { DataTypes, Model, Optional } from "sequelize";
+import { CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, Model, Optional } from "sequelize";
 import { getSequelizeInstance } from "../../config/postgres";
 import crypto from "crypto";
 
-interface PasswordAttributes {
-    id?: string;
-    userId: string;
-    salt?: string;
-    hash: string;
-    isActive?: boolean;
-    createdAt?: Date;
-}
+class Password extends Model<InferAttributes<Password>, InferCreationAttributes<Password>> {
+    public id!: CreationOptional<string>;   // Auto-generated UUID
+    public userId!: string;
+    public salt!: string;
+    public hash!: string;
+    public isActive!: CreationOptional<boolean>;
 
-interface PasswordCreationAttributes extends Optional<PasswordAttributes, 'id'> {}
+    public readonly createdAt!: CreationOptional<Date>; // Managed by Sequelize
 
-class Password extends Model<PasswordAttributes, PasswordCreationAttributes>
-    implements PasswordAttributes {
-        public id!: string;
-        public userId!: string;
-        public salt!: string;
-        public hash!: string;
-        public isActive!: boolean;
-
-        public readonly createdAt!: Date;
-
-        static hashPassword(password: string): Promise<[string, string]> {
-            return new Promise((resolve, reject) => {
-                // Generate a random salt
-                const salt = crypto.randomBytes(16).toString('hex');
-                crypto.scrypt(password, salt, 64, (err, hash) => {
-                    if (err) return reject(err);
-                    resolve([salt, hash.toString('hex')]);
-                })
-            });
-        }
-
-        async validatePassword(attempt: string): Promise<boolean> {
-            return new Promise((resolve, reject) => {
-                crypto.scrypt(attempt, this.salt, 64, (err, attemptHash) => {
-                    if (err) return reject(err);
-                    resolve(this.hash === attemptHash.toString('hex'));
-                });
+    static hashPassword(password: string): Promise<[string, string]> {
+        return new Promise((resolve, reject) => {
+            // Generate a random salt
+            const salt = crypto.randomBytes(16).toString('hex');
+            crypto.scrypt(password, salt, 64, (err, hash) => {
+                if (err) return reject(err);
+                resolve([salt, hash.toString('hex')]);
             })
-        }
+        });
     }
+
+    async validatePassword(attempt: string): Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            crypto.scrypt(attempt, this.salt, 64, (err, attemptHash) => {
+                if (err) return reject(err);
+                resolve(this.hash === attemptHash.toString('hex'));
+            });
+        })
+    }
+}
 
 Password.init(
     {
@@ -62,17 +50,22 @@ Password.init(
             onDelete: 'CASCADE'
         },
         salt: {
-            type: DataTypes.STRING(32), // Each byte is represented by 2 hex characters
+            type: new DataTypes.STRING(32), // Each byte is represented by 2 hex characters
             allowNull: false
         },
         hash: {
-            type: DataTypes.STRING(128),
+            type: new DataTypes.STRING(128),
             allowNull: false
         },
         isActive: {
             type: DataTypes.BOOLEAN,
             allowNull: false,
             defaultValue: true
+        },
+        createdAt: {
+            type: DataTypes.DATE,
+            allowNull: false,
+            defaultValue: DataTypes.NOW,
         }
     },
     {

@@ -1,18 +1,11 @@
-import { DataTypes, Model, Optional } from "sequelize";
+import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional } from "sequelize";
 import { getSequelizeInstance } from "../../config/postgres";
 
-interface EventTypeAttributes {
-    id: string;
-    name: string;
+
+class EventType extends Model<InferAttributes<EventType>, InferCreationAttributes<EventType>> {
+    public id!: CreationOptional<string>;
+    public name!: string;
 }
-
-interface EventTypeCreationAttributes extends Optional<EventTypeAttributes, 'id'> {}
-
-class EventType extends Model<EventTypeAttributes, EventTypeCreationAttributes>
-    implements EventTypeAttributes {
-        public id!: string;
-        public name!: string;
-    }
 
 EventType.init(
     {
@@ -23,7 +16,7 @@ EventType.init(
             allowNull: false
         },
         name: {
-            type: DataTypes.STRING(128),
+            type: new DataTypes.STRING(128),
             allowNull: false
         }
     },

@@ -1,16 +1,5 @@
-import { Types, Schema } from "mongoose";
-import { IListing } from "./listing.schema";
-
-export interface IJobListing extends IListing {
-    venueId: Types.ObjectId;
-    location: string;
-    jobTypes: Array<'Seasonal' | 'Full-Time' | 'Part-Time' | 'Temporary'>;
-    wage: {
-        rate: 'Hour' | 'Day' | 'Week' | 'Month' | 'Year';
-        amount: number[];
-    }
-    variant: 'JobListing'
-}
+import { Schema } from "mongoose";
+import { IJobListing } from "@/types";
 
 export const jobListingSchema = new Schema<IJobListing>(
     {

@@ -1,25 +1,5 @@
-import { Document, model, Schema } from "mongoose";
-
-interface IWorker extends Document {
-    userId: string;
-    availability: {
-        weekDay: 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday' | 'Sunday';
-        timeSlots: {
-            start: string;
-            end: string;
-        }[];
-    }[];
-    exceptions: {
-        date: Date;
-        timeSlots: {
-            start: string;
-            end: string;
-        }[];
-        isAvailable: boolean;
-    }[];
-    createdAt?: Date;
-    updatedAt?: Date;
-}
+import { model, Schema } from "mongoose";
+import { IWorker } from "@/types";
 
 const workerSchema = new Schema<IWorker>(
     {

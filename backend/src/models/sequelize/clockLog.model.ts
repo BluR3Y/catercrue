@@ -1,25 +1,13 @@
-import { DataTypes, Model, Optional } from "sequelize";
+import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional } from "sequelize";
 import { getSequelizeInstance } from "../../config/postgres";
 
-interface ClockLogAttributes {
-    id: string;
-    eventStaffId: string;
-    clockIn?: Date;
-    clockOut?: Date | null;
-    updatedAt?: Date;
+class ClockLog extends Model<InferAttributes<ClockLog>, InferCreationAttributes<ClockLog>> {
+    public id!: CreationOptional<string>;
+    public shiftId!: string;
+
+    public readonly clockIn!: CreationOptional<Date>;
+    public readonly clockOut!: CreationOptional<Date>;
 }
-
-interface ClockLogCreationAttributes extends Optional<ClockLogAttributes, 'id'> {}
-
-class ClockLog extends Model<ClockLogAttributes, ClockLogCreationAttributes>
-    implements ClockLogAttributes {
-        public id!: string;
-        public eventStaffId!: string;
-        public clockIn!: Date;
-        public clockOut?: Date | null;
-
-        public readonly updatedAt!: Date;
-    }
 
 ClockLog.init(
     {
@@ -29,18 +17,13 @@ ClockLog.init(
             primaryKey: true,
             allowNull: false
         },
-        eventStaffId: {
-            type: DataTypes.UUID,
+        shiftId: {
+            type: DataTypes.STRING,
             allowNull: false,
-            references: {
-                model: 'event_staff',
-                key: 'id'
-            },
-            onDelete: "CASCADE"
         },
         clockIn: {
             type: DataTypes.DATE,
-            defaultValue: () => Date.now(),
+            defaultValue: DataTypes.NOW,
             allowNull: false,
         },
         clockOut: {
@@ -52,8 +35,7 @@ ClockLog.init(
         tableName: 'clock_logs',
         modelName: 'ClockLog',
         sequelize: getSequelizeInstance(),
-        timestamps: true,
-        createdAt: false
+        timestamps: false
     }
 );
 

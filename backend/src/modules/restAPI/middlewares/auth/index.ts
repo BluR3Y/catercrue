@@ -3,12 +3,13 @@ import { Application } from "express";
 import requestIp from "request-ip";
 import useragent from "express-useragent";
 import { Request, Response, NextFunction } from "express";
+import { UAParser } from "ua-parser-js";
+import { orm } from "@/models";
 
 // Import Auth Strategies
-import localLoginStrategy from "./localLoginStrategy";
-import jwtStrategy from "./jwtStrategy";
-import orm from "../../../../models/sequelize";
-import { UAParser } from "ua-parser-js";
+import localLoginStrategy from "./localLogin.strategy";
+import jwtStrategy from "./jwt.strategy";
+// import googleStrategy from "./google.strategy";
 
 // Configure passport authentication middleware
 export const passportAuthenticationMiddleware = (app: Application) => {
@@ -26,25 +27,25 @@ export const passportAuthenticationMiddleware = (app: Application) => {
 
 // Callback that handles custom error messages
 const authStrategyCallback = (req: Request, res: Response, next: NextFunction) => {
-    return async (err: string | null, user: string | false, info: string | null) => {
+    return async (err: string | null, user: any, info: any) => {
         if (err) return next(err);
-        if (!user) return res.status(401).json({ message: info || 'unauthorized' });
+        if (!user) return res.status(401).json(info ? info : { message: 'unauthorized request', code: 'UNAUTHORIZED' });
         
         const userAgent = req.useragent;
         // Device related data
         // const uaparser = UAParser(userAgent?.source);
         const clientIp = req.clientIp;
         await orm.LoginAttempt.create({
-            userId: user,
+            userId: user.userId,
             ipAddress: clientIp!,
             userAgent: userAgent!.source,
             validation: !info,
-            failureReason: info
+            failureReason: info.code
         });
 
         if (user && info) return res.status(401).json({ message: info });
 
-        const userData = await orm.User.findByPk(user);
+        const userData = await orm.User.findByPk(user.userId);
         if (!userData) return next(new Error(`Authenticated user not found: ${user}`));
 
         req.user = userData;

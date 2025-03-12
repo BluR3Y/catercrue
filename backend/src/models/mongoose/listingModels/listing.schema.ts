@@ -1,19 +1,16 @@
-import { Schema, model, Document, Types } from "mongoose";
-
-export interface IListing extends Document {
-    isPrivate?: boolean;
-    position: string;
-    description?: string;
-    createdAt?: Date;
-    updatedAt?: Date;
-    variant: string;
-}
+import { Schema } from "mongoose";
+import { IListing } from "@/types";
 
 export const listingSchema = new Schema<IListing>(
     {
         isPrivate: {
             type: Schema.Types.Boolean,
             default: false
+        },
+        coordinatorId: {
+            type: Schema.Types.ObjectId,
+            required: true,
+            ref: 'Coordinators'
         },
         position: {
             type: Schema.Types.String,

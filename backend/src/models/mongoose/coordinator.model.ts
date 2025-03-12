@@ -1,15 +1,5 @@
-import { model, Schema, Types } from "mongoose";
-
-interface ICoordinator extends Document {
-    userId: string;
-    // services: Array<'Menu Planning' | 'Food Preparation' | 'Delivery' | 'Setup' | 'Staffing' | 'Cleaning' | 'Rentals'>;
-    employees: {
-        workerId: Types.ObjectId;
-        role: string;
-    }[];
-    createdAt?: Date;
-    updatedAt?: Date;
-}
+import { model, Schema } from "mongoose";
+import { ICoordinator } from "@/types";
 
 const coordinatorSchema = new Schema<ICoordinator>(
     {

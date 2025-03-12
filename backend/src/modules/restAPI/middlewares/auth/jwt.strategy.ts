@@ -1,9 +1,10 @@
 import { Request } from "express";
 import { PassportStatic } from "passport";
 import { ExtractJwt, Strategy, StrategyOptionsWithRequest, VerifiedCallback, VerifyCallbackWithRequest } from "passport-jwt";
-import { redisClient } from "../../../../config/redis";
-import orm from "../../../../models/sequelize";
 import { JwtPayload } from "jsonwebtoken";
+import { redisClient } from "../../../../config/redis";
+// import orm from "../../../../models/sequelize";
+import { orm } from "@/models";
 
 export default function(passport: PassportStatic) {
     passport.use('jwt', new Strategy({

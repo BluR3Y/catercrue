@@ -1,12 +1,5 @@
-import { Document, model, Schema, Types } from "mongoose";
-
-interface IChat extends Document {
-    name: string;
-    admin: string;
-    members: string[];
-    createdAt?: Date;
-    updatedAt?: Date;
-}
+import { model, Schema } from "mongoose";
+import { IChat } from "@/types";
 
 const chatSchema = new Schema<IChat>(
     {

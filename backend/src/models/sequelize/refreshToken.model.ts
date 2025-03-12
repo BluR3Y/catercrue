@@ -1,25 +1,18 @@
-import { DataTypes, Model, Optional } from "sequelize";
+import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional } from "sequelize";
 import { getSequelizeInstance } from "../../config/postgres";
 import crypto from "crypto";
 
-interface RefreshTokenAttributes {
-    id: string;
-    userId: string;
-    expiry?: Date;
-}
+class RefreshToken extends Model<InferAttributes<RefreshToken>, InferCreationAttributes<RefreshToken>> {
+    public id!: CreationOptional<string>;
+    public userId!: string;
 
-interface RefreshTokenCreationAttributes extends Optional<RefreshTokenAttributes, 'id'> {}
+    public readonly expiry!: CreationOptional<Date>;
+    public readonly createdAt!: CreationOptional<Date>;
 
-class RefreshToken extends Model<RefreshTokenAttributes, RefreshTokenCreationAttributes>
-    implements RefreshTokenAttributes {
-        public id!: string;
-        public userId!: string;
-        public readonly expiry!: Date;
-
-        public isExpired(): boolean {
-            return new Date() > this.expiry;
-        }
+    public isExpired(): boolean {
+        return new Date() > this.expiry;
     }
+}
 
 RefreshToken.init(
     {
@@ -45,6 +38,11 @@ RefreshToken.init(
                 return new Date(Date.now() + duration * 1000);
             },
             allowNull: false
+        },
+        createdAt: {
+            type: DataTypes.DATE,
+            allowNull: false,
+            defaultValue: DataTypes.NOW
         }
     },
     {

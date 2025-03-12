@@ -1,32 +1,18 @@
-import { DataTypes, Model, Optional } from "sequelize";
+import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional } from "sequelize";
 import { getSequelizeInstance } from "../../config/postgres";
 import { Op } from "sequelize";
 
-interface ContactMethodAttributes {
-    id: string;
-    userId: string;
-    type: 'email' | 'phone';
-    value: string;
-    isVerified?: boolean;
-    isPrimary: boolean;
-    createdAt?: Date;
-    updatedAt?: Date;
+class ContactMethod extends Model<InferAttributes<ContactMethod>, InferCreationAttributes<ContactMethod>> {
+    public id!: CreationOptional<string>;
+    public userId!: string;
+    public type!: 'email' | 'phone';
+    public value!: string;
+    public isVerified!: CreationOptional<boolean>;
+    public isPrimary!: CreationOptional<boolean>;
+
+    public readonly createdAt!: CreationOptional<Date>;
+    public readonly updatedAt!: CreationOptional<Date>;
 }
-
-interface ContactMethodCreationAttributes extends Optional<ContactMethodAttributes, 'id'> {}
-
-class ContactMethod extends Model<ContactMethodAttributes, ContactMethodCreationAttributes>
-    implements ContactMethodAttributes {
-        public id!: string;
-        public userId!: string;
-        public type!: 'email' | 'phone';
-        public value!: string;
-        public isVerified!: boolean;
-        public isPrimary!: boolean;
-
-        public readonly createdAt!: Date;
-        public readonly updatedAt!: Date;
-    }
 
 ContactMethod.init(
     {
@@ -63,6 +49,15 @@ ContactMethod.init(
         isPrimary: {
             type: DataTypes.BOOLEAN,
             defaultValue: false,
+            allowNull: false
+        },
+        createdAt: {
+            type: DataTypes.DATE,
+            allowNull: false,
+            defaultValue: DataTypes.NOW
+        },
+        updatedAt: {
+            type: DataTypes.DATE,
             allowNull: false
         }
     },

@@ -189,7 +189,7 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
             const user = await orm.User.create({
                 firstName,
                 lastName
-            }, { transaction });
+            } as any, { transaction });
 
             const [salt, hash] = await orm.Password.hashPassword(password);
             await orm.Password.create({
@@ -231,7 +231,7 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
             // Save user in the request
             req.user = user;
 
-            return login(req, res, next);
+            login(req, res, next);
         } catch (err) {
             // Rollback transaction if any operations fail
             await transaction.rollback();

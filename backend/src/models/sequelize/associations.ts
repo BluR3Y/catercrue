@@ -3,7 +3,6 @@ import Password from "./password.model";
 import LoginAttempt from "./loginAttempt.model";
 import RefreshToken from "./refreshToken.model";
 
-import Coordinator from "./coordinator.model";
 import EventType from "./eventType.model";
 // import Event from "./event.model";
 // import EventItinerary from "./eventItinerary.model";

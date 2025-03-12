@@ -1,5 +1,5 @@
 import rateLimit from "express-rate-limit";
-import { redisClient } from "../../../config/redis";
+import { redisClient } from "@/config/redis";
 
 export default (windowMs: number, limit: number, message: string) => {
 	return rateLimit({

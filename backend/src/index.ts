@@ -10,8 +10,8 @@ import restAPI from './modules/restAPI';
 import logger from './config/winston';
 import websocket from './modules/websocket';
 import graphql from './modules/graphql';
-import orm from './models/sequelize';
-import odm from './models/mongoose';
+import orm from "./models/sequelize";
+import odm from "./models/mongoose";
 
 const devConfig = async () => {
     const sequelize = getSequelizeInstance();
@@ -131,7 +131,7 @@ async function startServer() {
 
         restAPI(app);
         // Dev Test Data
-        if (NODE_ENV === 'development') await devConfig();
+        // if (NODE_ENV === 'development') await devConfig();
 
         const httpServer = createServer(app);
         // websocket(httpServer);
