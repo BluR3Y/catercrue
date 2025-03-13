@@ -63,6 +63,7 @@ const authStrategyCallback = (req: Request, res: Response, next: NextFunction) =
                 return;
             }
 
+            req.user = userData;
             req.roleData = {
                 role,
                 data: roleData

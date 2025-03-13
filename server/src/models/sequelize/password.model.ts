@@ -1,34 +1,46 @@
 import { CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, Model, Optional } from "sequelize";
 import { getSequelizeInstance } from "../../config/postgres";
-import crypto from "crypto";
+import bcrypt from "bcrypt";
 
 class Password extends Model<InferAttributes<Password>, InferCreationAttributes<Password>> {
     public id!: CreationOptional<string>;   // Auto-generated UUID
     public userId!: string;
-    public salt!: string;
-    public hash!: string;
+    public password!: string;
     public isActive!: CreationOptional<boolean>;
 
     public readonly createdAt!: CreationOptional<Date>; // Managed by Sequelize
 
-    static hashPassword(password: string): Promise<[string, string]> {
-        return new Promise((resolve, reject) => {
-            // Generate a random salt
-            const salt = crypto.randomBytes(16).toString('hex');
-            crypto.scrypt(password, salt, 64, (err, hash) => {
-                if (err) return reject(err);
-                resolve([salt, hash.toString('hex')]);
-            })
-        });
+    // Method to hash password
+    public async hashPassword(): Promise<void> {
+        const saltRounds = 10;
+        this.password = await bcrypt.hash(this.password, saltRounds);
     }
 
-    async validatePassword(attempt: string): Promise<boolean> {
-        return new Promise((resolve, reject) => {
-            crypto.scrypt(attempt, this.salt, 64, (err, attemptHash) => {
-                if (err) return reject(err);
-                resolve(this.hash === attemptHash.toString('hex'));
-            });
+    // Method to compare passwords
+    public async validatePassword(attempt: string): Promise<boolean> {
+        return bcrypt.compare(attempt, this.password);
+    }
+
+    // Method to check if password is a recent repeat
+    public async isRecentRepeat(): Promise<boolean> {
+        const numBeforeReuse = 5;
+        const latestPasswords = await Password.findAll({
+            where: { userId: this.userId },
+            order: [ ['createdAt', 'DESC'] ],
+            limit: numBeforeReuse
         })
+
+        for (const record of latestPasswords) {
+            if (await bcrypt.compare(this.password, record.password)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Method to deactivate previous password
+    public static async deactivatePreviousPassword(userId: string) {
+        await Password.update({ isActive: false }, { where: { userId, isActive: true } });
     }
 }
 
@@ -49,12 +61,8 @@ Password.init(
             },
             onDelete: 'CASCADE'
         },
-        salt: {
-            type: new DataTypes.STRING(32), // Each byte is represented by 2 hex characters
-            allowNull: false
-        },
-        hash: {
-            type: new DataTypes.STRING(128),
+        password: {
+            type: DataTypes.STRING,
             allowNull: false
         },
         isActive: {
@@ -83,10 +91,16 @@ Password.init(
 
 // Hook triggered before record is created
 Password.beforeCreate(async (passwordInstance: Password) => {
-    // Deactive existing active password
-    await Password.update({ isActive: false }, {
-        where: { userId: passwordInstance.userId, isActive: true }
-    });
+    // Determine if password was already used by user
+    if (await passwordInstance.isRecentRepeat()) {
+        throw new Error("New password cannot be the same as a previous one");
+    }
+
+    // Hash password before creating record
+    await passwordInstance.hashPassword();
+
+    // Deactivate previous password
+    await Password.deactivatePreviousPassword(passwordInstance.userId);
 });
 
 // Hook triggered before record is updated
@@ -94,8 +108,7 @@ Password.beforeUpdate(async (passwordInstance: Password) => {
     if (
         passwordInstance.changed('id') ||
         passwordInstance.changed('userId') ||
-        passwordInstance.changed('salt') ||
-        passwordInstance.changed('hash') ||
+        passwordInstance.changed('password') ||
         passwordInstance.changed('createdAt')
     ) {
         throw new Error("Can not modify password records");

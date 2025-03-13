@@ -7,7 +7,6 @@ class ContactMethod extends Model<InferAttributes<ContactMethod>, InferCreationA
     public userId!: string;
     public type!: 'email' | 'phone';
     public value!: string;
-    public isVerified!: CreationOptional<boolean>;
     public isPrimary!: CreationOptional<boolean>;
 
     public readonly createdAt!: CreationOptional<Date>;
@@ -40,11 +39,6 @@ ContactMethod.init(
             type: DataTypes.STRING,
             allowNull: false,
             unique: true
-        },
-        isVerified: {
-            type: DataTypes.BOOLEAN,
-            defaultValue: false,
-            allowNull: false
         },
         isPrimary: {
             type: DataTypes.BOOLEAN,

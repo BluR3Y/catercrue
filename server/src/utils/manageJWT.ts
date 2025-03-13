@@ -1,15 +1,15 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { redisClient } from "../config/redis";
+import { StringValue } from "ms";
 
 const {
-    JWT_KEY,
-    ACCESS_TOKEN_DURATION
+    JWT_KEY
 } = process.env;
 
 if (!JWT_KEY) throw new Error("JWT_KEY is not defined in environment variables");
 
-export const generateJWT = (payload: object): string => {
-    return jwt.sign(payload, JWT_KEY, { expiresIn: ACCESS_TOKEN_DURATION ? Number(ACCESS_TOKEN_DURATION) : '1h' });
+export const generateJWT = (payload: object, duration: number | StringValue) => {
+    return jwt.sign(payload, JWT_KEY, { expiresIn: duration });
 }
 
 export const verifyJWT = (token: string): JwtPayload => {

@@ -15,7 +15,7 @@ import odm from "./models/mongoose";
 
 const devConfig = async () => {
     const sequelize = getSequelizeInstance();
-    const force = false;
+    const force = true;
     await sequelize.sync({force});
     logger.info("Postgres tables synchronized with sequelize models.");
     // Test Data
@@ -29,11 +29,9 @@ const devConfig = async () => {
                 // email: "reyhector1234@gmail.com",
                 // phone: "+19295697692"
             }, {transaction});
-            const [salt, hash] = await orm.Password.hashPassword("Password@1234")
             const testPassword = await orm.Password.create({
                 userId: testUserOne.id,
-                salt,
-                hash,
+                password: "Password@1234"
             },{transaction});
 
             await orm.ContactMethod.create({
@@ -64,11 +62,9 @@ const devConfig = async () => {
                 isPrimary: false
             },{transaction});
 
-            const [salty, hashy] = await orm.Password.hashPassword("Password@1234");
             const testPasswordTwo = await orm.Password.create({
                 userId: testUserTwo.id,
-                salt: salty,
-                hash: hashy
+                password: "Password@1234"
             }, {transaction});
 
             await transaction.commit();
@@ -118,7 +114,7 @@ async function startServer() {
         } = process.env;
 
         const backend_client = NODE_ENV === "development" ? 'localhost' : BACKEND_CLIENT;
-        const backend_port = Number(NODE_ENV === 'development' ? '3000' : BACKEND_PORT);
+        const backend_port = Number(NODE_ENV === 'development' ? '3001' : BACKEND_PORT);
         if (!backend_client || !backend_port) {
             throw new Error("Missing server environment variables");
         }

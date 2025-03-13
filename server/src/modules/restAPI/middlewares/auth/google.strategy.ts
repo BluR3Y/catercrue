@@ -1,6 +1,6 @@
 import axios from "axios";
 import { PassportStatic } from "passport";
-import { Strategy, StrategyOptions } from "passport-oauth2";
+import { Strategy, StrategyOptions, VerifyFunction, VerifyFunctionWithRequest } from "passport-oauth2";
 
 export default function(passport: PassportStatic) {
     passport.use('google-oauth', new Strategy({
@@ -21,9 +21,18 @@ export default function(passport: PassportStatic) {
             });
 
             // Construct user object
-            
+            console.log(data);
+
+
         } catch (err) {
             done(err);
         }
-    }));
+    } as VerifyFunction));
 }
+
+// Last Here: Implementing google-oauth
+
+// accessToken: A temporary token issued by Google that grants access to the user’s data.
+// refreshToken: A long-lived token used to get new access tokens when they expire.
+// params: The raw response parameters from Google that contain additional info.
+// profile: The Google user profile object returned by Passport.js after authentication.
