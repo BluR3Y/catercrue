@@ -41,5 +41,5 @@ export const blacklistToken = async (token: string): Promise<void> => {
 // Check if token is blacklisted in redis cache
 export const isBlackListed = async (token: string): Promise<boolean> => {
     const blacklistToken = await redisClient!.get(`blacklist:${token}`);
-    return !!blacklistToken;
+    return blacklistToken !== null;
 }

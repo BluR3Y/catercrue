@@ -21,5 +21,8 @@ export default function(router: Router) {
     router.post('/auth/register/coordinator', otpMiddleware, authController.registerCoordinator);
     router.post('/auth/register/worker', otpMiddleware, authController.registerWorker);
 
+    // Logout
+    router.post('/auth/logout', authenticate.jwt, authController.logout);
+
     router.get('/auth/register/:identifierType(phone|email)/:identifierValue', authController.identifierAvailability);
 }

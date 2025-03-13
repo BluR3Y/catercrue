@@ -49,6 +49,10 @@ RefreshToken.init(
         tableName: 'refresh_tokens',
         modelName: 'RefreshToken',
         sequelize: getSequelizeInstance(),
+        indexes: [
+            { fields: ['userId'] },
+            { fields: ['expiry'] }
+        ],
         timestamps: true,
         updatedAt: false
     }

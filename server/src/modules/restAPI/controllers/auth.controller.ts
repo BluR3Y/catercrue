@@ -32,11 +32,43 @@ export const login: RequestHandler = async (req, res, next) => {
     }
 }
 
+export const logout: RequestHandler = async (req, res, next) => {
+    try {
+        // Delete refresh token
+        const refreshToken = req.cookies?.refreshToken;
+        if (!refreshToken) {
+            res.status(400).json({ message: "No refresh token found" });
+            return;
+        }
+
+        // Find and delete refresh token from DB
+        const rtData = await orm.RefreshToken.findByPk(refreshToken);
+        if (!rtData) {
+            res.status(403).json({ message: "Invalid refresh token" });
+            return;
+        }
+        // Invalidate refresh token
+        await rtData.destroy();
+
+        // Clear refresh token from cookies
+        res.clearCookie("refreshToken", { httpOnly: true, secure: true });
+
+        // Retrieve access token
+        let accessToken = req.headers['authorization']!.split(' ')[1];
+        // Blacklist access token
+        await blacklistToken(accessToken);
+
+        res.status(200).json({ message: "User successfully logged out" });
+    } catch (err) {
+        next(err);
+    }
+}
+
 export const identifierAvailability: RequestHandler = async (req, res, next) => {
     try {
         const { identifierType, identifierValue } = req.params;
         const isIdentifierAvailable = await orm.ContactMethod.count({
-            where: { [identifierType]: identifierValue }
+            where: {type: identifierType, value: identifierValue }
         }) === 0;
         res.json({ available: isIdentifierAvailable });
     } catch (err) {
@@ -47,7 +79,12 @@ export const identifierAvailability: RequestHandler = async (req, res, next) => 
 export const refreshToken: RequestHandler = async (req, res, next) => {
     try {
         const { role, data } = req.roleData!;
-        const { refreshToken } = req.body;
+        const refreshToken = req.cookies?.refreshToken;
+
+        if (!refreshToken) {
+            res.status(401).json({ message: "No refresh token provided" });
+            return;
+        }
 
         // Retrieve refresh token information from db
         let rtData = await orm.RefreshToken.findByPk(refreshToken);
@@ -233,6 +270,9 @@ export const registerCoordinator: RequestHandler = async (req, res, next) => {
             data: worker
         };
 
+        // Remove otp token header
+        res.removeHeader('x-otp-token');
+
         login(req, res, next);
     } catch (err) {
         next(err);
@@ -266,6 +306,9 @@ export const registerWorker: RequestHandler = async (req, res, next) => {
             role: 'worker',
             data: worker
         };
+
+        // Remove otp token header
+        res.removeHeader('x-otp-token');
 
         login(req, res, next);
     } catch (err) {

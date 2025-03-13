@@ -42,32 +42,13 @@ const authStrategyCallback = (req: Request, res: Response, next: NextFunction) =
                 ipAddress: clientIp!,
                 userAgent: userAgent!.source,
                 validation: !info,
-                failureReason: info.code
+                failureReason: info?.code
             });
 
             if (user && info) return res.status(401).json(info);
 
             const userData = await orm.User.findByPk(user);
             if (!userData) return next(new Error(`Authenticated user not found; ${user}`));
-
-            const role: 'coordinator' | 'worker' = req.body.role!;
-            let roleData;
-            if (role === "coordinator") {
-                roleData = await odm.coordinatorModel.findOne({ userId: user });
-            } else if (role === "worker") {
-                roleData = await odm.workerModel.findOne({ userId: user });
-            }
-
-            if (!roleData) {
-                res.status(403).json({ message: "User is not registered for role", code: "UNREGISTERED_ROLE" });
-                return;
-            }
-
-            req.user = userData;
-            req.roleData = {
-                role,
-                data: roleData
-            } as any;
 
             next();
         } catch (err) {

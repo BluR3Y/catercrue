@@ -10,7 +10,8 @@
             "ACCOUNT_SUSPENDED",
             "ACCOUNT_NOT_VERIFIED",
             "ACCOUNT_DELETED",
-            "ACCOUNT_BANNED"
+            "ACCOUNT_BANNED",
+            "UNREGISTERED_ROLE"
         ],
         "SECURITY": [
             "TOO_MANY_ATTEMPTS",

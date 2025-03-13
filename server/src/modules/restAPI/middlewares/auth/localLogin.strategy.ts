@@ -7,20 +7,19 @@ import { orm, odm } from "@/models";
 // Local Strategy for login authentication
 export default function(passport: PassportStatic) {
     passport.use('local-login', new Strategy({
-        usernameField: 'identifier',
+        usernameField: 'identifierValue',
         passwordField: 'password',
         passReqToCallback: true
     } as IStrategyOptionsWithRequest,
-    async function(req: Request, identifier: string, password: string, done: any) {
+    async function(req: Request, identifierValue: string, password: string, done: any) {
         try {
-            // Either phone/email
-            const { identifierType, role } = req.body;
+            const { identifierType, role } = req.body as { identifierType: 'phone' | 'email'; role: 'coordinator' | 'worker' };
 
             // Retrieve verified contact method 
             const contactMethod = await orm.ContactMethod.findOne({
                 where: {
                     type: identifierType,
-                    value: identifier
+                    value: identifierValue
                 }
             });
             // Indicate error if no user is registered with given credentials
@@ -39,6 +38,19 @@ export default function(passport: PassportStatic) {
             if (!validPassword) {
                 return done(null, userId, { message: "Invalid password", code: "INCORRECT_PASSWORD" });
             }
+
+            let roleData;
+            if (role === 'coordinator') {
+                roleData = await odm.coordinatorModel.findOne({ userId });
+            } else if (role === 'worker') {
+                roleData = await odm.workerModel.findOne({ userId });
+            }
+            if (!roleData) return done(null, userId, { message: "User is not registed for role", code: "UNREGISTERED_ROLE" });
+
+            req.roleData = {
+                role,
+                data: roleData
+            } as any;
 
             done(null, userId);
         } catch (err) {
