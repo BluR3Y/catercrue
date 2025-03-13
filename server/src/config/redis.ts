@@ -30,9 +30,7 @@ const redisConnect = async (): Promise<void> => {
         redisClient.on("error", (error) => logger.error("Redis error:", {error}));
         redisClient.on("reconnecting", () => logger.stream("Redis reconnecting..."));
     } catch (err) {
-        // console.error('Failed to connect to Redis', err);
-        // throw err;
-        throw new Error(`Failed to connect to Redis: ${err}`);
+        throw new Error(`Failed to connect to Redis: ${(err as Error).message}`);
     }
 }
 
@@ -41,8 +39,8 @@ const closeRedisConnection = async (): Promise<void> => {
         try {
             await redisClient.quit();
             logger.info("Successfully closed connection to Redis cache.");
-        } catch (error) {
-            logger.error("Error occured while closing connection to Redis cache: ", {error});
+        } catch (err) {
+            logger.error(`Error occured while closing connection to Redis cache: ${(err as Error).message}`, { stack: (err as Error).stack });
         }
     }
 }
@@ -57,7 +55,6 @@ const getRedisInstance = (): Redis => {
 }
 
 export {
-    redisClient,
     redisReady,
     closeRedisConnection,
     getRedisInstance

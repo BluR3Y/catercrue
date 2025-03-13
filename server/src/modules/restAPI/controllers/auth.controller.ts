@@ -2,9 +2,12 @@ import { RequestHandler } from "express";
 import crypto from "crypto";
 
 import { blacklistToken, generateJWT } from "@/utils/manageJWT";
-import { twilioClient } from "@/config/twilio";
-import { redisClient } from "@/config/redis";
+import { sendSMSOTP } from "@/services/smsService";
+import { getRedisInstance } from "@/config/redis";
 import { orm, odm } from "@/models";
+import { sendEmailOTP } from "@/services/emailService";
+
+const redisClient = getRedisInstance();
 
 const accessTokenDuration = process.env.ACCESS_TOKEN_DURATION ? Number(process.env.ACCESS_TOKEN_DURATION) : "1h"
 
@@ -151,13 +154,9 @@ export const requestOTP: RequestHandler = async (req, res, next) => {
 
         // Send OTP via SMS or Email
         if (identifierType === 'phone') {
-            await twilioClient!.messages.create({
-                body: `Your CaterCrue verification code is: ${otp}`,
-                from: process.env.TWILIO_PHONE_NUMBER,
-                to: identifierValue
-            });
+            await sendSMSOTP(identifierValue, otp);
         } else if (identifierType === 'email') {
-            // Implement email OTP sending logic
+            await sendEmailOTP(identifierValue, otp);
         }
         res.status(201).json({ message: "OTP sent successfully" });
     } catch (err) {

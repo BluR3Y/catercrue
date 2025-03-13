@@ -19,8 +19,9 @@ const mongooseConnect = async (): Promise<void> => {
         // Throw mongoose error if querying fields aren't defined
         mongoose.set('strictQuery', true);
         mongooseClient = await mongoose.connect(mongoUri)
+        logger.info("Successfully established connection to mongo database.");
     } catch (err) {
-        throw new Error(`Failed to establish a connection to mongoDB database: ${err}`);
+        throw new Error(`Failed to establish a connection to mongoDB database: ${(err as Error).message}`);
     }
 }
 
@@ -29,8 +30,8 @@ const closeMongooseConnection = async (): Promise<void> => {
         try {
             await mongooseClient.disconnect();
             logger.info("Mongo connection successfully closed");
-        } catch (error) {
-            logger.error("Error occured while closing connection to Mongo database:", {error});
+        } catch (err) {
+            logger.error(`Error while closing connection to Mongo database: ${(err as Error).message}`, { stack: (err as Error).stack });
         }
     }
 }

@@ -1,8 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import { MulterError } from "multer";
-import logger from "../../../config/winston";
+import logger from "@/config/winston";
 
-export default function(error: any, req: Request, res: Response, next: NextFunction) {
-    logger.error("Error occured while handling request: ", {error});
+export default function(err: Error, req: Request, res: Response, next: NextFunction) {
+    logger.error(`Error occured while handling request: ${err.message}`, { stack: err.stack });
     res.status(500).json({ message: "Internal Server Error" });
 }

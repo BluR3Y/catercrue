@@ -1,6 +1,8 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { redisClient } from "../config/redis";
+import { getRedisInstance } from "../config/redis";
 import { StringValue } from "ms";
+
+const redisClient = getRedisInstance();
 
 const {
     JWT_KEY

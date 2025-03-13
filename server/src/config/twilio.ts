@@ -16,13 +16,20 @@ const twilioConnect = async () => {
 
         logger.info("Connection to Twilio successfully created");
     } catch (err) {
-        throw new Error(`Failed to establish a connection to twilio service: ${err}`);
+        throw new Error(`Failed to establish a connection to twilio service: ${(err as Error).message}`);
     }
 }
 
 const twilioReady = twilioConnect();
 
+const getTwilioClient = (): Twilio => {
+    if (!twilioClient) {
+        throw new Error("Twilio has not been initialized");
+    }
+    return twilioClient;
+}
+
 export {
-    twilioClient,
-    twilioReady
+    twilioReady,
+    getTwilioClient
 }

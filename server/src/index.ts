@@ -6,6 +6,7 @@ import { postgresReady, closePostgresConnection, getSequelizeInstance } from './
 import { closeMongooseConnection, mongooseReady } from './config/mongoose';
 import { redisReady, closeRedisConnection } from './config/redis';
 import { twilioReady } from './config/twilio';
+import { mailerReady } from './config/nodemailer';
 import restAPI from './modules/restAPI';
 import logger from './config/winston';
 import websocket from './modules/websocket';
@@ -105,7 +106,7 @@ const devConfig = async () => {
 
 async function startServer() {
     try {
-        await Promise.all([postgresReady, redisReady, mongooseReady, twilioReady]);
+        await Promise.all([postgresReady, redisReady, mongooseReady, twilioReady, mailerReady]);
 
         const {
             BACKEND_CLIENT,
@@ -137,12 +138,10 @@ async function startServer() {
             logger.info(`Backend Server running on http://${backend_client}:${backend_port}`);
         });
     } catch (error) {
-        console.log(error)
         logger.error("Error occurred while starting the server: ", { error });
         await closePostgresConnection();
         await closeRedisConnection();
         await closeMongooseConnection();
-        process.exit(1);
     }
 }
 startServer();
