@@ -6,9 +6,19 @@ interface TimeSlot {
     end: string;
 }
 
+export enum WeekDay {
+    Monday = "Monday",
+    Tuesday = "Tuesday",
+    Wednesday = "Wednesday",
+    Thursday = "Thursday",
+    Friday = "Friday",
+    Saturday = "Saturday",
+    Sunday = "Sunday"
+}
+
 // Define weekly availability structure
 interface AvailabilitySlot {
-    weekDay: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday";
+    weekDay: Readonly<WeekDay>;
     timeSlots: TimeSlot[];
 }
 
@@ -17,6 +27,7 @@ interface ExceptionSlot {
     date: Date;     // Specific date exception
     timeSlots: TimeSlot[];  // Available/Unavailable time slots
     isAvailable: boolean;   // Defines if worker is available that day
+    reason?: string;
 }
 
 // Worker Interface

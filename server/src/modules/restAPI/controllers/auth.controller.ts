@@ -241,7 +241,7 @@ export const registerUser: RequestHandler = async (req, res, next) => {
     }
 }
 
-export const registerCoordinator: RequestHandler = async (req, res, next) => {
+export const registerCaterer: RequestHandler = async (req, res, next) => {
     try {
         const { identifierType, identifierValue } = req.otpData!;
 
@@ -254,19 +254,19 @@ export const registerCoordinator: RequestHandler = async (req, res, next) => {
             return;
         }
 
-        const isCoordinatorRegistered = await odm.coordinatorModel.countDocuments({ userId: contactMethod.userId });
-        if (isCoordinatorRegistered) {
-            res.status(401).json({ message: "User is already registered as a coordinator" });
+        const isCatererRegistered = await odm.catererModel.countDocuments({ userId: contactMethod.userId });
+        if (isCatererRegistered) {
+            res.status(401).json({ message: "User is already registered as a caterer" });
             return;
         }
 
-        const worker = await odm.coordinatorModel.create({
+        const roleData = await odm.catererModel.create({
             userId: contactMethod.userId
         });
 
         req.roleData = {
-            role: 'coordinator',
-            data: worker
+            role: 'caterer',
+            data: roleData
         };
 
         // Remove otp token header

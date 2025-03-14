@@ -14,8 +14,6 @@ export default function(passport: PassportStatic) {
     } as StrategyOptionsWithRequest,
     async function(req: Request, payload: JwtPayload, done: VerifiedCallback) {
         try {
-            const { role, roleId } = payload;
-
             // Extract token from 'authorization' header in the request
             const token = req.headers['authorization']!.split(' ')[1];
 
@@ -24,22 +22,7 @@ export default function(passport: PassportStatic) {
                 return done(null, false, "Token is blacklisted");
             }
 
-            let roleData;
-            if (role === 'coordinator') {
-                roleData = await odm.coordinatorModel.findById(roleId);
-            } else if (role === 'worker') {
-                roleData = await odm.workerModel.findById(roleId);
-            }
-            if (!roleData) {
-                return done(new Error("Role data could not be found"));
-            }
-
-            req.roleData = {
-                role,
-                data: roleData
-            } as any;
-
-            done(null, roleData.userId);
+            done(null, payload);
         } catch (err: any) {
             if (err.name === "TokenExpiredError") return done(null, false, "Token expired");
             if (err.name === "JsonWebTokenError") return done(null, false, "Invalid Token");

@@ -10,6 +10,7 @@ import { odm, orm } from "@/models";
 import localLoginStrategy from "./localLogin.strategy";
 import jwtStrategy from "./jwt.strategy";
 import googleStrategy from "./google.strategy";
+import { RoleData } from "@/types/express";
 
 // Configure passport authentication middleware
 export const passportAuthenticationMiddleware = (app: Application) => {
@@ -17,17 +18,16 @@ export const passportAuthenticationMiddleware = (app: Application) => {
     app.use(requestIp.mw());    // Capture IP
     app.use(useragent.express());   // Capture User-Agent
 
+    // Initialize Passport.js
+    app.use(passport.initialize());
+
     // Install Auth Strategies
     localLoginStrategy(passport);
     jwtStrategy(passport);
     googleStrategy(passport);
-
-    // Initialize Passport.js
-    app.use(passport.initialize());
 }
 
-// Callback that handles custom error messages
-const authStrategyCallback = (req: Request, res: Response, next: NextFunction) => {
+const authenticateStrategyCallback = (req: Request, res: Response, next: NextFunction) => {
     return async (err: string | null, user: string | null, info: any) => {
         if (err) return next(err);
         if (!user) return res.status(401).json(info ? info : { message: 'unauthorized request', code: 'UNAUTHORIZED' });
@@ -39,8 +39,8 @@ const authStrategyCallback = (req: Request, res: Response, next: NextFunction) =
             const clientIp = req.clientIp;
             await orm.LoginAttempt.create({
                 userId: user,
-                ipAddress: clientIp!,
-                userAgent: userAgent!.source,
+                ipAddress: clientIp ?? "Unknown",
+                userAgent: userAgent?.source ?? "Unknown",
                 validation: !info,
                 failureReason: info?.code
             });
@@ -61,13 +61,50 @@ const authStrategyCallback = (req: Request, res: Response, next: NextFunction) =
 export const authenticate = {
     // Email/Phone & Password (Local Login)
     localLogin: async function(req: Request, res: Response, next: NextFunction) {
-        return passport.authenticate('local-login', authStrategyCallback(req, res, next))(req, res, next);
+        return passport.authenticate('local-login', authenticateStrategyCallback(req, res, next))(req, res, next);
+    },
+    // Google Oauth2
+    google: async function(req: Request, res: Response, next: NextFunction) {
+        return passport.authenticate('google-oauth', { scope: ["profile", "email"] }, authenticateStrategyCallback(req, res, next))(req, res, next);
     },
     // JWT
-    jwt: async function(req: Request, res: Response, next: NextFunction) {
-        return passport.authenticate('jwt', authStrategyCallback(req, res, next))(req, res, next);
-    },
-    google: async function(req: Request, res: Response, next: NextFunction) {
-        return passport.authenticate('google-oauth', { scope: ["profile", "email"] }, authStrategyCallback(req, res, next))(req, res, next);
+    jwt: function(allowedRoles: string[] = []) {
+        return (req: Request, res: Response, next: NextFunction) => {
+            passport.authenticate('jwt', async (err: string | null, user: { role: 'caterer' | 'worker'; roleId: string } | null, info: any) => {
+                if (err) return next(err);
+                if (!user) return res.status(401).json(info ? info : { message: "Unauthorized request", code: "UNAUTHORIZED" });
+
+                const { role, roleId } = user;
+                try {
+                    if (allowedRoles.length && !allowedRoles.includes(role)) {
+                        return res.status(401).json({ message: "Unauthorized Request", code: "UNAUTHORIZED" });
+                    }
+                    // Use map to fetch the correct model dynamically
+                    const roleModelMap = {
+                        caterer: odm.catererModel,
+                        worker: odm.workerModel
+                    }
+                    const roleModel = roleModelMap[role] as any;
+                    if (!roleModel) {
+                        throw new Error(`Invalid role: ${user}`);
+                    }
+
+                    const roleData = await roleModel.findById(roleId);
+                    if (!roleData) {
+                        throw new Error(`Role data could not be found ${roleId}`);
+                    }
+
+                    req.roleData = {
+                        role,
+                        data: roleData
+                    } as RoleData;
+
+                    next();
+                } catch(err) {
+                    next(err);
+                }
+            })(req, res, next);
+        }
     }
 };
+// Last Here

@@ -1,10 +1,11 @@
 import { Document, Types } from "mongoose";
 
 export interface IShift extends Document {
-    eventId: Types.ObjectId;
-    coordinatorId: Types.ObjectId;
-    workerId: Types.ObjectId;
-    role: string;
+    event: Types.ObjectId;
+    assigner: Types.ObjectId;
+    assignerRef: 'Caterer' | 'Client';
+    worker: Types.ObjectId;
+    role: number;
     shiftStart: Date;
     shiftEnd: Date;
     createdAt?: Date;

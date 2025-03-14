@@ -10,7 +10,7 @@ export default function(router: Router) {
     router.get('/auth/google/callback', authenticate.google, authController.login);
 
     // Token Handlers
-    router.post('/auth/refresh', authenticate.jwt, authController.refreshToken);
+    router.post('/auth/refresh', authenticate.jwt([]), authController.refreshToken);
 
     // OTP handlers
     router.post('/auth/otp/request', authController.requestOTP);
@@ -18,11 +18,11 @@ export default function(router: Router) {
 
     // Register handlers
     router.post('/auth/register/user', otpMiddleware, authController.registerUser);
-    router.post('/auth/register/coordinator', otpMiddleware, authController.registerCoordinator);
+    router.post('/auth/register/caterer', otpMiddleware, authController.registerCaterer);
     router.post('/auth/register/worker', otpMiddleware, authController.registerWorker);
 
     // Logout
-    router.post('/auth/logout', authenticate.jwt, authController.logout);
+    router.post('/auth/logout', authenticate.jwt(), authController.logout);
 
     router.get('/auth/register/:identifierType(phone|email)/:identifierValue', authController.identifierAvailability);
 }

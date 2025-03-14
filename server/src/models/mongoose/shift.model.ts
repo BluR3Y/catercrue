@@ -1,25 +1,30 @@
-import { model, Schema } from "mongoose";
+import {  model, Schema } from "mongoose";
 import { IShift } from "@/types";
 
 const shiftSchema = new Schema<IShift>(
     {
-        eventId: {
+        event: {
             type: Schema.Types.ObjectId,
             required: true,
-            ref: 'Event'
+            ref: 'Events'
         },
-        coordinatorId: {
+        assigner: {
             type: Schema.Types.ObjectId,
             required: true,
-            ref: 'Coordinator'
+            refPath: 'assignerRef'
         },
-        workerId: {
+        assignerRef: {
+            type: String,
+            required: true,
+            enum: ['Caterer', 'Client']
+        },
+        worker: {
             type: Schema.Types.ObjectId,
             required: true,
             ref: 'Worker'
         },
         role: {
-            type: Schema.Types.String,
+            type: Schema.Types.Number,
             required: true
         },
         shiftStart: {
@@ -36,8 +41,5 @@ const shiftSchema = new Schema<IShift>(
         collection: 'shifts'
     }
 );
-
-// Quicker querying by userId
-shiftSchema.index({ workerId: 1 });
 
 export default model<IShift>("Shift", shiftSchema);

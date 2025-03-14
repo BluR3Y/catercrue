@@ -1,22 +1,41 @@
 import { model, Schema } from "mongoose";
-import { itinerarySchema } from "./itinerary.schema";
-import { IEvent } from "@/types";
+import { EventStatuses, IEvent, IItinerary } from "@/types/models";
 
+const itinerarySchema = new Schema<IItinerary>(
+    {
+        title: {
+            type: Schema.Types.String,
+            required: true
+        },
+        description: {
+            type: Schema.Types.String,
+            required: true
+        },
+        numAttendees: {
+            type: Schema.Types.Number,
+            required: true
+        }
+    },
+    {
+        timestamps: {
+            createdAt: false,
+            updatedAt: true
+        }
+    }
+);
 
 const eventSchema = new Schema<IEvent>(
     {
-        coordinatorId: {
-            type: Schema.Types.ObjectId,
-            required: true,
-            ref: 'Coordinators'
+        client: {
+            type: Schema.Types.ObjectId
         },
         eventType: {
-            type: Schema.Types.String,
+            type: Schema.Types.Number,
             required: true
         },
         status: {
             type: Schema.Types.String,
-            enum: ['scheduled', 'ongoing', 'completed', 'canceled', 'drafted'],
+            enum: Object.values(EventStatuses),
             required: true
         },
         location: {
@@ -30,6 +49,7 @@ const eventSchema = new Schema<IEvent>(
                 required: true
             }
         },
+        itinerary: itinerarySchema,
         scheduledStart: {
             type: Schema.Types.Date,
             required: true
@@ -37,13 +57,7 @@ const eventSchema = new Schema<IEvent>(
         scheduledEnd: {
             type: Schema.Types.Date,
             required: true
-        },
-        caterers: [{
-            type: Schema.Types.ObjectId,
-            required: true,
-            ref: 'Coordinators'
-        }],
-        itinerary: itinerarySchema
+        }
     },
     {
         timestamps: true,
@@ -51,11 +65,6 @@ const eventSchema = new Schema<IEvent>(
     }
 );
 
-// Quicker query by location
-eventSchema.index({ location: '2dsphere' });
-// Quicker query by coordinatorId
-eventSchema.index({ coordinatorId: 1 });
-// Quicker query by scheduledDate
-eventSchema.index({ scheduledDate: 1 });
+eventSchema.index({ location: "2dsphere" });
 
 export default model<IEvent>("Event", eventSchema);

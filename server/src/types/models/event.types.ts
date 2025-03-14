@@ -7,18 +7,25 @@ export interface IItinerary extends Document {
     updatedAt?: Date;
 }
 
+export enum EventStatuses {
+    drafted = "drafted",
+    scheduled = "scheduled",
+    canceled = "canceled"
+    // ongoing = "ongoing",
+    // completed = "completed",
+}
+
 export interface IEvent extends Document {
-    coordinatorId: Types.ObjectId;
-    eventType: string;
-    status: "drafted" | "scheduled" | "ongoing" | "completed" | "canceled";
+    client?: Types.ObjectId;
+    eventType: number;
+    status: ReadonlyArray<EventStatuses>;
+    itinerary?: IItinerary;
     location: {
         type: 'Point';
         coordinates: [number, number];
     };
     scheduledStart: Date;
     scheduledEnd: Date;
-    caterers: Types.ObjectId[];
-    itinerary?: IItinerary;
     createdAt?: Date;
     updatedAt?: Date;
 }

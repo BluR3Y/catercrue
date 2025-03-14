@@ -2,11 +2,9 @@ import User from "./user.model";
 import Password from "./password.model";
 import LoginAttempt from "./loginAttempt.model";
 import RefreshToken from "./refreshToken.model";
+import ContactMethod from "./contactMethod.model";
 
 import EventType from "./eventType.model";
-// import Event from "./event.model";
-// import EventItinerary from "./eventItinerary.model";
-// import EventStaff from "./eventStaff.model";
 
 export default function() {
     // User Associations
@@ -22,6 +20,10 @@ export default function() {
         foreignKey: 'userId',
         as: 'LoginAttempts'
     })
+    User.hasMany(ContactMethod, {
+        foreignKey: 'userId',
+        as: 'ContactMethods'
+    });
 
     // Password Associations
     Password.belongsTo(User, {
@@ -41,5 +43,9 @@ export default function() {
         as: 'user'
     });
 
-    
+    // Contact Method associations
+    ContactMethod.belongsTo(User, {
+        foreignKey: 'userId',
+        as: 'user'
+    });
 }

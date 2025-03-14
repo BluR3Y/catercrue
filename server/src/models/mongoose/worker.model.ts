@@ -1,17 +1,17 @@
 import { model, Schema } from "mongoose";
-import { IWorker } from "@/types";
+import { IWorker, WeekDay } from "@/types/models";
 
 const workerSchema = new Schema<IWorker>(
     {
         userId: {
-            type: Schema.Types.String,
+            type: String,
             required: true
         },
         availability: [
             {
                 weekDay: {
                     type: String,
-                    enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+                    enum: Object.values(WeekDay),
                     required: true,
                 },
                 timeSlots: [
@@ -34,6 +34,9 @@ const workerSchema = new Schema<IWorker>(
                 isAvailable: {
                     type: Boolean,
                     required: true
+                },
+                reason: {
+                    type: String
                 }
             }
         ]
