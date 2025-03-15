@@ -55,8 +55,8 @@ async function startServer() {
         httpServer.listen(backend_port, backend_client, () => {
             logger.info(`Backend Server running on http://${backend_client}:${backend_port}`);
         });
-    } catch (error) {
-        logger.error("Error occurred while starting the server: ", { error });
+    } catch (err) {
+        logger.error(`Error occurred while starting the server: ${(err as Error).message}`, { stack: (err as Error).stack });
         await closePostgresConnection();
         await closeRedisConnection();
         await closeMongooseConnection();

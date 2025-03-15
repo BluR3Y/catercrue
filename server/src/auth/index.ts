@@ -10,6 +10,7 @@ import { odm, orm } from "@/models";
 import localStrategy from "./local.strategy";
 import jwtStrategy from "./jwt.strategy";
 import googleStrategy from "./google.strategy";
+import { Model } from "mongoose";
 
 // Configure passport authentication middleware
 export const passportAuthMiddleware = (app: Application) => {
@@ -29,12 +30,12 @@ export const passportAuthMiddleware = (app: Application) => {
     googleStrategy(passport);
 }
 
-const standardMsg = { message: "Unauthorized Request", code: "UNAUTHORIZED" };
+const standardErr = { message: "Unauthorized Request", code: "UNAUTHORIZED" };
 
 const authenticateStrategyCallback = (req: Request, res: Response, next: NextFunction) => {
-    return async (err: string | null, user: string | null, info: { message: string; code: string } | null) => {
+    return async (err: string | null, user: string | null, info: { message: string; name: string } | null) => {
         if (err) return next(err);
-        if (!user) return res.status(401).json(info ?? standardMsg);
+        if (!user) return res.status(401).json({ message: info?.message || standardErr.message, code: info?.name || standardErr.code });
 
         try {
             const userAgent = req.useragent;
@@ -46,10 +47,10 @@ const authenticateStrategyCallback = (req: Request, res: Response, next: NextFun
                 ipAddress: clientIp ?? "Unknown",
                 userAgent: userAgent?.source ?? "Unknown",
                 validation: !info,
-                failureReason: info?.code
+                failureReason: info?.name
             });
 
-            if (user && info) return res.status(401).json(info);
+            if (user && info) return res.status(401).json({ message: info.message, code: info.name });
 
             const userData = await orm.User.findByPk(user);
             if (!userData) return next(new Error(`Authenticated user not found; ${user}`));
@@ -62,23 +63,23 @@ const authenticateStrategyCallback = (req: Request, res: Response, next: NextFun
 }
 
 export const rbac = (allowedRoles: string[] = []) => {
-    const roleMap: any = {
+    const roleMap: Record<string, Model<any>> = {
         "caterer": odm.catererModel,
         "worker": odm.workerModel
     }
     return async (req: Request, res: Response, next: NextFunction) => {
         authenticate.jwt(async (err, user, info) => {
             if (err) return next(err);
-            if (!user) return res.status(401).json(info ?? standardMsg);
+            if (!user) return res.status(401).json({ message: info?.message || standardErr.message, code: info?.name || standardErr.code });
 
             const { role, roleId } = user;
             if (allowedRoles.length && !allowedRoles.includes(role)) {
-                return res.status(401).json(standardMsg);
+                return res.status(403).json(standardErr);
             }
 
             const roleModel = roleMap[role];
             if (!roleModel) {
-                return next(new Error(`Token included invalid type: ${role}`));
+                return next(new Error(`Token included invalid type: ${role} with ID: ${roleId}`));
             }
 
             try {
@@ -105,9 +106,9 @@ export const authenticate = {
     google: async (req: Request, res: Response, next: NextFunction) => {
         return passport.authenticate('google-oauth', { scope: ["profile", "email"] }, authenticateStrategyCallback(req, res, next))(req, res, next);
     },
-    // JWT 
+    // JWT Auth Wrapper 
     jwt: (
-        cb: (err: string | null, user: { role: string; roleId: string } | null, info: { message: string; code: string } | null) => void
+        cb: (err: string | null, user: { role: string; roleId: string } | null, info: { message: string; name: string } | null) => void
     ) => {
         return (req: Request, res: Response, next: NextFunction) => {
             return passport.authenticate('jwt', (err : any, user: any, info : any) => cb(err, user, info))(req, res, next);

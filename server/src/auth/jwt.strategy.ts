@@ -17,13 +17,13 @@ export default function(passport: PassportStatic) {
 
             // Check if token is blacklisted
             if (await isBlackListed(token)) {
-                return done(null, false, "Token is blacklisted");
+                return done(null, false, { message: "Token is blacklisted", name: "UNAUTHORIZED" });
             }
 
             done(null, payload);
         } catch (err: any) {
-            if (err.name === "TokenExpiredError") return done(null, false, "Token expired");
-            if (err.name === "JsonWebTokenError") return done(null, false, "Invalid Token");
+            if (err.name === "TokenExpiredError") return done(null, false, { message: "Token expired", name: "UNAUTHORIZED" });
+            if (err.name === "JsonWebTokenError") return done(null, false, { message: "Invalid token provided", name: "UNAUTHENTICATED" });
             done(err);
         }
     } as VerifyCallbackWithRequest));

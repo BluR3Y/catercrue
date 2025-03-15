@@ -4,13 +4,13 @@ export const eventTypeDefs = gql`
     type Event {
         id: ID!
         eventType: String!
-        scheduledStart: Date;
-        scheduledEnd: Date;
+        scheduledStart: String!
+        scheduledEnd: String!
     }
 
     type Query {
         events: [Event!]!
-        event(id: ID!): Event
+        getEvent(id: ID!): Event
     }
 
     type Mutation {
