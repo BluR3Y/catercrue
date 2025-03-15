@@ -7,6 +7,7 @@ import { closeMongooseConnection, mongooseReady } from './config/mongoose';
 import { redisReady, closeRedisConnection } from './config/redis';
 import { twilioReady } from './config/twilio';
 import { mailerReady } from './config/nodemailer';
+import { passportAuthMiddleware } from './auth';
 import restAPI from './modules/restAPI';
 import logger from './config/winston';
 import websocket from './modules/websocket';
@@ -42,14 +43,14 @@ async function startServer() {
             origin: `http://${backend_client}:${backend_port}`,
             credentials: true
         }));
-
+        passportAuthMiddleware(app);
         restAPI(app);
         // Dev Test Data
         //if (NODE_ENV === 'development') await devConfig();
 
         const httpServer = createServer(app);
         // websocket(httpServer);
-        // await graphql(httpServer);
+        await graphql(app, httpServer);
 
         httpServer.listen(backend_port, backend_client, () => {
             logger.info(`Backend Server running on http://${backend_client}:${backend_port}`);

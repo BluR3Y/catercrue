@@ -1,16 +1,16 @@
 import { Router } from "express";
 import * as authController from '../controllers/auth.controller';
-import { authenticate } from "../middlewares/auth";
+import { authenticate, rbac } from "@/auth";
 import otpMiddleware from "../middlewares/otp.middleware";
 
 export default function(router: Router) {
     // Login Handlers
-    router.post('/auth/login/local', authenticate.localLogin, authController.login);
+    router.post('/auth/login/local', authenticate.local, authController.login);
     router.get('/auth/login/google', authenticate.google);
     router.get('/auth/google/callback', authenticate.google, authController.login);
 
     // Token Handlers
-    router.post('/auth/refresh', authenticate.jwt([]), authController.refreshToken);
+    router.post('/auth/refresh', rbac([]), authController.refreshToken);
 
     // OTP handlers
     router.post('/auth/otp/request', authController.requestOTP);
@@ -22,7 +22,7 @@ export default function(router: Router) {
     router.post('/auth/register/worker', otpMiddleware, authController.registerWorker);
 
     // Logout
-    router.post('/auth/logout', authenticate.jwt(), authController.logout);
+    router.post('/auth/logout', rbac([]), authController.logout);
 
     router.get('/auth/register/:identifierType(phone|email)/:identifierValue', authController.identifierAvailability);
 }

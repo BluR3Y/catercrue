@@ -4,7 +4,6 @@ import compression from "compression";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 
-import { passportAuthenticationMiddleware } from "./middlewares/auth";
 import errorMiddleware from "./middlewares/error.middleware";
 import router from "./routes";
 
@@ -15,7 +14,6 @@ export default function(app: Application) {
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: true }));
 
-    passportAuthenticationMiddleware(app);
     app.use('/', router);
     app.use(errorMiddleware);
 }

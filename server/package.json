@@ -55,6 +55,7 @@
     "express-rate-limit": "^7.5.0",
     "express-useragent": "^1.0.15",
     "graphql": "^16.10.0",
+    "graphql-tag": "^2.12.6",
     "helmet": "^8.0.0",
     "http-proxy-middleware": "^3.0.3",
     "ioredis": "^5.5.0",

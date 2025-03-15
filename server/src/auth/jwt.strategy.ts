@@ -1,9 +1,7 @@
 import { Request } from "express";
+import { JwtPayload } from "jsonwebtoken";
 import { PassportStatic } from "passport";
 import { ExtractJwt, Strategy, StrategyOptionsWithRequest, VerifiedCallback, VerifyCallbackWithRequest } from "passport-jwt";
-import { JwtPayload } from "jsonwebtoken";
-// import orm from "../../../../models/sequelize";
-import { odm } from "@/models";
 import { isBlackListed } from "@/utils/manageJWT";
 
 export default function(passport: PassportStatic) {
