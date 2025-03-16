@@ -1,5 +1,5 @@
 import { Schema, model } from "mongoose";
-import { ICaterer, IEmployee, CatererServices } from "@/types/models";
+import { IVendor, IEmployee, CatererServices } from "@/types/models";
 
 const employeeSchema = new Schema<IEmployee>({
     worker: {
@@ -13,7 +13,7 @@ const employeeSchema = new Schema<IEmployee>({
     }
 });
 
-const catererSchema = new Schema<ICaterer>(
+const vendorSchema = new Schema<IVendor>(
     {
         userId: {
             type: Schema.Types.String,
@@ -63,6 +63,6 @@ const catererSchema = new Schema<ICaterer>(
 );
 
 // Search by location
-catererSchema.index({ location: "2dsphere" });
+vendorSchema.index({ location: "2dsphere" });
 
-export default model<ICaterer>("Caterer", catererSchema);
+export default model<IVendor>("Vendor", vendorSchema);

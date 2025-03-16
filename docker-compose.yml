@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  postgres:
+    container_name: postgres_prod_container
+    restart: always
+    build: 
+      dockerfile: Dockerfile
+      context: ./database/postgres
+    env_file:
+      - ./env/database/postgres/.env.production
+    volumes:
+      - ./database/postgres/init:/docker-entrypoint-initdb.d:ro

@@ -1,19 +1,27 @@
 import { gql } from "graphql-tag";
+import { EventStates } from "@/types/models";
 
-export const eventTypeDefs = gql`
+
+export const  eventTypeDefs = gql`
+    enum EventStates {
+        ${Object.values(EventStates)}
+    }
+
+    type Location {
+        type: String!
+        coordinates: [Float!]!
+    }
+
     type Event {
         id: ID!
-        eventType: String!
+        eventType: Int!
+        status: EventStates!
+        location: Location
         scheduledStart: String!
         scheduledEnd: String!
     }
 
     type Query {
-        events: [Event!]!
-        getEvent(id: ID!): Event
-    }
-
-    type Mutation {
-        createEvent(title: String!, date: String!): Event!
+        event(id: ID!): Event
     }
 `;

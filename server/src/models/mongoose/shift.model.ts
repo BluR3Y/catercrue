@@ -6,7 +6,7 @@ const shiftSchema = new Schema<IShift>(
         event: {
             type: Schema.Types.ObjectId,
             required: true,
-            ref: 'Events'
+            ref: 'Event'
         },
         assigner: {
             type: Schema.Types.ObjectId,
@@ -16,7 +16,7 @@ const shiftSchema = new Schema<IShift>(
         assignerRef: {
             type: String,
             required: true,
-            enum: ['Caterer', 'Client']
+            enum: ['Vendor', 'Client']
         },
         worker: {
             type: Schema.Types.ObjectId,

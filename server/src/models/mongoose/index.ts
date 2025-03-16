@@ -1,13 +1,15 @@
 import mongoose from "mongoose";
 import workerModel from "./worker.model";
-import catererModel from "./caterer.model";
+import vendorModel from "./vendor.model";
 import eventModel from "./event.model";
+import eventVendorModel from "./eventVendor.model";
 
 const odm = {
     mongoose,
     workerModel,
-    catererModel,
-    eventModel
+    vendorModel,
+    eventModel,
+    eventVendorModel
 };
 
 export default odm;

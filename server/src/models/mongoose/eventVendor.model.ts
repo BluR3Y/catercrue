@@ -1,17 +1,17 @@
 import { model, Schema } from "mongoose";
-import { CatererServices, IEventCaterer } from "@/types/models";
+import { CatererServices, IEventVendor } from "@/types/models";
 
-const eventCaterers = new Schema<IEventCaterer>(
+const eventVendorSchema = new Schema<IEventVendor>(
     {
         event: {
             type: Schema.Types.ObjectId,
             required: true,
             ref: 'Event'
         },
-        caterer: {
+        vendor: {
             type: Schema.Types.ObjectId,
             required: true,
-            ref: 'Caterer'
+            ref: 'Vendor'
         },
         services: [{
             type: Schema.Types.String,
@@ -21,4 +21,4 @@ const eventCaterers = new Schema<IEventCaterer>(
     }
 );
 
-export default model<IEventCaterer>("EventCaterer", eventCaterers);
+export default model<IEventVendor>("EventVendor", eventVendorSchema);

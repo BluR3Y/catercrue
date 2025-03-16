@@ -20,7 +20,7 @@ export interface IEmployee extends Document {
     role: number;
 }
 
-export interface ICaterer extends Document {
+export interface IVendor extends Document {
     name: string;
     userId: string;
     location: {

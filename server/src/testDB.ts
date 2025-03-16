@@ -28,15 +28,21 @@ export default async function() {
         });
         console.log(firstCaterer)
 
-        const firstEvent = new odm.eventModel({
-            eventType: 5,
-            status: "drafted",
-            location: [-73.935242, 40.730610],
-            scheduledStart: Date.now(),
-            scheduledEnd: new Date(Date.now() + 10000)
+        const firstEvent = await odm.eventModel.create({
+            eventTypeId: 1,
+            state: "scheduled",
+            location: {
+                type: "Point",
+                coordinates: [-73.935242, 40.730610]
+            },
+            schedule: {
+                start: Date.now(),
+                end: new Date(Date.now() + 1000)
+            }
         });
-        console.log(firstEvent)
+        console.log((firstEvent as any).status);
     } catch (err) {
+        console.log(err);
         await transaction.rollback();
     }
 }
