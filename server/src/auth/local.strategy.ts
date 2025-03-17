@@ -13,7 +13,7 @@ export default function(passport: PassportStatic) {
     } as IStrategyOptionsWithRequest,
     async function(req: Request, identifierValue: string, password: string, done: any) {
         try {
-            const { identifierType, role } = req.body as { identifierType: 'phone' | 'email'; role: 'caterer' | 'worker' };
+            const { identifierType, role } = req.body as { identifierType: 'phone' | 'email'; role: 'vendor' | 'worker' };
 
             // Retrieve verified contact method 
             const contactMethod = await orm.ContactMethod.findOne({
@@ -40,8 +40,8 @@ export default function(passport: PassportStatic) {
             }
 
             let roleData;
-            if (role === 'caterer') {
-                roleData = await odm.catererModel.findOne({ userId });
+            if (role === 'vendor') {
+                roleData = await odm.vendorModel.findOne({ userId });
             } else if (role === 'worker') {
                 roleData = await odm.workerModel.findOne({ userId });
             }

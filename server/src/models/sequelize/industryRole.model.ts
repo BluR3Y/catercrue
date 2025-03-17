@@ -1,15 +1,14 @@
 import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional } from "sequelize";
 import { getSequelizeInstance } from "../../config/postgres";
 
-
-class EventType extends Model<InferAttributes<EventType>, InferCreationAttributes<EventType>> {
-    public id!: CreationOptional<string>;
+class IndustryRole extends Model<InferAttributes<IndustryRole>, InferCreationAttributes<IndustryRole>> {
+    public id!: CreationOptional<number>;
+    public industry_id!: number;
     public name!: string;
-    public category!: string;
-    public description!: string;
+    public description!: CreationOptional<string>;
 }
 
-EventType.init(
+IndustryRole.init(
     {
         id: {
             type: DataTypes.INTEGER,
@@ -17,11 +16,15 @@ EventType.init(
             primaryKey: true,
             allowNull: false
         },
-        name: {
-            type: DataTypes.STRING,
-            allowNull: false
+        industry_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'VendorIndustry',
+                key: 'id'
+            }
         },
-        category: {
+        name: {
             type: DataTypes.STRING,
             allowNull: false
         },
@@ -30,11 +33,11 @@ EventType.init(
         }
     },
     {
-        tableName: 'event_types',
-        modelName: 'EventType',
+        tableName: 'industry_roles',
+        modelName: 'IndustryRole',
         sequelize: getSequelizeInstance(),
         timestamps: false
     }
 );
 
-export default EventType;
+export default IndustryRole;

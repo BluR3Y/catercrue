@@ -241,7 +241,7 @@ export const registerUser: RequestHandler = async (req, res, next) => {
     }
 }
 
-export const registerCaterer: RequestHandler = async (req, res, next) => {
+export const registerVendor: RequestHandler = async (req, res, next) => {
     try {
         const { identifierType, identifierValue } = req.otpData!;
 
@@ -254,18 +254,18 @@ export const registerCaterer: RequestHandler = async (req, res, next) => {
             return;
         }
 
-        const isCatererRegistered = await odm.catererModel.countDocuments({ userId: contactMethod.userId });
-        if (isCatererRegistered) {
-            res.status(401).json({ message: "User is already registered as a caterer" });
+        const isVendorRegistered = await odm.vendorModel.countDocuments({ userId: contactMethod.userId });
+        if (isVendorRegistered) {
+            res.status(401).json({ message: "User is already registered as a vendor" });
             return;
         }
 
-        const roleData = await odm.catererModel.create({
+        const roleData = await odm.vendorModel.create({
             userId: contactMethod.userId
         });
 
         req.roleData = {
-            role: 'caterer',
+            role: 'vendor',
             data: roleData
         };
 

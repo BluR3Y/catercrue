@@ -1,5 +1,5 @@
 import { Schema, model } from "mongoose";
-import { IVendor, IEmployee, CatererServices } from "@/types/models";
+import { IVendor, IEmployee } from "@/types/models";
 
 const employeeSchema = new Schema<IEmployee>({
     worker: {
@@ -51,9 +51,8 @@ const vendorSchema = new Schema<IVendor>(
         },
         employees: [employeeSchema],
         services: [{
-            type: Schema.Types.String,
-            required: true,
-            enum: Object.values(CatererServices)
+            type: Schema.Types.Number,
+            required: true
         }]
     },
     {

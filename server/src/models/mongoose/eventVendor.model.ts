@@ -1,5 +1,5 @@
 import { model, Schema } from "mongoose";
-import { CatererServices, IEventVendor } from "@/types/models";
+import { IEventVendor } from "@/types/models";
 
 const eventVendorSchema = new Schema<IEventVendor>(
     {
@@ -14,9 +14,8 @@ const eventVendorSchema = new Schema<IEventVendor>(
             ref: 'Vendor'
         },
         services: [{
-            type: Schema.Types.String,
-            required: true,
-            enum: Object.values(CatererServices)
+            type: Schema.Types.Number,
+            required: true
         }]
     }
 );

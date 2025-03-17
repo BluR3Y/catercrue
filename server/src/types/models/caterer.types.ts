@@ -1,14 +1,5 @@
 import { Document, Types } from "mongoose";
 
-// export type services = 'food' | 'beverage' | 'equipment' | 'staffing' | 'planning' | 'other';
-export enum CatererServices {
-    staffing = "staffing",
-    food_preparation = "food preparation",
-    equipment = "equipment",
-    coordination = "coordination",
-    delivery = "coordinator"
-}
-
 export interface IContact extends Document {
     phone: string;
     email: string;
@@ -27,7 +18,7 @@ export interface IVendor extends Document {
         type: 'Point';
         coordinates: [number, number];
     };
-    services: ReadonlyArray<CatererServices>;
+    services: number[];
     contact: IContact;
     employees: IEmployee[];
 }

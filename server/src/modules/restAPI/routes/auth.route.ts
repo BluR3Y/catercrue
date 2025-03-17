@@ -18,7 +18,7 @@ export default function(router: Router) {
 
     // Register handlers
     router.post('/auth/register/user', otpMiddleware, authController.registerUser);
-    router.post('/auth/register/caterer', otpMiddleware, authController.registerCaterer);
+    router.post('/auth/register/vendor', otpMiddleware, authController.registerVendor);
     router.post('/auth/register/worker', otpMiddleware, authController.registerWorker);
 
     // Logout

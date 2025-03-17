@@ -7,6 +7,9 @@ import RefreshToken from "./refreshToken.model";
 import LoginAttempt from "./loginAttempt.model";
 import ContactMethod from "./contactMethod.model";
 
+import VendorIndustry from "./vendorIndustries.model";
+import IndustryService from "./industryService.model";
+import IndustryRole from "./industryRole.model";
 import EventType from "./eventType.model";
 
 import ClockLog from "./clockLog.model";
@@ -24,6 +27,9 @@ const orm = {
     ContactMethod,
     LoginAttempt,
     RefreshToken,
+    VendorIndustry,
+    IndustryService,
+    IndustryRole,
     EventType,
     ClockLog
 }

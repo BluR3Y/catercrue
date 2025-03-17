@@ -10,7 +10,7 @@ export const eventResolver = {
 
             if (user.role === "client" && event.client === user.roleId) {
                 return event;
-            } else if (user.role === "caterer") {
+            } else if (user.role === "vendor") {
                 
             } else if (user.role === "worker")
 

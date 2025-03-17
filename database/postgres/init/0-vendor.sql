@@ -2,8 +2,10 @@
 \c catercrue;
 
 -- Drop existing tables if they exist (for resets during development)
-DROP TABLE IF EXISTS vendor_services;
 DROP TABLE IF EXISTS vendor_industries;
+DROP TABLE IF EXISTS industry_services;
+DROP TABLE IF EXISTS industry_roles;
+DROP TABLE IF EXISTS event_types;
 
 -- ============================
 -- VENDOR INDUSTRIES TABLE
@@ -31,7 +33,7 @@ INSERT INTO vendor_industries (name, description) VALUES
 -- ============================
 -- VENDOR SERVICES TABLE
 -- ============================
-CREATE TABLE vendor_services (
+CREATE TABLE industry_services (
     id SERIAL PRIMARY KEY,
     industry_id INT NOT NULL,
     name VARCHAR(100) NOT NULL,
@@ -40,7 +42,7 @@ CREATE TABLE vendor_services (
 );
 
 -- Insert optimized vendor services linked to industries
-INSERT INTO vendor_services (industry_id, name, description)
+INSERT INTO industry_services (industry_id, name, description)
 VALUES
     -- Catering & Food Services
     ((SELECT id FROM vendor_industries WHERE name = 'Catering & Food Services'), 'Food Preparation', 'Preparation of meals and event catering.'),

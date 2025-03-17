@@ -64,7 +64,7 @@ const authenticateStrategyCallback = (req: Request, res: Response, next: NextFun
 
 export const rbac = (allowedRoles: string[] = []) => {
     const roleMap: Record<string, Model<any>> = {
-        "caterer": odm.catererModel,
+        "vendor": odm.vendorModel,
         "worker": odm.workerModel
     }
     return async (req: Request, res: Response, next: NextFunction) => {
