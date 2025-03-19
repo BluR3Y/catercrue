@@ -1,31 +1,16 @@
 import { Document } from "mongoose";
-
-// Define time slot structure
-interface TimeSlot {
-    start: string;
-    end: string;
-}
-
-export enum WeekDay {
-    Monday = "Monday",
-    Tuesday = "Tuesday",
-    Wednesday = "Wednesday",
-    Thursday = "Thursday",
-    Friday = "Friday",
-    Saturday = "Saturday",
-    Sunday = "Sunday"
-}
+import { ILocation, ITimeSlot, WeekDay } from "./shared.types";
 
 // Define weekly availability structure
 interface AvailabilitySlot {
     weekDay: Readonly<WeekDay>;
-    timeSlots: TimeSlot[];
+    timeSlots: ITimeSlot[];
 }
 
 // Define exception structure (specific dates)
 interface ExceptionSlot {
     date: Date;     // Specific date exception
-    timeSlots: TimeSlot[];  // Available/Unavailable time slots
+    timeSlots: ITimeSlot[];  // Available/Unavailable time slots
     isAvailable: boolean;   // Defines if worker is available that day
     reason?: string;
 }
@@ -33,6 +18,8 @@ interface ExceptionSlot {
 // Worker Interface
 export interface IWorker extends Document {
     userId: string;
+    dob: Date;
+    homeAddress: ILocation;
     availability: AvailabilitySlot[];
     exceptions: ExceptionSlot[];
     createdAt?: Date;

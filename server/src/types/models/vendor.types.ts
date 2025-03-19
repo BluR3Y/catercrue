@@ -1,4 +1,5 @@
 import { Document, Types } from "mongoose";
+import { ILocation } from "./shared.types";
 
 export interface IContact extends Document {
     phone: string;
@@ -14,10 +15,9 @@ export interface IEmployee extends Document {
 export interface IVendor extends Document {
     name: string;
     userId: string;
-    location: {
-        type: 'Point';
-        coordinates: [number, number];
-    };
+    description: string;
+    industry: number;
+    businessAddress: ILocation;
     services: number[];
     contact: IContact;
     employees: IEmployee[];

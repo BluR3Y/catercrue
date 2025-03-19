@@ -24,7 +24,10 @@ const vendorSchema = new Schema<IVendor>(
             required: true,
             unique: true
         },
-        location: {
+        description: {
+            type: Schema.Types.String
+        },
+        businessAddress: {
             type: {
                 type: Schema.Types.String,
                 enum: ['Point'],
@@ -34,6 +37,10 @@ const vendorSchema = new Schema<IVendor>(
                 type: [Schema.Types.Number],
                 required: true
             }
+        },
+        industry: {
+            type: Schema.Types.Number,
+            required: true
         },
         contact: {
             phone: {
@@ -49,11 +56,11 @@ const vendorSchema = new Schema<IVendor>(
                 unique: true
             }
         },
-        employees: [employeeSchema],
         services: [{
             type: Schema.Types.Number,
             required: true
-        }]
+        }],
+        employees: [employeeSchema]
     },
     {
         timestamps: true,

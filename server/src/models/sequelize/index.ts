@@ -7,10 +7,15 @@ import RefreshToken from "./refreshToken.model";
 import LoginAttempt from "./loginAttempt.model";
 import ContactMethod from "./contactMethod.model";
 
-import VendorIndustry from "./vendorIndustries.model";
+import VendorIndustry from "./vendorIndustry.model";
 import IndustryService from "./industryService.model";
 import IndustryRole from "./industryRole.model";
 import EventType from "./eventType.model";
+
+import Vendor from "./vendor.model";
+import Worker from "./worker.model";
+import WorkerAvailability from "./workerAvailability.model";
+import WorkerException from "./workerException.model";
 
 import ClockLog from "./clockLog.model";
 
@@ -30,6 +35,10 @@ const orm = {
     VendorIndustry,
     IndustryService,
     IndustryRole,
+    Vendor,
+    Worker,
+    WorkerAvailability,
+    WorkerException,
     EventType,
     ClockLog
 }

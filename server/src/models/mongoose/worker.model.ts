@@ -7,6 +7,17 @@ const workerSchema = new Schema<IWorker>(
             type: String,
             required: true
         },
+        homeAddress: {
+            type: {
+                type: Schema.Types.String,
+                enum: ['Point'],
+                required: true
+            },
+            coordinates: {
+                type: [Schema.Types.Number],
+                required: true
+            }
+        },
         availability: [
             {
                 weekDay: {

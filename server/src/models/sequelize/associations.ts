@@ -6,6 +6,14 @@ import ContactMethod from "./contactMethod.model";
 
 import EventType from "./eventType.model";
 
+import VendorIndustry from "./vendorIndustry.model";
+import IndustryService from "./industryService.model";
+import Vendor from "./vendor.model";
+import IndustryRole from "./industryRole.model";
+import Worker from "./worker.model";
+import WorkerAvailability from "./workerAvailability.model";
+import WorkerException from "./workerException.model";
+
 export default function() {
     // User Associations
     User.hasMany(Password, {
@@ -23,6 +31,14 @@ export default function() {
     User.hasMany(ContactMethod, {
         foreignKey: 'userId',
         as: 'ContactMethods'
+    });
+    User.hasOne(Worker, {
+        foreignKey: 'userId',
+        as: 'Worker'
+    });
+    User.hasOne(Vendor, {
+        foreignKey: 'userId',
+        as: 'Vendor'
     });
 
     // Password Associations
@@ -48,4 +64,18 @@ export default function() {
         foreignKey: 'userId',
         as: 'user'
     });
+
+    // Worker associations
+    Worker.belongsTo(User, {
+        foreignKey: 'userId',
+        as: 'user'
+    });
+
+    // Vendor associations
+    Vendor.belongsTo(User, {
+        foreignKey: 'userId',
+        as: 'user'
+    });
+
+    
 }

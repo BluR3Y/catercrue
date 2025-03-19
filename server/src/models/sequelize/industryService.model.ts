@@ -20,7 +20,7 @@ IndustryService.init(
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: 'VendorIndustry',
+                model: 'vendor_industries',
                 key: 'id'
             }
         },
