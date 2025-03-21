@@ -1,5 +1,15 @@
-import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional, Sequelize } from "sequelize";
+import {
+    DataTypes,
+    Model,
+    InferAttributes,
+    InferCreationAttributes,
+    CreationOptional,
+    Sequelize,
+    HasManyGetAssociationsMixin,
+    HasManyCreateAssociationMixin
+} from "sequelize";
 import { EventState } from "@/types/models";
+import type { EventVendor } from "./eventVendor.model";
 
 export class Event extends Model<InferAttributes<Event>, InferCreationAttributes<Event>> {
     public id!: CreationOptional<string>;
@@ -10,6 +20,10 @@ export class Event extends Model<InferAttributes<Event>, InferCreationAttributes
     public location!: string;
     public start!: Date;
     public end!: Date;
+
+    // Sequelize defined association methods
+    public getEventVendors!: HasManyGetAssociationsMixin<EventVendor>;
+    public createEventVendor!: HasManyCreateAssociationMixin<EventVendor>;
 }
 
 export const initEventModel = (sequelize: Sequelize) => {
@@ -46,7 +60,7 @@ export const initEventModel = (sequelize: Sequelize) => {
                     const { start, end, state } = this;
                     const currentDate = new Date();
                     if (state !== "scheduled" || currentDate < start) return state;
-                    return (currentDate < end ? "ongoing" : "completed");
+                    return currentDate < end ? "ongoing" : "completed";
                 },
                 set(value) {
                     throw new Error('Attempted to update virtual property');
@@ -73,8 +87,7 @@ export const initEventModel = (sequelize: Sequelize) => {
             validate: {
                 validateTime() {
                     const { start, end } = this as { start: Date; end: Date };
-                    const currDate = new Date();
-                    if (currDate > start || end > start) {
+                    if (start < new Date() || start >= end) {
                         throw new Error("Invalid scheduling");
                     }
                 }
@@ -84,7 +97,12 @@ export const initEventModel = (sequelize: Sequelize) => {
 }
 
 export const associateEventModel = (orm: {
-
+    EventVendor: typeof EventVendor
 }) => {
+    // Client Association
     
+    Event.hasMany(orm.EventVendor, {
+        foreignKey: 'event_id',
+        as: 'eventVendors'
+    });
 }

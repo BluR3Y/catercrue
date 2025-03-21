@@ -1,8 +1,8 @@
+import { Sequelize } from "sequelize";
 import { Vendor, associateVendorModel, initVendorModel } from "./vendor.model";
 import { VendorIndustry, associateVendorIndustryModel, initVendorIndustryModel } from "./vendorIndustry.model";
-import { associateIndustryServiceModel, IndustryService, initIndustryServiceModel } from "./industryService.model";
-import { VendorService, associateVendorServiceModel, initVendorServiceModel } from "./vendorService.model";
-import { Sequelize } from "sequelize";
+import { IndustryService, initIndustryServiceModel, associateIndustryServiceModel } from "./industryService.model";
+import { VendorService, initVendorServiceModel, associateVendorServiceModel } from "./vendorService.model";
 
 export const initVendorModels = (sequelize: Sequelize) => {
     // Initialize Vendor related models

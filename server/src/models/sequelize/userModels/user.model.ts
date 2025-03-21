@@ -104,30 +104,31 @@ export const associateUserModel = (orm:{
 }) => {
     User.hasMany(orm.Password, {
         foreignKey: 'user_id',
-        as: 'Passwords'
+        as: 'passwords'
     });
     User.hasMany(orm.RefreshToken, {
         foreignKey: 'user_id',
-        as: 'RefreshTokens'
+        as: 'refreshTokens'
     });
     User.hasMany(orm.LoginAttempt, {
         foreignKey: 'user_id',
-        as: 'LoginAttempts'
+        as: 'loginAttempts'
     });
     User.hasMany(orm.ContactMethod, {
         foreignKey: 'user_id',
-        as: 'ContactMethods'
+        as: 'contactMethods'
     });
+    
     // User.hasOne(Client, {
     //     foreignKey: 'user_id',
-    //     as: 'Client'
+    //     as: 'client'
     // });
     User.hasOne(orm.Worker, {
         foreignKey: 'user_id',
-        as: 'Worker'
+        as: 'worker'
     });
     User.hasOne(orm.Vendor, {
         foreignKey: 'user_id',
-        as: 'Vendor'
+        as: 'vendor'
     });
 }

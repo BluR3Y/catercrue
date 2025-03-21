@@ -1,5 +1,13 @@
-import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional, NonAttribute, Sequelize } from "sequelize";
-import { WorkerAvailability } from "./workerAvailability.model";
+import {
+    DataTypes,
+    Model,
+    InferAttributes,
+    InferCreationAttributes,
+    CreationOptional,
+    Sequelize
+} from "sequelize";
+import { Worker } from "./worker.model";
+// import { WorkerAvailability } from "./workerAvailability.model";
 
 export class WorkerException extends Model<InferAttributes<WorkerException>, InferCreationAttributes<WorkerException>> {
     public id!: CreationOptional<string>;
@@ -67,7 +75,10 @@ export const initWorkerExceptionModel = (sequelize: Sequelize) => {
 }
 
 export const associateWorkerExceptionModel = (orm: {
-
+    Worker: typeof Worker
 }) => {
-    
+    WorkerException.belongsTo(orm.Worker, {
+        foreignKey: 'worker_id',
+        as: 'worker'
+    });
 }

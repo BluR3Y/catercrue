@@ -7,7 +7,7 @@ import { initEventModels, associateEventModels } from "./eventModels";
 const sequelize = getSequelizeInstance();
 
 const { User, Password, ContactMethod, RefreshToken, LoginAttempt } = initUserModels(sequelize);
-const { Vendor, VendorIndustry, VendorService } = initVendorModels(sequelize);
+const { Vendor, VendorIndustry, VendorService, IndustryService } = initVendorModels(sequelize);
 const { Worker, IndustryRole, WorkerAvailability, WorkerException } = initWorkerModels(sequelize);
 const { Event, EventType, EventVendor } = initEventModels(sequelize);
 
@@ -21,6 +21,7 @@ const orm = {
     Vendor,
     VendorIndustry,
     VendorService,
+    IndustryService,
     Worker,
     IndustryRole,
     WorkerAvailability,

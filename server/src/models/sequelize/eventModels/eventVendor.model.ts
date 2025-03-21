@@ -1,10 +1,21 @@
-import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional, Sequelize } from "sequelize";
+import {
+    DataTypes,
+    Model,
+    InferAttributes,
+    InferCreationAttributes,
+    CreationOptional,
+    Sequelize,
+    BelongsToGetAssociationMixin
+} from "sequelize";
+import type { Event } from "./event.model";
 
 export class EventVendor extends Model<InferAttributes<EventVendor>, InferCreationAttributes<EventVendor>> {
     public id!: CreationOptional<string>;
     public event_id!: string;
     public vendor_id!: string;
     public services!: CreationOptional<string[]>;
+
+    public getEvent!: BelongsToGetAssociationMixin<Event>;
 }
 
 export const initEventVendor = (sequelize: Sequelize) => {
@@ -46,7 +57,10 @@ export const initEventVendor = (sequelize: Sequelize) => {
 }
 
 export const associateEventVendor = (orm: {
-
+    Event: typeof Event
 }) => {
-    
+    EventVendor.belongsTo(orm.Event, {
+        foreignKey: 'event_id',
+        as: 'event'
+    });
 }

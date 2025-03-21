@@ -1,10 +1,21 @@
-import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional, Sequelize } from "sequelize";
+import {
+    DataTypes,
+    Model,
+    InferAttributes,
+    InferCreationAttributes,
+    CreationOptional,
+    Sequelize,
+    BelongsToGetAssociationMixin
+} from "sequelize";
+import type { VendorIndustry } from "./vendorIndustry.model";
 
 export class IndustryService extends Model<InferAttributes<IndustryService>, InferCreationAttributes<IndustryService>> {
     public id!: CreationOptional<number>;
     public industry_id!: number;
     public name!: string;
     public description!: CreationOptional<string>;
+
+    public getIndustry!: BelongsToGetAssociationMixin<VendorIndustry>;
 }
 
 export const initIndustryServiceModel = (sequelize: Sequelize) => {
@@ -42,7 +53,10 @@ export const initIndustryServiceModel = (sequelize: Sequelize) => {
 }
 
 export const associateIndustryServiceModel = (orm: {
-    
+    VendorIndustry: typeof VendorIndustry
 }) => {
-    
+    IndustryService.belongsTo(orm.VendorIndustry, {
+        foreignKey: 'industry_id',
+        as: 'industry'
+    });
 }

@@ -1,9 +1,20 @@
-import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional, Sequelize } from "sequelize";
+import {
+    DataTypes,
+    Model,
+    InferAttributes,
+    InferCreationAttributes,
+    CreationOptional,
+    Sequelize,
+    BelongsToGetAssociationMixin
+} from "sequelize";
+import type { Vendor } from "./vendor.model";
 
 export class VendorService extends Model<InferAttributes<VendorService>, InferCreationAttributes<VendorService>> {
     public id!: CreationOptional<string>;
     public vendor_id!: string;
     public service_id!: string;
+
+    public getVendor!: BelongsToGetAssociationMixin<Vendor>;
 }
 
 export const initVendorServiceModel = (sequelize: Sequelize) => {
@@ -42,7 +53,10 @@ export const initVendorServiceModel = (sequelize: Sequelize) => {
 }
 
 export const associateVendorServiceModel = (orm: {
-    
+    Vendor: typeof Vendor
 }) => {
-    
+    VendorService.belongsTo(orm.Vendor, {
+        foreignKey: 'vendor_id',
+        as: 'vendor'
+    });
 }

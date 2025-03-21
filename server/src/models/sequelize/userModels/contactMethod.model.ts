@@ -1,17 +1,30 @@
-import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional, Sequelize } from "sequelize";
-import { Op } from "sequelize";
+import {
+    DataTypes,
+    Model,
+    InferAttributes,
+    InferCreationAttributes,
+    CreationOptional,
+    Sequelize,
+    Op,
+    BelongsToGetAssociationMixin,
+    BelongsToCreateAssociationMixin
+} from "sequelize";
 
 import type { User } from "./user.model";
 
 export class ContactMethod extends Model<InferAttributes<ContactMethod>, InferCreationAttributes<ContactMethod>> {
     public id!: CreationOptional<string>;
-    public user_id!: string;
+    public user_id!: CreationOptional<string>;
     public type!: 'email' | 'phone';
     public value!: string;
     public isPrimary!: CreationOptional<boolean>;
 
     public readonly createdAt!: CreationOptional<Date>;
     public readonly updatedAt!: CreationOptional<Date>;
+
+    // Sequelize created association methods
+    public getUser!: BelongsToGetAssociationMixin<User>;
+    public createUser!: BelongsToCreateAssociationMixin<User>;
 }
 
 export const initContactMethodModel = (sequelize: Sequelize) => {

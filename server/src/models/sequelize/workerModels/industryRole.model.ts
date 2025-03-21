@@ -1,10 +1,21 @@
-import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional, Sequelize } from "sequelize";
+import {
+    DataTypes,
+    Model,
+    InferAttributes,
+    InferCreationAttributes,
+    CreationOptional,
+    Sequelize,
+    BelongsToGetAssociationMixin
+} from "sequelize";
+import type { VendorIndustry } from "../vendorModels/vendorIndustry.model";
 
 export class IndustryRole extends Model<InferAttributes<IndustryRole>, InferCreationAttributes<IndustryRole>> {
     public id!: CreationOptional<number>;
     public industry_id!: number;
     public name!: string;
     public description!: CreationOptional<string>;
+
+    public getIndustry!: BelongsToGetAssociationMixin<VendorIndustry>;
 }
 
 export const initIndustryRoleModel = (sequelize: Sequelize) => {
@@ -42,7 +53,10 @@ export const initIndustryRoleModel = (sequelize: Sequelize) => {
 }
 
 export const associateIndustryRoleModel = (orm: {
-
+    VendorIndustry: typeof VendorIndustry
 }) => {
-    
+    IndustryRole.belongsTo(orm.VendorIndustry, {
+        foreignKey: 'industry_id',
+        as: 'industry'
+    });
 }

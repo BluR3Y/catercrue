@@ -8,6 +8,7 @@ import {
 } from "sequelize";
 
 import type { User } from "../userModels/user.model";
+import type { VendorService } from "./vendorService.model";
 
 export class Vendor extends Model<InferAttributes<Vendor>, InferCreationAttributes<Vendor>> {
     public id!: CreationOptional<string>;
@@ -78,10 +79,16 @@ export const initVendorModel = (sequelize: Sequelize) => {
 }
 
 export const associateVendorModel = (orm: {
-    User: typeof User
+    User: typeof User;
+    VendorService: typeof VendorService;
 }) => {
     Vendor.belongsTo(orm.User, {
         foreignKey: 'user_id',
         as: 'user'
+    });
+
+    Vendor.hasMany(orm.VendorService, {
+        foreignKey: 'vendor_id',
+        as: 'services'
     });
 }

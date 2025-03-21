@@ -1,6 +1,14 @@
-import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional, NonAttribute, Sequelize } from "sequelize";
-import { Op } from "sequelize";
+import {
+    DataTypes,
+    Model,
+    InferAttributes,
+    InferCreationAttributes,
+    CreationOptional,
+    Sequelize,
+    Op
+} from "sequelize";
 import { WeekDay } from "@/types/models";
+import { Worker } from "./worker.model";
 
 export class WorkerAvailability extends Model<InferAttributes<WorkerAvailability>, InferCreationAttributes<WorkerAvailability>> {
     public id!: CreationOptional<string>;
@@ -102,7 +110,10 @@ export const initWorkerAvailabilityModel = (sequelize: Sequelize) => {
 }
 
 export const associateWorkerAvailabilityModel = (orm: {
-
+    Worker: typeof Worker
 }) => {
-    
+    WorkerAvailability.belongsTo(orm.Worker, {
+        foreignKey: 'worker_id',
+        as: 'worker'
+    });
 }

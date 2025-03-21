@@ -1,7 +1,17 @@
-import { CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, Model, Optional, Sequelize } from "sequelize";
+import {
+    BelongsToCreateAssociationMixin,
+    BelongsToGetAssociationMixin,
+    BelongsToSetAssociationMixin,
+    CreationOptional,
+    DataTypes,
+    InferAttributes,
+    InferCreationAttributes,
+    Model,
+    Sequelize
+} from "sequelize";
 import bcrypt from "bcrypt";
 
-import type { User } from "./user.model";
+import { User } from "./user.model";
 
 export class Password extends Model<InferAttributes<Password>, InferCreationAttributes<Password>> {
     public id!: CreationOptional<string>;   // Auto-generated UUID
@@ -10,6 +20,11 @@ export class Password extends Model<InferAttributes<Password>, InferCreationAttr
     public isActive!: CreationOptional<boolean>;
 
     public readonly createdAt!: CreationOptional<Date>; // Managed by Sequelize
+
+    // Sequelize created association methods
+    public getUser!: BelongsToGetAssociationMixin<User>;
+    public setUser!: BelongsToSetAssociationMixin<User, string>;
+    public createUser!: BelongsToCreateAssociationMixin<User>;
 
     // Method to hash password
     public async hashPassword(): Promise<void> {

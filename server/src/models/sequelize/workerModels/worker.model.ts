@@ -113,10 +113,21 @@ export const initWorkerModel = (sequelize: Sequelize) => {
 }
 
 export const associateWorkerModel = (orm: {
-    User: typeof User
+    User: typeof User;
+    WorkerAvailability: typeof WorkerAvailability;
+    WorkerException: typeof WorkerException;
 }) => {
     Worker.belongsTo(orm.User, {
         foreignKey: 'user_id',
         as: 'user'
     });
+
+    Worker.hasMany(orm.WorkerAvailability, {
+        foreignKey: 'worker_id',
+        as: 'workerAvailabilities'
+    });
+    Worker.hasMany(orm.WorkerException, {
+        foreignKey: 'worker_id',
+        as: 'workerExceptions'
+    })
 }

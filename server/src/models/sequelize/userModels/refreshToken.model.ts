@@ -1,14 +1,16 @@
-import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional, Sequelize } from "sequelize";
+import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional, Sequelize, BelongsToGetAssociationMixin } from "sequelize";
 import crypto from "crypto";
 
 import type { User } from "./user.model";
 
 export class RefreshToken extends Model<InferAttributes<RefreshToken>, InferCreationAttributes<RefreshToken>> {
     public id!: CreationOptional<string>;
-    public user_id!: string;
+    public user_id!: CreationOptional<string>;
 
     public readonly expiry!: CreationOptional<Date>;
     public readonly createdAt!: CreationOptional<Date>;
+
+    public getUser!: BelongsToGetAssociationMixin<User>;
 
     public isExpired(): boolean {
         return new Date() > this.expiry;
@@ -16,6 +18,11 @@ export class RefreshToken extends Model<InferAttributes<RefreshToken>, InferCrea
 }
 
 export const initRefreshTokenModel = (sequelize: Sequelize) => {
+    const { REFRESH_TOKEN_DURATION } = process.env;
+    if (!REFRESH_TOKEN_DURATION) {
+        throw new Error("Refresh Token duration is not defined in environment variables.");
+    }
+
     RefreshToken.init(
         {
             id: {
@@ -36,7 +43,7 @@ export const initRefreshTokenModel = (sequelize: Sequelize) => {
             expiry: {
                 type: DataTypes.DATE,
                 defaultValue: function() {
-                    const duration = Number(process.env.REFRESH_TOKEN_DURATION) || 604800;  // Default 7 days
+                    const duration = Number(REFRESH_TOKEN_DURATION);
                     return new Date(Date.now() + duration * 1000);
                 },
                 allowNull: false

@@ -1,6 +1,13 @@
-import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional, Sequelize } from "sequelize";
+import {
+    DataTypes,
+    Model,
+    InferAttributes,
+    InferCreationAttributes,
+    CreationOptional,
+    Sequelize,
+    Op
+} from "sequelize";
 import errorData from "../../../config/errors.json";
-import { Op } from "sequelize";
 
 import { Password } from "./password.model";
 
@@ -14,7 +21,7 @@ const allErrors = [
 
 export class LoginAttempt extends Model<InferAttributes<LoginAttempt>, InferCreationAttributes<LoginAttempt>> {
     public id!: CreationOptional<string>;
-    public user_id!: string;
+    public user_id!: CreationOptional<string>;
     public ipAddress!: string;
     public userAgent!: string;
     public location!: CreationOptional<string>;
