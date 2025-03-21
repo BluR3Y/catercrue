@@ -1,10 +1,11 @@
-import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional, NonAttribute } from "sequelize";
-import { getSequelizeInstance } from "../../config/postgres";
-import WorkerException from "./workerException.model";
-import WorkerAvailability from "./workerAvailability.model";
+import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional, NonAttribute, Sequelize } from "sequelize";
 import { WeekDay } from "@/types/models";
 import { Op } from "sequelize";
 import { addMinutesToDate, parseMinutes } from "@/utils/manageTime";
+
+import { User } from "../userModels/user.model";
+import { WorkerAvailability } from "./workerAvailability.model";
+import { WorkerException } from "./workerException.model";
 
 // Define time slot structure
 export interface ITimeSlot {
@@ -14,7 +15,7 @@ export interface ITimeSlot {
     end_minutes: number;
 }
 
-class Worker extends Model<InferAttributes<Worker>, InferCreationAttributes<Worker>> {
+export class Worker extends Model<InferAttributes<Worker>, InferCreationAttributes<Worker>> {
     public id!: CreationOptional<string>;
     public user_id!: string;
     public home_address!: string;
@@ -76,37 +77,46 @@ class Worker extends Model<InferAttributes<Worker>, InferCreationAttributes<Work
     }
 }
 
-Worker.init(
-    {
-        id: {
-            type: DataTypes.UUID,
-            defaultValue: DataTypes.UUIDV4,
-            primaryKey: true,
-            allowNull: false
-        },
-        user_id: {
-            type: DataTypes.UUID,
-            allowNull: false,
-            unique: true,
-            references: {
-                model: 'users',
-                key: 'id'
+export const initWorkerModel = (sequelize: Sequelize) => {
+    Worker.init(
+        {
+            id: {
+                type: DataTypes.UUID,
+                defaultValue: DataTypes.UUIDV4,
+                primaryKey: true,
+                allowNull: false
+            },
+            user_id: {
+                type: DataTypes.UUID,
+                allowNull: false,
+                unique: true,
+                references: {
+                    model: 'users',
+                    key: 'id'
+                }
+            },
+            home_address: {
+                type: DataTypes.GEOMETRY('POINT'),
+                allowNull: false
             }
         },
-        home_address: {
-            type: DataTypes.GEOMETRY('POINT'),
-            allowNull: false
+        {
+            tableName: 'workers',
+            modelName: 'Worker',
+            sequelize,
+            timestamps: true,
+            indexes: [
+                { fields: ["user_id"], using: "BTREE" }
+            ]
         }
-    },
-    {
-        tableName: 'workers',
-        modelName: 'Worker',
-        sequelize: getSequelizeInstance(),
-        timestamps: true,
-        indexes: [
-            { fields: ["user_id"], using: "BTREE" }
-        ]
-    }
-);
+    );
+}
 
-export default Worker;
+export const associateWorkerModel = (orm: {
+    User: typeof User
+}) => {
+    Worker.belongsTo(orm.User, {
+        foreignKey: 'user_id',
+        as: 'user'
+    });
+}

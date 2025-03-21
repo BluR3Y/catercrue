@@ -1,46 +1,38 @@
-import { getSequelizeInstance } from "../../config/postgres";
-import associations from "./associations";
-
-import User from "./user.model";
-import Password from "./password.model";
-import RefreshToken from "./refreshToken.model";
-import LoginAttempt from "./loginAttempt.model";
-import ContactMethod from "./contactMethod.model";
-
-import VendorIndustry from "./vendorIndustry.model";
-import IndustryService from "./industryService.model";
-import IndustryRole from "./industryRole.model";
-import EventType from "./eventType.model";
-
-import Vendor from "./vendor.model";
-import Worker from "./worker.model";
-import WorkerAvailability from "./workerAvailability.model";
-import WorkerException from "./workerException.model";
-
-import ClockLog from "./clockLog.model";
+import { getSequelizeInstance } from "@/config/postgres";
+import { initUserModels, associateUserModels } from "./userModels";
+import { initVendorModels, associateVendorModels } from "./vendorModels";
+import { initWorkerModels, associateWorkerModels } from "./workerModels";
+import { initEventModels, associateEventModels } from "./eventModels";
 
 const sequelize = getSequelizeInstance();
 
-// Define model associations
-associations();
+const { User, Password, ContactMethod, RefreshToken, LoginAttempt } = initUserModels(sequelize);
+const { Vendor, VendorIndustry, VendorService } = initVendorModels(sequelize);
+const { Worker, IndustryRole, WorkerAvailability, WorkerException } = initWorkerModels(sequelize);
+const { Event, EventType, EventVendor } = initEventModels(sequelize);
 
-// Centralized Database Object
 const orm = {
     sequelize,
     User,
     Password,
     ContactMethod,
-    LoginAttempt,
     RefreshToken,
-    VendorIndustry,
-    IndustryService,
-    IndustryRole,
+    LoginAttempt,
     Vendor,
+    VendorIndustry,
+    VendorService,
     Worker,
+    IndustryRole,
     WorkerAvailability,
     WorkerException,
+    Event,
     EventType,
-    ClockLog
-}
+    EventVendor
+};
+
+associateUserModels(orm);
+associateVendorModels(orm);
+associateWorkerModels(orm);
+associateEventModels(orm);
 
 export default orm;

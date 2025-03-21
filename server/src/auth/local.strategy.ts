@@ -2,7 +2,7 @@ import { PassportStatic } from "passport";
 import { IStrategyOptionsWithRequest, Strategy, VerifyFunctionWithRequest } from "passport-local";
 import { Request } from "express";
 
-import { orm, odm } from "@/models";
+import { orm } from "@/models";
 
 // Local Strategy for login authentication
 export default function(passport: PassportStatic) {
@@ -24,11 +24,11 @@ export default function(passport: PassportStatic) {
             });
             // Indicate error if no user is registered with given credentials
             if (!contactMethod) return done(null, false, { message: "User not found", name: "USER_NOT_FOUND" });
-            const userId = contactMethod.userId;
+            const userId = contactMethod.user_id;
 
             // Retrieve the active password associated with the user
             const activePassword = await orm.Password.findOne({
-                where: { userId, isActive: true }
+                where: { user_id: userId, isActive: true }
             });
             // Indicate error if no active password exists
             if (!activePassword) return done(null, false, { message: "Password is not set", name: "PASSWORD_NOT_SET" });
@@ -41,9 +41,9 @@ export default function(passport: PassportStatic) {
 
             let roleData;
             if (role === 'vendor') {
-                roleData = await odm.vendorModel.findOne({ userId });
+                roleData = await orm.Vendor.findOne({ where: { user_id: userId } })
             } else if (role === 'worker') {
-                roleData = await odm.workerModel.findOne({ userId });
+                roleData = await orm.Worker.findOne({ where: { user_id: userId } });
             }
             if (!roleData) return done(null, userId, { message: "User is not registed for role", name: "UNREGISTERED_ROLE" });
 

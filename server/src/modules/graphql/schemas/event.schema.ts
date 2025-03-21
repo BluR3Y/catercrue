@@ -1,10 +1,10 @@
 import { gql } from "graphql-tag";
-import { EventStates } from "@/types/models";
+import { EventState } from "@/types/models";
 
 
 export const  eventTypeDefs = gql`
     enum EventStates {
-        ${Object.values(EventStates)}
+        ${Object.values(EventState)}
     }
 
     type Location {

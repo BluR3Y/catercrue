@@ -4,13 +4,12 @@ import useragent from "express-useragent";
 import passport from "passport";
 import { UAParser } from "ua-parser-js";
 
-import { odm, orm } from "@/models";
+import { orm } from "@/models";
 
 // Import Auth Strategies
 import localStrategy from "./local.strategy";
 import jwtStrategy from "./jwt.strategy";
 import googleStrategy from "./google.strategy";
-import { Model } from "mongoose";
 
 // Configure passport authentication middleware
 export const passportAuthMiddleware = (app: Application) => {
@@ -43,7 +42,7 @@ const authenticateStrategyCallback = (req: Request, res: Response, next: NextFun
             // const uaparser = UAParser(userAgent?.source);
             const clientIp = req.clientIp;
             await orm.LoginAttempt.create({
-                userId: user,
+                user_id: user,
                 ipAddress: clientIp ?? "Unknown",
                 userAgent: userAgent?.source ?? "Unknown",
                 validation: !info,
@@ -63,9 +62,9 @@ const authenticateStrategyCallback = (req: Request, res: Response, next: NextFun
 }
 
 export const rbac = (allowedRoles: string[] = []) => {
-    const roleMap: Record<string, Model<any>> = {
-        "vendor": odm.vendorModel,
-        "worker": odm.workerModel
+    const roleMap: Record<string, any> = {
+        vendor: orm.Vendor,
+        worker: orm.Worker
     }
     return async (req: Request, res: Response, next: NextFunction) => {
         authenticate.jwt(async (err, user, info) => {
@@ -83,11 +82,14 @@ export const rbac = (allowedRoles: string[] = []) => {
             }
 
             try {
-                const roleData = await roleModel.findById(roleId);
+                const roleData = await roleModel.findByPk(roleId);
                 if (!roleData) {
                     return next(new Error(`Could not find record for role: ${roleId}`));
                 }
-                req.roleData = roleData;
+                req.roleData = {
+                    role,
+                    data: roleData
+                }
                 next();
             } catch (err) {
                 next(err);
@@ -108,7 +110,7 @@ export const authenticate = {
     },
     // JWT Auth Wrapper 
     jwt: (
-        cb: (err: string | null, user: { role: string; roleId: string } | null, info: { message: string; name: string } | null) => void
+        cb: (err: string | null, user: { role: 'vendor' | 'worker'; roleId: string } | null, info: { message: string; name: string } | null) => void
     ) => {
         return (req: Request, res: Response, next: NextFunction) => {
             return passport.authenticate('jwt', (err : any, user: any, info : any) => cb(err, user, info))(req, res, next);

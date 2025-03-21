@@ -1,4 +1,4 @@
-import { orm, odm } from "./models";
+import { orm } from "./models";
 
 export default async function() {
     // Start Sequelize transaction
@@ -11,16 +11,12 @@ export default async function() {
         }, { transaction });
         console.log(firstUser)
         // Create user password
-        const firstUserPassword = await orm.Password.create({
-            userId: firstUser.id,
-            password: "Password@1234"
-        }, {transaction});
+        const firstUserPassword = await firstUser.createPassword({ password: "Password@1234" },{ transaction });
         console.log(firstUserPassword)
         // Create register user role
-        const firstUserRole = await orm.Worker.create({
-            user_id: firstUser.id,
+        const firstUserRole = await (firstUser as any).createWorker({
             home_address: { type: "Point", coordinates: [-73.935242, 40.730610] } as any
-        }, {transaction});
+        }, { transaction })
         console.log(firstUserRole);
         // Create worker weekday availabilities
         const firstWorkerAvails = await orm.WorkerAvailability.bulkCreate([
