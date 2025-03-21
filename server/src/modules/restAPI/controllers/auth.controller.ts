@@ -24,7 +24,7 @@ export const login: RequestHandler = async (req, res, next) => {
         const accessToken = generateJWT({ role, roleId: data.id }, accessTokenDuration);
 
         // Generate Refresh Token
-        const refreshToken = await orm.RefreshToken.create({ userId: data.userId });
+        const refreshToken = await orm.RefreshToken.create({ user_id: data.userId });
 
         res.status(201).json({
             accessToken,
@@ -113,7 +113,7 @@ export const refreshToken: RequestHandler = async (req, res, next) => {
             // Check for imminent expiry (within 5 minutes)
             if (rtData.expiry.getTime() < new Date().getTime() + (5 * 60 * 1000)) {
                 // Generate a new refresh token
-                const newRefreshToken = await orm.RefreshToken.create({ userId: data.userId }, { transaction });
+                const newRefreshToken = await orm.RefreshToken.create({ user_id: data.userId }, { transaction });
                 // Remove the expiring token from the database
                 await rtData.destroy({ transaction });
                 // Assign the new token
@@ -215,13 +215,13 @@ export const registerUser: RequestHandler = async (req, res, next) => {
 
             // Create password
             await orm.Password.create({
-                userId: user.id,
+                user_id: user.id,
                 password
             }, { transaction });
 
             // Create contact method
             await orm.ContactMethod.create({
-                userId: user.id,
+                user_id: user.id,
                 type: otpData.identifierType,
                 value: otpData.identifierValue,
                 isPrimary: true

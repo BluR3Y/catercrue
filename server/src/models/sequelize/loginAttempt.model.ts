@@ -14,7 +14,7 @@ const allErrors = [
 
 class LoginAttempt extends Model<InferAttributes<LoginAttempt>, InferCreationAttributes<LoginAttempt>> {
     public id!: CreationOptional<string>;
-    public userId!: string;
+    public user_id!: string;
     public ipAddress!: string;
     public userAgent!: string;
     public location!: CreationOptional<string>;
@@ -64,7 +64,7 @@ LoginAttempt.init(
             primaryKey: true,
             allowNull: false
         },
-        userId: {
+        user_id: {
             type: DataTypes.UUID,
             allowNull: false,
             references: {
@@ -107,7 +107,7 @@ LoginAttempt.init(
         modelName: 'LoginAttempt',
         sequelize: getSequelizeInstance(),
         indexes: [
-            { fields: ['userId', 'createdAt'] },
+            { fields: ['user_id', 'createdAt'] },
             { fields: ['ipAddress'] }
         ],
         timestamps: true,
@@ -132,7 +132,7 @@ LoginAttempt.afterCreate(async (attemptInstance: LoginAttempt) => {
 
         const lastSuccessfulAttempt = await LoginAttempt.findOne({
             where: {
-                userId: attemptInstance.userId,
+                user_id: attemptInstance.user_id,
                 validation: true,
                 createdAt: {
                     [Op.gte]: new Date(Date.now() - lockoutTime)
@@ -145,7 +145,7 @@ LoginAttempt.afterCreate(async (attemptInstance: LoginAttempt) => {
         // Count incorrect password attempts within the last X minutes and after last successful attempt
         const incorrectAttemptsCount = await LoginAttempt.count({
             where: {
-                userId: attemptInstance.userId,
+                user_id: attemptInstance.user_id,
                 failureReason: "INCORRECT_PASSWORD",
                 createdAt: {
                     [Op.gte]: lastAttemptTime
@@ -157,7 +157,7 @@ LoginAttempt.afterCreate(async (attemptInstance: LoginAttempt) => {
         if (incorrectAttemptsCount >= maxFailedAttempts) {
             await orm.Password.update(
                 { isActive: false },
-                { where: { userId: attemptInstance.userId, isActive: true } }
+                { where: { user_id: attemptInstance.user_id, isActive: true } }
             );
         }
     }

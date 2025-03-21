@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 
 class Password extends Model<InferAttributes<Password>, InferCreationAttributes<Password>> {
     public id!: CreationOptional<string>;   // Auto-generated UUID
-    public userId!: string;
+    public user_id!: string;
     public password!: string;
     public isActive!: CreationOptional<boolean>;
 
@@ -25,7 +25,7 @@ class Password extends Model<InferAttributes<Password>, InferCreationAttributes<
     public async isRecentRepeat(): Promise<boolean> {
         const numBeforeReuse = 5;
         const latestPasswords = await Password.findAll({
-            where: { userId: this.userId },
+            where: { user_id: this.user_id },
             order: [ ['createdAt', 'DESC'] ],
             limit: numBeforeReuse
         })
@@ -39,8 +39,8 @@ class Password extends Model<InferAttributes<Password>, InferCreationAttributes<
     }
 
     // Method to deactivate previous password
-    public static async deactivatePreviousPassword(userId: string) {
-        await Password.update({ isActive: false }, { where: { userId, isActive: true } });
+    public static async deactivatePreviousPassword(user_id: string) {
+        await Password.update({ isActive: false }, { where: { user_id, isActive: true } });
     }
 }
 
@@ -52,7 +52,7 @@ Password.init(
             primaryKey: true,
             allowNull: false
         },
-        userId: {
+        user_id: {
             type: DataTypes.UUID,
             allowNull: false,
             references: {
@@ -81,8 +81,8 @@ Password.init(
         modelName: 'Password',
         sequelize: getSequelizeInstance(),
         indexes: [
-            { fields: ['userId'] },
-            { unique: true, fields: ["userId", "isActive"], where: { isActive: true } }
+            { fields: ['user_id'] },
+            { unique: true, fields: ["user_id", "isActive"], where: { isActive: true } }
         ],
         timestamps: true,
         updatedAt: false
@@ -100,14 +100,14 @@ Password.beforeCreate(async (passwordInstance: Password) => {
     await passwordInstance.hashPassword();
 
     // Deactivate previous password
-    await Password.deactivatePreviousPassword(passwordInstance.userId);
+    await Password.deactivatePreviousPassword(passwordInstance.user_id);
 });
 
 // Hook triggered before record is updated
 Password.beforeUpdate(async (passwordInstance: Password) => {
     if (
         passwordInstance.changed('id') ||
-        passwordInstance.changed('userId') ||
+        passwordInstance.changed('user_id') ||
         passwordInstance.changed('password') ||
         passwordInstance.changed('createdAt')
     ) {

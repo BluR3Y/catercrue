@@ -4,7 +4,7 @@ import crypto from "crypto";
 
 class RefreshToken extends Model<InferAttributes<RefreshToken>, InferCreationAttributes<RefreshToken>> {
     public id!: CreationOptional<string>;
-    public userId!: string;
+    public user_id!: string;
 
     public readonly expiry!: CreationOptional<Date>;
     public readonly createdAt!: CreationOptional<Date>;
@@ -22,7 +22,7 @@ RefreshToken.init(
             primaryKey: true,
             allowNull: false,
         },
-        userId: {
+        user_id: {
             type: DataTypes.UUID,
             allowNull: false,
             references: {
@@ -50,7 +50,7 @@ RefreshToken.init(
         modelName: 'RefreshToken',
         sequelize: getSequelizeInstance(),
         indexes: [
-            { fields: ['userId'] },
+            { fields: ['user_id'] },
             { fields: ['expiry'] }
         ],
         timestamps: true,

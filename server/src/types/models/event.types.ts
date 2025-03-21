@@ -7,7 +7,7 @@ export interface IItinerary extends Document {
     updatedAt?: Date;
 }
 
-export enum EventStates {
+export enum EventState {
     drafted = "drafted",
     scheduled = "scheduled",
     canceled = "canceled"
@@ -21,7 +21,7 @@ export interface ISchedule extends Document {
 export interface IEvent extends Document {
     client?: Types.ObjectId;
     eventTypeId: number;
-    state: EventStates;
+    state: EventState;
     itinerary?: IItinerary;
     location: {
         type: 'Point';

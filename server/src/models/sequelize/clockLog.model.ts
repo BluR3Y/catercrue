@@ -3,7 +3,7 @@ import { getSequelizeInstance } from "../../config/postgres";
 
 class ClockLog extends Model<InferAttributes<ClockLog>, InferCreationAttributes<ClockLog>> {
     public id!: CreationOptional<string>;
-    public shiftId!: string;
+    public shift_id!: string;
 
     public readonly clockIn!: CreationOptional<Date>;
     public readonly clockOut!: CreationOptional<Date>;
@@ -17,7 +17,7 @@ ClockLog.init(
             primaryKey: true,
             allowNull: false
         },
-        shiftId: {
+        shift_id: {
             type: DataTypes.STRING,
             allowNull: false,
         },

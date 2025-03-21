@@ -6,11 +6,10 @@ class Vendor extends Model<InferAttributes<Vendor>, InferCreationAttributes<Vend
     public business_name!: string;
     public description!: CreationOptional<string>;
     public business_address!: string;
-    public industry!: string;
+    public industry_id!: string;
     public business_phone!: CreationOptional<string>;
     public business_email!: CreationOptional<string>;
     public business_website!: CreationOptional<string>;
-    // public services!: number[];
 }
 
 Vendor.init(
@@ -33,7 +32,7 @@ Vendor.init(
             type: DataTypes.GEOMETRY('POINT'),
             allowNull: false
         },
-        industry: {
+        industry_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
@@ -49,16 +48,7 @@ Vendor.init(
         },
         business_website: {
             type: DataTypes.STRING
-        },
-        // Implement separate table for vendor_services
-        // services: {
-        //     type: DataTypes.ARRAY(DataTypes.INTEGER),
-        //     allowNull: false,
-        //     references: {
-        //         model: 'industry_services',
-        //         key: 'id'
-        //     }
-        // }
+        }
     },
     {
         tableName: 'vendors',

@@ -4,7 +4,7 @@ import { Op } from "sequelize";
 
 class ContactMethod extends Model<InferAttributes<ContactMethod>, InferCreationAttributes<ContactMethod>> {
     public id!: CreationOptional<string>;
-    public userId!: string;
+    public user_id!: string;
     public type!: 'email' | 'phone';
     public value!: string;
     public isPrimary!: CreationOptional<boolean>;
@@ -21,7 +21,7 @@ ContactMethod.init(
             primaryKey: true,
             allowNull: false
         },
-        userId: {
+        user_id: {
             type: DataTypes.UUID,
             allowNull: false,
             references: {
@@ -63,7 +63,7 @@ ContactMethod.init(
         indexes: [
             {
                 unique: true,
-                fields: ['userId', 'type']  // ensures one email and one phone per user
+                fields: ['user_id', 'type']  // ensures one email and one phone per user
             }
         ]
     }
@@ -90,7 +90,7 @@ ContactMethod.beforeSave(async (contact, options) => {
     if (contact.isNewRecord || contact.changed('type')) {
         const existingType = await ContactMethod.findOne({
             where: {
-                userId: contact.userId,
+                user_id: contact.user_id,
                 type: contact.type,
                 id: { [Op.ne]: contact.id }
             }
@@ -104,7 +104,7 @@ ContactMethod.beforeSave(async (contact, options) => {
     if (contact.isPrimary) {
         const currentPrimary = await ContactMethod.findOne({
             where: {
-                userId: contact.userId,
+                user_id: contact.user_id,
                 isPrimary: true,
                 id: { [Op.ne]: contact.id } // exclude self if updating
             }
