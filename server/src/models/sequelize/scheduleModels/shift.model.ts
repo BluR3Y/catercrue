@@ -1,6 +1,17 @@
-import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional, Sequelize } from "sequelize";
-import { Vendor } from "../vendorModels/vendor.model";
+import {
+    DataTypes,
+    Model,
+    InferAttributes,
+    InferCreationAttributes,
+    CreationOptional,
+    Sequelize,
+    BelongsToGetAssociationMixin
+} from "sequelize";
+import type { Event } from "../eventModels/event.model";
+import type { IndustryRole } from "../workerModels/industryRole.model";
+
 // import { Client } from "./clientModels/client.model";
+import { Vendor } from "../vendorModels/vendor.model";
 
 enum shift_assigners {
     client = "client",
@@ -9,13 +20,15 @@ enum shift_assigners {
 
 export class Shift extends Model<InferAttributes<Shift>, InferCreationAttributes<Shift>> {
     public id!: CreationOptional<string>;
-    public event_id!: string;
+    public event_id!: CreationOptional<string>;
     public assigner_type!: string;
     public assigner_id!: string;
     public worker_id!: string;
-    public role!: string;
+    public role_id!: number;
     public shift_start!: Date;
     public shift_end!: Date;
+
+    public getEvent!: BelongsToGetAssociationMixin<Event>;
 }
 
 export const initShiftModel = (sequelize: Sequelize) => {
@@ -51,8 +64,8 @@ export const initShiftModel = (sequelize: Sequelize) => {
                     key: 'id'
                 }
             },
-            role: {
-                type: DataTypes.UUID,
+            role_id: {
+                type: DataTypes.INTEGER,
                 allowNull: false,
                 references: {
                     model: 'industry_roles',
@@ -73,18 +86,32 @@ export const initShiftModel = (sequelize: Sequelize) => {
             modelName: 'Shift',
             sequelize,
             timestamps: true,
-            validate: {
-                async validateAssigner() {
-                    const { assigner_type, assigner_id } = this as { assigner_type: shift_assigners; assigner_id: string };
-                    const assignerModel = assigner_type === 'client' ? Vendor : Vendor;
-                    const assignerExists = await assignerModel.count({
-                        where: { id: assigner_id }
-                    });
-                    if (!assignerExists) {
-                        throw new Error('Assigner does not exist');
-                    }
-                }
-            }
+            // validate: {
+            //     async validateAssigner() {
+            //         const { assigner_type, assigner_id } = this as { assigner_type: shift_assigners; assigner_id: string };
+            //         const assignerModel = assigner_type === 'client' ? Vendor : Vendor;
+            //         const assignerExists = await assignerModel.count({
+            //             where: { id: assigner_id }
+            //         });
+            //         if (!assignerExists) {
+            //             throw new Error('Assigner does not exist');
+            //         }
+            //     }
+            // }
         }
     );
+}
+
+export const associateShiftModel = (orm: {
+    Event: typeof Event;
+    IndustryRole: typeof IndustryRole;
+}) => {
+    Shift.belongsTo(orm.Event, {
+        foreignKey: 'event_id',
+        as: 'event'
+    });
+    Shift.hasOne(orm.IndustryRole, {
+        foreignKey: 'role_id',
+        as: 'role'
+    });
 }

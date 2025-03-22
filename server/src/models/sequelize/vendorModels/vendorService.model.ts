@@ -11,8 +11,8 @@ import type { Vendor } from "./vendor.model";
 
 export class VendorService extends Model<InferAttributes<VendorService>, InferCreationAttributes<VendorService>> {
     public id!: CreationOptional<string>;
-    public vendor_id!: string;
-    public service_id!: string;
+    public vendor_id!: CreationOptional<string>;
+    public service_id!: number;
 
     public getVendor!: BelongsToGetAssociationMixin<Vendor>;
 }

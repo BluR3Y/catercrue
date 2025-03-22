@@ -11,7 +11,7 @@ import type { VendorIndustry } from "./vendorIndustry.model";
 
 export class IndustryService extends Model<InferAttributes<IndustryService>, InferCreationAttributes<IndustryService>> {
     public id!: CreationOptional<number>;
-    public industry_id!: number;
+    public industry_id!: CreationOptional<number>;
     public name!: string;
     public description!: CreationOptional<string>;
 

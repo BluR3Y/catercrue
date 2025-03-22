@@ -1,4 +1,4 @@
-import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional, NonAttribute, Sequelize } from "sequelize";
+import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional, NonAttribute, Sequelize, BelongsToGetAssociationMixin, HasManyGetAssociationsMixin, HasManyCreateAssociationMixin } from "sequelize";
 import { WeekDay } from "@/types/models";
 import { Op } from "sequelize";
 import { addMinutesToDate, parseMinutes } from "@/utils/manageTime";
@@ -17,7 +17,7 @@ export interface ITimeSlot {
 
 export class Worker extends Model<InferAttributes<Worker>, InferCreationAttributes<Worker>> {
     public id!: CreationOptional<string>;
-    public user_id!: string;
+    public user_id!: CreationOptional<string>;
     public home_address!: string;
 
     public async isWorkerAvailable(start: Date, end: Date): Promise<boolean> {
@@ -75,6 +75,15 @@ export class Worker extends Model<InferAttributes<Worker>, InferCreationAttribut
 
         return true;
     }
+
+    // Sequelize defined association methods
+    public getUser!: BelongsToGetAssociationMixin<User>;
+    
+    public getWorkerAvailabilities!: HasManyGetAssociationsMixin<WorkerAvailability>;
+    public createWorkerAvailability!: HasManyCreateAssociationMixin<WorkerAvailability>;
+
+    public getWorkerExceptions!: HasManyGetAssociationsMixin<WorkerException>;
+    public createWorkerException!: HasManyCreateAssociationMixin<WorkerException>;
 }
 
 export const initWorkerModel = (sequelize: Sequelize) => {

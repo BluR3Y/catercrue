@@ -4,22 +4,36 @@ import {
     InferAttributes,
     InferCreationAttributes,
     CreationOptional,
-    Sequelize
+    Sequelize,
+    BelongsToGetAssociationMixin,
+    HasManyGetAssociationsMixin,
+    HasManyCreateAssociationMixin,
+    HasManyCountAssociationsMixin
 } from "sequelize";
 
 import type { User } from "../userModels/user.model";
 import type { VendorService } from "./vendorService.model";
+import type { EventVendor } from "../eventModels/eventVendor.model";
 
 export class Vendor extends Model<InferAttributes<Vendor>, InferCreationAttributes<Vendor>> {
     public id!: CreationOptional<string>;
-    public user_id!: string;
+    public user_id!: CreationOptional<string>;
     public business_name!: string;
     public description!: CreationOptional<string>;
     public business_address!: string;
-    public industry_id!: string;
+    public industry_id!: number;
     public business_phone!: CreationOptional<string>;
     public business_email!: CreationOptional<string>;
     public business_website!: CreationOptional<string>;
+
+    // Sequelize defined association methods
+    public getUser!: BelongsToGetAssociationMixin<User>;
+
+    public getServices!: HasManyGetAssociationsMixin<VendorService>;
+    public createService!: HasManyCreateAssociationMixin<VendorService>;
+
+    public getEvents!: HasManyGetAssociationsMixin<EventVendor>;
+    public countEvents!: HasManyCountAssociationsMixin;
 }
 
 export const initVendorModel = (sequelize: Sequelize) => {
@@ -81,6 +95,7 @@ export const initVendorModel = (sequelize: Sequelize) => {
 export const associateVendorModel = (orm: {
     User: typeof User;
     VendorService: typeof VendorService;
+    EventVendor: typeof EventVendor;
 }) => {
     Vendor.belongsTo(orm.User, {
         foreignKey: 'user_id',
@@ -90,5 +105,10 @@ export const associateVendorModel = (orm: {
     Vendor.hasMany(orm.VendorService, {
         foreignKey: 'vendor_id',
         as: 'services'
+    });
+
+    Vendor.hasMany(orm.EventVendor, {
+        foreignKey: 'vendor_id',
+        as: 'events'
     });
 }

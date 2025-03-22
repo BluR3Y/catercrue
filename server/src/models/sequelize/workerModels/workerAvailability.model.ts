@@ -12,7 +12,7 @@ import { Worker } from "./worker.model";
 
 export class WorkerAvailability extends Model<InferAttributes<WorkerAvailability>, InferCreationAttributes<WorkerAvailability>> {
     public id!: CreationOptional<string>;
-    public worker_id!: string;
+    public worker_id!: CreationOptional<string>;
     public week_day!: WeekDay;
     public start_time!: string;
     public end_time!: string;

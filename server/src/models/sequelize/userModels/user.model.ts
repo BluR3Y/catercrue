@@ -9,7 +9,9 @@ import {
     HasManyAddAssociationMixin,
     HasManyHasAssociationMixin,
     HasManyCountAssociationsMixin,
-    HasManyCreateAssociationMixin
+    HasManyCreateAssociationMixin,
+    HasOneGetAssociationMixin,
+    HasOneCreateAssociationMixin
 } from "sequelize";
 import type { Password } from "./password.model";
 import type { RefreshToken } from "./refreshToken.model";
@@ -33,7 +35,12 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
     public hasPassword!: HasManyHasAssociationMixin<Password, number>;
     public countPasswords!: HasManyCountAssociationsMixin;
     public createPassword!: HasManyCreateAssociationMixin<Password>;
-    // ** Note: Missing for other association
+    
+    public getWorker!: HasOneGetAssociationMixin<Worker>;
+    public createWorker!: HasOneCreateAssociationMixin<Worker>;
+
+    public getVendor!: HasOneGetAssociationMixin<Vendor>;
+    public createVendor!: HasOneCreateAssociationMixin<Vendor>;
 }
 
 export const initUserModel = (sequelize: Sequelize) => {

@@ -6,7 +6,8 @@ import {
     CreationOptional,
     Sequelize,
     HasManyGetAssociationsMixin,
-    HasManyCountAssociationsMixin
+    HasManyCountAssociationsMixin,
+    HasManyCreateAssociationMixin
 } from "sequelize";
 import type { IndustryService } from "./industryService.model";
 import type { IndustryRole } from "../workerModels/industryRole.model";
@@ -19,8 +20,11 @@ export class VendorIndustry extends Model<InferAttributes<VendorIndustry>, Infer
     // Sequelize defined association methods
     public getServices!: HasManyGetAssociationsMixin<IndustryService>;
     public countServices!: HasManyCountAssociationsMixin;
+    public createService!: HasManyCreateAssociationMixin<IndustryService>;
+    
     public getRoles!: HasManyGetAssociationsMixin<IndustryRole>;
     public countRoles!: HasManyCountAssociationsMixin;
+    public createRole!: HasManyCreateAssociationMixin<IndustryRole>;
 }
 
 export const initVendorIndustryModel = (sequelize: Sequelize) => {

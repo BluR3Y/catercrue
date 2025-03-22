@@ -10,20 +10,45 @@ import {
 } from "sequelize";
 import { EventState } from "@/types/models";
 import type { EventVendor } from "./eventVendor.model";
+import type { Shift } from "../scheduleModels/shift.model";
+import { IndustryRole } from "../workerModels/industryRole.model";
+import { VendorIndustry } from "../vendorModels/vendorIndustry.model";
 
 export class Event extends Model<InferAttributes<Event>, InferCreationAttributes<Event>> {
     public id!: CreationOptional<string>;
     public client_id!: CreationOptional<string>;
-    public type_id!: string;
+    public type_id!: number;
     public state!: EventState;
-    public status!: string;
+    public status!: CreationOptional<string>;
     public location!: string;
     public start!: Date;
     public end!: Date;
 
+    public async getManager() {
+        const eventManager = await this.getShifts({include: [
+            {
+                model: IndustryRole,
+                as: 'role',
+                where: { name: 'Event Manager' }
+            }
+        ] });
+        if (eventManager.length) {
+            return eventManager[0];
+        }
+        
+        if (this.client_id) {
+            // return (await this.get)
+        }
+
+        // Last Here
+    }
+
     // Sequelize defined association methods
-    public getEventVendors!: HasManyGetAssociationsMixin<EventVendor>;
-    public createEventVendor!: HasManyCreateAssociationMixin<EventVendor>;
+    public getVendors!: HasManyGetAssociationsMixin<EventVendor>;
+    public createVendor!: HasManyCreateAssociationMixin<EventVendor>;
+
+    public getShifts!: HasManyGetAssociationsMixin<Shift>;
+    public createShift!: HasManyCreateAssociationMixin<Shift>;
 }
 
 export const initEventModel = (sequelize: Sequelize) => {
@@ -97,12 +122,18 @@ export const initEventModel = (sequelize: Sequelize) => {
 }
 
 export const associateEventModel = (orm: {
-    EventVendor: typeof EventVendor
+    EventVendor: typeof EventVendor;
+    Shift: typeof Shift;
 }) => {
     // Client Association
     
     Event.hasMany(orm.EventVendor, {
         foreignKey: 'event_id',
-        as: 'eventVendors'
+        as: 'vendors'
+    });
+
+    Event.hasMany(orm.Shift, {
+        foreignKey: 'event_id',
+        as: 'shifts'
     });
 }

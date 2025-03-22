@@ -11,7 +11,7 @@ import { Worker } from "./worker.model";
 
 export class WorkerException extends Model<InferAttributes<WorkerException>, InferCreationAttributes<WorkerException>> {
     public id!: CreationOptional<string>;
-    public worker_id!: string;
+    public worker_id!: CreationOptional<string>;
     public date!: string;
     public start_time!: string;
     public end_time!: string;
