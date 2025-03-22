@@ -2,7 +2,7 @@ import express from 'express';
 import { createServer } from 'http';
 import cors from "cors";
 
-import { postgresReady, closePostgresConnection, getSequelizeInstance } from './config/postgres';
+import { postgresReady, closePostgresConnection } from './config/postgres';
 import { closeMongooseConnection, mongooseReady } from './config/mongoose';
 import { redisReady, closeRedisConnection } from './config/redis';
 import { twilioReady } from './config/twilio';

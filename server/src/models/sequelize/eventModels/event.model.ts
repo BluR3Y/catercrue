@@ -6,13 +6,14 @@ import {
     CreationOptional,
     Sequelize,
     HasManyGetAssociationsMixin,
-    HasManyCreateAssociationMixin
+    HasManyCreateAssociationMixin,
+    BelongsToGetAssociationMixin
 } from "sequelize";
 import { EventState } from "@/types/models";
+import type { Client } from "../clientModels/client.model";
 import type { EventVendor } from "./eventVendor.model";
 import type { Shift } from "../scheduleModels/shift.model";
 import { IndustryRole } from "../workerModels/industryRole.model";
-import { VendorIndustry } from "../vendorModels/vendorIndustry.model";
 
 export class Event extends Model<InferAttributes<Event>, InferCreationAttributes<Event>> {
     public id!: CreationOptional<string>;
@@ -35,15 +36,15 @@ export class Event extends Model<InferAttributes<Event>, InferCreationAttributes
         if (eventManager.length) {
             return eventManager[0];
         }
-        
+        // Last Here: Brainstorming permission hierarchy
         if (this.client_id) {
             // return (await this.get)
         }
-
-        // Last Here
     }
 
     // Sequelize defined association methods
+    public getClient!: BelongsToGetAssociationMixin<Client>;
+
     public getVendors!: HasManyGetAssociationsMixin<EventVendor>;
     public createVendor!: HasManyCreateAssociationMixin<EventVendor>;
 
@@ -70,10 +71,10 @@ export const initEventModel = (sequelize: Sequelize) => {
             },
             client_id: {
                 type: DataTypes.UUID,
-                // references: {
-                //     model: 'clients',
-                //     key: 'id'
-                // }
+                references: {
+                    model: 'clients',
+                    key: 'id'
+                }
             },
             state: {
                 type: DataTypes.ENUM(...Object.values(EventState)),
@@ -124,9 +125,13 @@ export const initEventModel = (sequelize: Sequelize) => {
 export const associateEventModel = (orm: {
     EventVendor: typeof EventVendor;
     Shift: typeof Shift;
+    Client: typeof Client;
 }) => {
-    // Client Association
-    
+    Event.belongsTo(orm.Client, {
+        foreignKey: 'client_id',
+        as: 'client'
+    });
+
     Event.hasMany(orm.EventVendor, {
         foreignKey: 'event_id',
         as: 'vendors'

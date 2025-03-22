@@ -39,20 +39,7 @@ export default function(passport: PassportStatic) {
                 return done(null, userId, { message: "Invalid password", name: "INCORRECT_PASSWORD" });
             }
 
-            let roleData;
-            if (role === 'vendor') {
-                roleData = await orm.Vendor.findOne({ where: { user_id: userId } })
-            } else if (role === 'worker') {
-                roleData = await orm.Worker.findOne({ where: { user_id: userId } });
-            }
-            if (!roleData) return done(null, userId, { message: "User is not registed for role", name: "UNREGISTERED_ROLE" });
-
-            req.roleData = {
-                role,
-                data: roleData
-            } as any;
-
-            done(null, userId);
+            done(null, { role, userId });
         } catch (err) {
             done(err);
         }

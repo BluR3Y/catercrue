@@ -30,11 +30,17 @@ export const passportAuthMiddleware = (app: Application) => {
 }
 
 const standardErr = { message: "Unauthorized Request", code: "UNAUTHORIZED" };
+const roleMap = {
+    client: orm.Client,
+    vendor: orm.Vendor,
+    worker: orm.Worker
+}
 
 const authenticateStrategyCallback = (req: Request, res: Response, next: NextFunction) => {
-    return async (err: string | null, user: string | null, info: { message: string; name: string } | null) => {
+    return async (err: string | null, user: { role: 'client' | 'vendor' | 'worker'; userId: string } | null, info: { message: string; name: string } | null) => {
         if (err) return next(err);
         if (!user) return res.status(401).json({ message: info?.message || standardErr.message, code: info?.name || standardErr.code });
+        const { role, userId } = user;
 
         try {
             const userAgent = req.useragent;
@@ -42,18 +48,37 @@ const authenticateStrategyCallback = (req: Request, res: Response, next: NextFun
             // const uaparser = UAParser(userAgent?.source);
             const clientIp = req.clientIp;
             await orm.LoginAttempt.create({
-                user_id: user,
+                user_id: userId,
                 ipAddress: clientIp ?? "Unknown",
                 userAgent: userAgent?.source ?? "Unknown",
                 validation: !info,
                 failureReason: info?.name
             });
 
-            if (user && info) return res.status(401).json({ message: info.message, code: info.name });
+            // Info being populated, in addition to there being a user, indicates an error occured relating to said user
+            if (info) return res.status(401).json({ message: info.message, code: info.name });
 
-            const userData = await orm.User.findByPk(user);
-            if (!userData) return next(new Error(`Authenticated user not found; ${user}`));
+            const userData = await orm.User.findByPk(user.userId);
+            if (!userData) return next(new Error(`Authenticated user not found: ${user}`));
 
+            let roleData;
+            if (role === 'client') {
+                roleData = await userData.getClient();
+            } else if (role === 'vendor') {
+                roleData = await userData.getVendor();
+            } else if (role === 'worker') {
+                roleData = await userData.getWorker();
+            } else {
+                return next(new Error(`User with id '${userId}' has invalid role type '${role}'`));
+            }
+            if (!roleData) {
+                return res.status(403).json({ message: "Not registered for role", code: "UNREGISTERED_ROLE" });
+            }
+
+            req.roleData = {
+                role: role,
+                data: roleData
+            }
             next();
         } catch (err) {
             next(err);
@@ -62,10 +87,6 @@ const authenticateStrategyCallback = (req: Request, res: Response, next: NextFun
 }
 
 export const rbac = (allowedRoles: string[] = []) => {
-    const roleMap: Record<string, any> = {
-        vendor: orm.Vendor,
-        worker: orm.Worker
-    }
     return async (req: Request, res: Response, next: NextFunction) => {
         authenticate.jwt(async (err, user, info) => {
             if (err) return next(err);
@@ -110,7 +131,7 @@ export const authenticate = {
     },
     // JWT Auth Wrapper 
     jwt: (
-        cb: (err: string | null, user: { role: 'vendor' | 'worker'; roleId: string } | null, info: { message: string; name: string } | null) => void
+        cb: (err: string | null, user: { role: 'vendor' | 'worker' | 'client'; roleId: string } | null, info: { message: string; name: string } | null) => void
     ) => {
         return (req: Request, res: Response, next: NextFunction) => {
             return passport.authenticate('jwt', (err : any, user: any, info : any) => cb(err, user, info))(req, res, next);

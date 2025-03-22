@@ -1,10 +1,8 @@
 import { RequestHandler } from "express";
-import crypto from "crypto";
-
 import { blacklistToken, generateJWT } from "@/utils/manageJWT";
 import { sendSMSOTP } from "@/services/smsService";
 import { getRedisInstance } from "@/config/redis";
-import { orm, odm } from "@/models";
+import { orm } from "@/models";
 import { sendEmailOTP } from "@/services/emailService";
 
 const redisClient = getRedisInstance();
