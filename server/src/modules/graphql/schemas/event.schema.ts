@@ -1,5 +1,5 @@
 import { gql } from "graphql-tag";
-import { EventState } from "@/types/models";
+import { EventState } from "@/types";
 
 
 export const  eventTypeDefs = gql`

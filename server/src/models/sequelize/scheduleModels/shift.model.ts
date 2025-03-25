@@ -21,7 +21,7 @@ enum shift_assigners {
 export class Shift extends Model<InferAttributes<Shift>, InferCreationAttributes<Shift>> {
     public id!: CreationOptional<string>;
     public event_id!: CreationOptional<string>;
-    public assigner_type!: string;
+    public assigner_type!: shift_assigners;
     public assigner_id!: string;
     public worker_id!: string;
     public role_id!: number;

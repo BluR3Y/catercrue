@@ -30,7 +30,7 @@ export const passportAuthMiddleware = (app: Application) => {
 }
 
 const standardErr = { message: "Unauthorized Request", code: "UNAUTHORIZED" };
-const roleMap = {
+const roleMap: Record<string, any> = {
     client: orm.Client,
     vendor: orm.Vendor,
     worker: orm.Worker

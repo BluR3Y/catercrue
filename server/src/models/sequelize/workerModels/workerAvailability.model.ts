@@ -7,7 +7,7 @@ import {
     Sequelize,
     Op
 } from "sequelize";
-import { WeekDay } from "@/types/models";
+import { WeekDay } from "@/types";
 import { Worker } from "./worker.model";
 
 export class WorkerAvailability extends Model<InferAttributes<WorkerAvailability>, InferCreationAttributes<WorkerAvailability>> {

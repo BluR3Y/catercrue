@@ -5,16 +5,21 @@ import {
     InferCreationAttributes,
     CreationOptional,
     Sequelize,
-    BelongsToGetAssociationMixin
+    BelongsToGetAssociationMixin,
+    HasOneGetAssociationMixin
 } from "sequelize";
 import type { Vendor } from "./vendor.model";
+import type { IndustryService } from "./industryService.model";
 
 export class VendorService extends Model<InferAttributes<VendorService>, InferCreationAttributes<VendorService>> {
     public id!: CreationOptional<string>;
     public vendor_id!: CreationOptional<string>;
     public service_id!: number;
 
+    // Sequelize defined association method
     public getVendor!: BelongsToGetAssociationMixin<Vendor>;
+
+    public getService!: HasOneGetAssociationMixin<IndustryService>;
 }
 
 export const initVendorServiceModel = (sequelize: Sequelize) => {
@@ -53,10 +58,15 @@ export const initVendorServiceModel = (sequelize: Sequelize) => {
 }
 
 export const associateVendorServiceModel = (orm: {
-    Vendor: typeof Vendor
+    Vendor: typeof Vendor;
+    IndustryService: typeof IndustryService;
 }) => {
     VendorService.belongsTo(orm.Vendor, {
         foreignKey: 'vendor_id',
         as: 'vendor'
+    });
+    VendorService.hasOne(orm.IndustryService, {
+        foreignKey: 'service_id',
+        as: 'service'
     });
 }

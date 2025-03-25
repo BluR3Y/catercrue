@@ -9,38 +9,24 @@ import {
     HasManyCreateAssociationMixin,
     BelongsToGetAssociationMixin
 } from "sequelize";
-import { EventState } from "@/types/models";
-import type { Client } from "../clientModels/client.model";
+import { EventState, Manager, roleMap } from "@/types";
+import { Client } from "../clientModels/client.model";
 import type { EventVendor } from "./eventVendor.model";
 import type { Shift } from "../scheduleModels/shift.model";
-import { IndustryRole } from "../workerModels/industryRole.model";
+import { Vendor } from "../vendorModels/vendor.model";
+import { Worker } from "../workerModels/worker.model";
 
 export class Event extends Model<InferAttributes<Event>, InferCreationAttributes<Event>> {
     public id!: CreationOptional<string>;
     public client_id!: CreationOptional<string>;
+    public manager_id!: CreationOptional<string>;
+    public manager_type!: CreationOptional<Manager>;
     public type_id!: number;
     public state!: EventState;
     public status!: CreationOptional<string>;
     public location!: string;
     public start!: Date;
     public end!: Date;
-
-    public async getManager() {
-        const eventManager = await this.getShifts({include: [
-            {
-                model: IndustryRole,
-                as: 'role',
-                where: { name: 'Event Manager' }
-            }
-        ] });
-        if (eventManager.length) {
-            return eventManager[0];
-        }
-        // Last Here: Brainstorming permission hierarchy
-        if (this.client_id) {
-            // return (await this.get)
-        }
-    }
 
     // Sequelize defined association methods
     public getClient!: BelongsToGetAssociationMixin<Client>;
@@ -50,6 +36,11 @@ export class Event extends Model<InferAttributes<Event>, InferCreationAttributes
 
     public getShifts!: HasManyGetAssociationsMixin<Shift>;
     public createShift!: HasManyCreateAssociationMixin<Shift>;
+
+    public async getManager(): Promise<Client | Worker | Vendor | null> {
+        const { manager_type, manager_id } = this;
+        return await roleMap[manager_type].findByPk(manager_id);
+    }
 }
 
 export const initEventModel = (sequelize: Sequelize) => {
@@ -75,6 +66,14 @@ export const initEventModel = (sequelize: Sequelize) => {
                     model: 'clients',
                     key: 'id'
                 }
+            },
+            manager_id: {
+                type: DataTypes.UUID,
+                allowNull: false
+            },
+            manager_type: {
+                type: DataTypes.ENUM(...Object.values(Manager)),
+                allowNull: false
             },
             state: {
                 type: DataTypes.ENUM(...Object.values(EventState)),
@@ -115,6 +114,12 @@ export const initEventModel = (sequelize: Sequelize) => {
                     const { start, end } = this as { start: Date; end: Date };
                     if (start < new Date() || start >= end) {
                         throw new Error("Invalid scheduling");
+                    }
+                },
+                async validateManager() {
+                    const { getManager } = this as { getManager: () => Promise<any> }
+                    if (!await getManager()) {
+                        throw new Error("Manager does not exist")
                     }
                 }
             }

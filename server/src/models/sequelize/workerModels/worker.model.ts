@@ -1,19 +1,11 @@
 import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional, NonAttribute, Sequelize, BelongsToGetAssociationMixin, HasManyGetAssociationsMixin, HasManyCreateAssociationMixin } from "sequelize";
-import { WeekDay } from "@/types/models";
+import { WeekDay } from "@/types";
 import { Op } from "sequelize";
 import { addMinutesToDate, parseMinutes } from "@/utils/manageTime";
 
 import { User } from "../userModels/user.model";
 import { WorkerAvailability } from "./workerAvailability.model";
 import { WorkerException } from "./workerException.model";
-
-// Define time slot structure
-export interface ITimeSlot {
-    start_hours: number;
-    start_minutes: number;
-    end_hours: number;
-    end_minutes: number;
-}
 
 export class Worker extends Model<InferAttributes<Worker>, InferCreationAttributes<Worker>> {
     public id!: CreationOptional<string>;

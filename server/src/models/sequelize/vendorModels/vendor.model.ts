@@ -8,12 +8,14 @@ import {
     BelongsToGetAssociationMixin,
     HasManyGetAssociationsMixin,
     HasManyCreateAssociationMixin,
-    HasManyCountAssociationsMixin
+    HasManyCountAssociationsMixin,
+    HasOneGetAssociationMixin
 } from "sequelize";
 
 import type { User } from "../userModels/user.model";
 import type { VendorService } from "./vendorService.model";
 import type { EventVendor } from "../eventModels/eventVendor.model";
+import type { VendorIndustry } from "./vendorIndustry.model";
 
 export class Vendor extends Model<InferAttributes<Vendor>, InferCreationAttributes<Vendor>> {
     public id!: CreationOptional<string>;
@@ -28,6 +30,8 @@ export class Vendor extends Model<InferAttributes<Vendor>, InferCreationAttribut
 
     // Sequelize defined association methods
     public getUser!: BelongsToGetAssociationMixin<User>;
+
+    public getIndustry!: HasOneGetAssociationMixin<VendorIndustry>;
 
     public getServices!: HasManyGetAssociationsMixin<VendorService>;
     public createService!: HasManyCreateAssociationMixin<VendorService>;
@@ -94,12 +98,18 @@ export const initVendorModel = (sequelize: Sequelize) => {
 
 export const associateVendorModel = (orm: {
     User: typeof User;
+    VendorIndustry: typeof VendorIndustry;
     VendorService: typeof VendorService;
     EventVendor: typeof EventVendor;
 }) => {
     Vendor.belongsTo(orm.User, {
         foreignKey: 'user_id',
         as: 'user'
+    });
+
+    Vendor.hasOne(orm.VendorIndustry, {
+        foreignKey: 'industry_id',
+        as: 'industry'
     });
 
     Vendor.hasMany(orm.VendorService, {
