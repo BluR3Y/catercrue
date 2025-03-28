@@ -9,28 +9,26 @@ import {
     HasOneGetAssociationMixin
 } from "sequelize";
 import type { Event } from "../eventModels/event.model";
-import type { Coordinator } from "../coordinatorModels/coordinator.model";
 import type { Worker } from "../workerModels/worker.model";
 import type { IndustryRole } from "../workerModels/industryRole.model";
 
-export class Shift extends Model<InferAttributes<Shift>, InferCreationAttributes<Shift>> {
+export class Job extends Model<InferAttributes<Job>, InferCreationAttributes<Job>> {
     public id!: CreationOptional<string>;
     public event_id!: CreationOptional<string>;
-    public coordinator_id!: CreationOptional<string>;
     public worker_id!: string;
-    public role_id!: number;
-    public shift_start!: Date;
-    public shift_end!: Date;
+    public role_id!: string;
+    public due_date!: Date;
 
-    // Sequelize defined association method
+    // Sequelize defined association methods
     public getEvent!: BelongsToGetAssociationMixin<Event>;
-    public getCoordinator!: BelongsToGetAssociationMixin<Coordinator>;
+
     public getWorker!: BelongsToGetAssociationMixin<Worker>;
+
     public getRole!: HasOneGetAssociationMixin<IndustryRole>;
 }
 
-export const initShiftModel = (sequelize: Sequelize) => {
-    Shift.init(
+export const initJobModel = (sequelize: Sequelize) => {
+    Job.init(
         {
             id: {
                 type: DataTypes.UUID,
@@ -46,14 +44,6 @@ export const initShiftModel = (sequelize: Sequelize) => {
                     key: 'id'
                 }
             },
-            coordinator_id: {
-                type: DataTypes.UUID,
-                allowNull: false,
-                references: {
-                    model: 'coordinators',
-                    key: 'id'
-                }
-            },
             worker_id: {
                 type: DataTypes.UUID,
                 allowNull: false,
@@ -63,51 +53,43 @@ export const initShiftModel = (sequelize: Sequelize) => {
                 }
             },
             role_id: {
-                type: DataTypes.INTEGER,
+                type: DataTypes.UUID,
                 allowNull: false,
                 references: {
                     model: 'industry_roles',
                     key: 'id'
                 }
             },
-            shift_start: {
-                type: DataTypes.DATE,
-                allowNull: false
-            },
-            shift_end: {
+            due_date: {
                 type: DataTypes.DATE,
                 allowNull: false
             }
         },
         {
-            tableName: 'shifts',
-            modelName: 'Shift',
+            tableName: 'jobs',
+            modelName: 'Job',
             sequelize,
             timestamps: true
         }
     );
 }
-
-export const associateShiftModel = (orm: {
+// Last Here
+export const associateJobModel = (orm: {
     Event: typeof Event;
-    Coordinator: typeof Coordinator;
     Worker: typeof Worker;
     IndustryRole: typeof IndustryRole;
 }) => {
-    Shift.belongsTo(orm.Event, {
+    Job.belongsTo(orm.Event, {
         foreignKey: 'event_id',
         as: 'event'
     });
-    Shift.belongsTo(orm.Coordinator, {
-        foreignKey: 'coordinator_id',
-        as: 'coordinator'
-    });
-    Shift.belongsTo(orm.Worker, {
+    Job.belongsTo(orm.Worker, {
         foreignKey: 'worker_id',
         as: 'worker'
     });
-    Shift.hasOne(orm.IndustryRole, {
+    Job.hasOne(orm.IndustryRole, {
         foreignKey: 'role_id',
         as: 'role'
     });
+    // To vendor?
 }

@@ -12,7 +12,7 @@ import {
 import type { IndustryService } from "./industryService.model";
 import type { IndustryRole } from "../workerModels/industryRole.model";
 
-export class VendorIndustry extends Model<InferAttributes<VendorIndustry>, InferCreationAttributes<VendorIndustry>> {
+export class ServiceIndustry extends Model<InferAttributes<ServiceIndustry>, InferCreationAttributes<ServiceIndustry>> {
     public id!: CreationOptional<number>;
     public name!: string;
     public description!: CreationOptional<string>;
@@ -27,8 +27,8 @@ export class VendorIndustry extends Model<InferAttributes<VendorIndustry>, Infer
     public createRole!: HasManyCreateAssociationMixin<IndustryRole>;
 }
 
-export const initVendorIndustryModel = (sequelize: Sequelize) => {
-    VendorIndustry.init(
+export const initServiceIndustryModel = (sequelize: Sequelize) => {
+    ServiceIndustry.init(
         {
             id: {
                 type: DataTypes.INTEGER,
@@ -45,23 +45,23 @@ export const initVendorIndustryModel = (sequelize: Sequelize) => {
             }
         },
         {
-            tableName: 'vendor_industries',
-            modelName: 'VendorIndustry',
+            tableName: 'service_industries',
+            modelName: 'ServiceIndustry',
             sequelize,
             timestamps: false
         }
     );
 }
 
-export const associateVendorIndustryModel = (orm: {
+export const associateServiceIndustryModel = (orm: {
     IndustryService: typeof IndustryService;
     IndustryRole: typeof IndustryRole;
 }) => {
-    VendorIndustry.hasMany(orm.IndustryService, {
+    ServiceIndustry.hasMany(orm.IndustryService, {
         foreignKey: 'industry_id',
         as: 'services'
     });
-    VendorIndustry.hasMany(orm.IndustryRole, {
+    ServiceIndustry.hasMany(orm.IndustryRole, {
         foreignKey: 'industry_id',
         as: 'roles'
     });

@@ -8,26 +8,27 @@ import {
     BelongsToGetAssociationMixin
 } from "sequelize";
 import type { Event } from "./event.model";
-import type { Vendor } from "../vendorModels/vendor.model";
+import type { Coordinator } from "../coordinatorModels/coordinator.model";
 
-export class EventVendor extends Model<InferAttributes<EventVendor>, InferCreationAttributes<EventVendor>> {
+export class ContractedVendor extends Model<InferAttributes<ContractedVendor>, InferCreationAttributes<ContractedVendor>> {
     public id!: CreationOptional<string>;
     public event_id!: CreationOptional<string>;
-    public vendor_id!: string;
+    public coordinator_id!: string;
     public services!: CreationOptional<string[]>;
 
+    // Sequelize created association methods
     public getEvent!: BelongsToGetAssociationMixin<Event>;
-    public getVendor!: BelongsToGetAssociationMixin<Vendor>;
+    public getCoordinator!: BelongsToGetAssociationMixin<Coordinator>;
 }
 
-export const initEventVendor = (sequelize: Sequelize) => {
-    EventVendor.init(
+export const initContractedVendorModel = (sequelize: Sequelize) => {
+    ContractedVendor.init(
         {
             id: {
                 type: DataTypes.UUID,
-                primaryKey: true,
                 defaultValue: DataTypes.UUIDV4,
                 allowNull: false,
+                primaryKey: true
             },
             event_id: {
                 type: DataTypes.UUID,
@@ -37,11 +38,11 @@ export const initEventVendor = (sequelize: Sequelize) => {
                     key: 'id'
                 }
             },
-            vendor_id: {
+            coordinator_id: {
                 type: DataTypes.UUID,
                 allowNull: false,
                 references: {
-                    model: 'vendors',
+                    model: 'coordinators',
                     key: 'id'
                 }
             },
@@ -50,24 +51,24 @@ export const initEventVendor = (sequelize: Sequelize) => {
             }
         },
         {
-            tableName: 'event_vendors',
-            modelName: 'EventVendor',
+            tableName: 'contracted_vendors',
+            modelName: 'ContractedVendor',
             sequelize,
             timestamps: true
         }
     );
 }
 
-export const associateEventVendor = (orm: {
+export const associateContractedVendorModel = (orm: {
     Event: typeof Event;
-    Vendor: typeof Vendor;
+    Coordinator: typeof Coordinator;
 }) => {
-    EventVendor.belongsTo(orm.Event, {
+    ContractedVendor.belongsTo(orm.Event, {
         foreignKey: 'event_id',
         as: 'event'
     });
-    EventVendor.belongsTo(orm.Vendor, {
-        foreignKey: 'vendor_id',
-        as: 'vendor'
+    ContractedVendor.belongsTo(orm.Coordinator, {
+        foreignKey: 'coordinator_id',
+        as: 'coordinator'
     });
 }

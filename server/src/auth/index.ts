@@ -3,6 +3,7 @@ import requestIp from "request-ip";
 import useragent from "express-useragent";
 import passport from "passport";
 import { UAParser } from "ua-parser-js";
+import { roleMap } from "@/types";
 
 import { orm } from "@/models";
 
@@ -30,14 +31,9 @@ export const passportAuthMiddleware = (app: Application) => {
 }
 
 const standardErr = { message: "Unauthorized Request", code: "UNAUTHORIZED" };
-const roleMap: Record<string, any> = {
-    client: orm.Client,
-    vendor: orm.Vendor,
-    worker: orm.Worker
-}
 
 const authenticateStrategyCallback = (req: Request, res: Response, next: NextFunction) => {
-    return async (err: string | null, user: { role: 'client' | 'vendor' | 'worker'; userId: string } | null, info: { message: string; name: string } | null) => {
+    return async (err: string | null, user: { role: 'coordinator' | 'worker'; userId: string } | null, info: { message: string; name: string } | null) => {
         if (err) return next(err);
         if (!user) return res.status(401).json({ message: info?.message || standardErr.message, code: info?.name || standardErr.code });
         const { role, userId } = user;
@@ -62,10 +58,8 @@ const authenticateStrategyCallback = (req: Request, res: Response, next: NextFun
             if (!userData) return next(new Error(`Authenticated user not found: ${user}`));
 
             let roleData;
-            if (role === 'client') {
-                roleData = await userData.getClient();
-            } else if (role === 'vendor') {
-                roleData = await userData.getVendor();
+            if (role === 'coordinator') {
+                roleData = await userData.getCoordinator();
             } else if (role === 'worker') {
                 roleData = await userData.getWorker();
             } else {
@@ -131,7 +125,7 @@ export const authenticate = {
     },
     // JWT Auth Wrapper 
     jwt: (
-        cb: (err: string | null, user: { role: 'vendor' | 'worker' | 'client'; roleId: string } | null, info: { message: string; name: string } | null) => void
+        cb: (err: string | null, user: { role: 'coordinator' | 'worker'; roleId: string } | null, info: { message: string; name: string } | null) => void
     ) => {
         return (req: Request, res: Response, next: NextFunction) => {
             return passport.authenticate('jwt', (err : any, user: any, info : any) => cb(err, user, info))(req, res, next);

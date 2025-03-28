@@ -1,4 +1,4 @@
-import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional, NonAttribute, Sequelize, BelongsToGetAssociationMixin, HasManyGetAssociationsMixin, HasManyCreateAssociationMixin } from "sequelize";
+import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional, NonAttribute, Sequelize, BelongsToGetAssociationMixin, HasManyGetAssociationsMixin, HasManyCreateAssociationMixin, HasManyCountAssociationsMixin } from "sequelize";
 import { WeekDay } from "@/types";
 import { Op } from "sequelize";
 import { addMinutesToDate, parseMinutes } from "@/utils/manageTime";
@@ -6,6 +6,7 @@ import { addMinutesToDate, parseMinutes } from "@/utils/manageTime";
 import { User } from "../userModels/user.model";
 import { WorkerAvailability } from "./workerAvailability.model";
 import { WorkerException } from "./workerException.model";
+import { Shift } from "../scheduleModels/shift.model";
 
 export class Worker extends Model<InferAttributes<Worker>, InferCreationAttributes<Worker>> {
     public id!: CreationOptional<string>;
@@ -76,6 +77,9 @@ export class Worker extends Model<InferAttributes<Worker>, InferCreationAttribut
 
     public getWorkerExceptions!: HasManyGetAssociationsMixin<WorkerException>;
     public createWorkerException!: HasManyCreateAssociationMixin<WorkerException>;
+
+    public getShifts!: HasManyGetAssociationsMixin<Shift>;
+    public countShifts!: HasManyCountAssociationsMixin;
 }
 
 export const initWorkerModel = (sequelize: Sequelize) => {
@@ -117,6 +121,7 @@ export const associateWorkerModel = (orm: {
     User: typeof User;
     WorkerAvailability: typeof WorkerAvailability;
     WorkerException: typeof WorkerException;
+    Shift: typeof Shift;
 }) => {
     Worker.belongsTo(orm.User, {
         foreignKey: 'user_id',
@@ -131,4 +136,8 @@ export const associateWorkerModel = (orm: {
         foreignKey: 'worker_id',
         as: 'workerExceptions'
     })
+    Worker.hasMany(orm.Shift, {
+        foreignKey: 'worker_id',
+        as: 'shifts'
+    });
 }

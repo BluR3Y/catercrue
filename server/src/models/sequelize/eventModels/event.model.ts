@@ -1,3 +1,4 @@
+import { EventState } from "@/types";
 import {
     DataTypes,
     Model,
@@ -5,22 +6,21 @@ import {
     InferCreationAttributes,
     CreationOptional,
     Sequelize,
+    BelongsToGetAssociationMixin,
     HasManyGetAssociationsMixin,
     HasManyCreateAssociationMixin,
-    BelongsToGetAssociationMixin
+    HasManyCountAssociationsMixin,
+    HasOneGetAssociationMixin
 } from "sequelize";
-import { EventState, Manager, roleMap } from "@/types";
-import { Client } from "../clientModels/client.model";
-import type { EventVendor } from "./eventVendor.model";
+
+import type { EventType } from "./eventType.model";
+import type { Coordinator } from "../coordinatorModels/coordinator.model";
+import type { ContractedVendor } from "./contractedVendor.model";
 import type { Shift } from "../scheduleModels/shift.model";
-import { Vendor } from "../vendorModels/vendor.model";
-import { Worker } from "../workerModels/worker.model";
 
 export class Event extends Model<InferAttributes<Event>, InferCreationAttributes<Event>> {
     public id!: CreationOptional<string>;
-    public client_id!: CreationOptional<string>;
-    public manager_id!: CreationOptional<string>;
-    public manager_type!: CreationOptional<Manager>;
+    public coordinator_id!: CreationOptional<string>;
     public type_id!: number;
     public state!: EventState;
     public status!: CreationOptional<string>;
@@ -29,18 +29,15 @@ export class Event extends Model<InferAttributes<Event>, InferCreationAttributes
     public end!: Date;
 
     // Sequelize defined association methods
-    public getClient!: BelongsToGetAssociationMixin<Client>;
+    public getType!: HasOneGetAssociationMixin<EventType>;
 
-    public getVendors!: HasManyGetAssociationsMixin<EventVendor>;
-    public createVendor!: HasManyCreateAssociationMixin<EventVendor>;
+    public getCoordinator!: BelongsToGetAssociationMixin<Coordinator>;
+
+    public getVendors!: HasManyGetAssociationsMixin<ContractedVendor>;
+    public createVendor!: HasManyCreateAssociationMixin<ContractedVendor>;
 
     public getShifts!: HasManyGetAssociationsMixin<Shift>;
     public createShift!: HasManyCreateAssociationMixin<Shift>;
-
-    public async getManager(): Promise<Client | Worker | Vendor | null> {
-        const { manager_type, manager_id } = this;
-        return await roleMap[manager_type].findByPk(manager_id);
-    }
 }
 
 export const initEventModel = (sequelize: Sequelize) => {
@@ -60,20 +57,13 @@ export const initEventModel = (sequelize: Sequelize) => {
                     key: 'id'
                 }
             },
-            client_id: {
+            coordinator_id: {
                 type: DataTypes.UUID,
+                allowNull: false,
                 references: {
-                    model: 'clients',
+                    model: 'coordinators',
                     key: 'id'
                 }
-            },
-            manager_id: {
-                type: DataTypes.UUID,
-                allowNull: false
-            },
-            manager_type: {
-                type: DataTypes.ENUM(...Object.values(Manager)),
-                allowNull: false
             },
             state: {
                 type: DataTypes.ENUM(...Object.values(EventState)),
@@ -115,33 +105,30 @@ export const initEventModel = (sequelize: Sequelize) => {
                     if (start < new Date() || start >= end) {
                         throw new Error("Invalid scheduling");
                     }
-                },
-                async validateManager() {
-                    const { getManager } = this as { getManager: () => Promise<any> }
-                    if (!await getManager()) {
-                        throw new Error("Manager does not exist")
-                    }
                 }
             }
         }
-    );
+    )
 }
 
 export const associateEventModel = (orm: {
-    EventVendor: typeof EventVendor;
+    EventType: typeof EventType;
+    Coordinator: typeof Coordinator;
+    ContractedVendor: typeof ContractedVendor;
     Shift: typeof Shift;
-    Client: typeof Client;
 }) => {
-    Event.belongsTo(orm.Client, {
-        foreignKey: 'client_id',
-        as: 'client'
+    Event.belongsTo(orm.Coordinator, {
+        foreignKey: 'coordinator_id',
+        as: 'coordinator'
     });
-
-    Event.hasMany(orm.EventVendor, {
+    Event.hasOne(orm.EventType, {
+        foreignKey: 'type_id',
+        as: 'type'
+    });
+    Event.hasMany(orm.ContractedVendor, {
         foreignKey: 'event_id',
         as: 'vendors'
     });
-
     Event.hasMany(orm.Shift, {
         foreignKey: 'event_id',
         as: 'shifts'

@@ -8,11 +8,11 @@ export const eventResolver = {
             console.log(user)
             if (!event) throw new GraphQLError("Event does not exist", { extensions: { code: "NOT_FOUND" } })
 
-            if (user.role === "client" && event.client_id === user.roleId) {
-                return event;
-            } else if (user.role === "vendor") {
+            // if (user.role === "client" && event.client_id === user.roleId) {
+            //     return event;
+            // } else if (user.role === "vendor") {
                 
-            } else if (user.role === "worker")
+            // } else if (user.role === "worker")
 
             return new GraphQLError("Unauthorized Request", { extensions: { code: "UNAUTHORIZED" } });
         }

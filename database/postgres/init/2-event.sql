@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS event_types;
+
 -- ============================
 -- EVENT TYPES TABLE
 -- ============================

@@ -1,6 +1,5 @@
-import { Client } from "@/models/sequelize/clientModels/client.model";
+import { Coordinator } from "@/models/sequelize/coordinatorModels/coordinator.model";
 import { Worker } from "@/models/sequelize/workerModels/worker.model";
-import { Vendor } from "@/models/sequelize/vendorModels/vendor.model";
 
 export enum EventState {
     drafted = "drafted",
@@ -30,7 +29,6 @@ export interface ILocation {
 };
 
 export const roleMap: Record<string, any> = {
-    client: Client,
-    worker: Worker,
-    vendor: Vendor
+    coordinator: Coordinator,
+    worker: Worker
 }

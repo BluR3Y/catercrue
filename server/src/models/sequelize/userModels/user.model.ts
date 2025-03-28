@@ -17,9 +17,8 @@ import type { Password } from "./password.model";
 import type { RefreshToken } from "./refreshToken.model";
 import type { LoginAttempt } from "./loginAttempt.model";
 import type { ContactMethod } from "./contactMethod.model";
-import type { Client } from "../clientModels/client.model";
+import type { Coordinator } from "../coordinatorModels/coordinator.model";
 import type { Worker } from "../workerModels/worker.model";
-import type { Vendor } from "../vendorModels/vendor.model";
 
 export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
     public id!: CreationOptional<string>;
@@ -36,15 +35,12 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
     public hasPassword!: HasManyHasAssociationMixin<Password, number>;
     public countPasswords!: HasManyCountAssociationsMixin;
     public createPassword!: HasManyCreateAssociationMixin<Password>;
-
-    public getClient!: HasOneGetAssociationMixin<Client>;
-    public createClient!: HasOneCreateAssociationMixin<Client>;
     
     public getWorker!: HasOneGetAssociationMixin<Worker>;
     public createWorker!: HasOneCreateAssociationMixin<Worker>;
 
-    public getVendor!: HasOneGetAssociationMixin<Vendor>;
-    public createVendor!: HasOneCreateAssociationMixin<Vendor>;
+    public getCoordinator!: HasOneGetAssociationMixin<Coordinator>;
+    public createCoordinator!: HasOneCreateAssociationMixin<Coordinator>;
 }
 
 export const initUserModel = (sequelize: Sequelize) => {
@@ -111,8 +107,7 @@ export const associateUserModel = (orm:{
     LoginAttempt: typeof LoginAttempt;
     ContactMethod: typeof ContactMethod;
     Worker: typeof Worker;
-    Vendor: typeof Vendor;
-    Client: typeof Client;
+    Coordinator: typeof Coordinator;
 }) => {
     User.hasMany(orm.Password, {
         foreignKey: 'user_id',
@@ -131,16 +126,12 @@ export const associateUserModel = (orm:{
         as: 'contactMethods'
     });
     
-    User.hasOne(orm.Client, {
-        foreignKey: 'user_id',
-        as: 'client'
-    });
     User.hasOne(orm.Worker, {
         foreignKey: 'user_id',
         as: 'worker'
     });
-    User.hasOne(orm.Vendor, {
+    User.hasOne(orm.Coordinator, {
         foreignKey: 'user_id',
-        as: 'vendor'
+        as: 'coordinator'
     });
 }

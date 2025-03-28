@@ -4,15 +4,15 @@ import { initVendorModels, associateVendorModels } from "./vendorModels";
 import { initWorkerModels, associateWorkerModels } from "./workerModels";
 import { initEventModels, associateEventModels } from "./eventModels";
 import { initScheduleModels, associateScheduleModels } from "./scheduleModels";
-import { initClientModels, associateClientModels } from "./clientModels";
+import { initCoordinatorModels, associateCoordinatorModels } from "./coordinatorModels";
 
 const sequelize = getSequelizeInstance();
 
 const { User, Password, ContactMethod, RefreshToken, LoginAttempt } = initUserModels(sequelize);
-const { Client } = initClientModels(sequelize);
-const { Vendor, VendorIndustry, VendorService, IndustryService } = initVendorModels(sequelize);
+const { Coordinator } = initCoordinatorModels(sequelize);
+const { Vendor, ServiceIndustry, VendorService, IndustryService } = initVendorModels(sequelize);
 const { Worker, IndustryRole, WorkerAvailability, WorkerException } = initWorkerModels(sequelize);
-const { Event, EventType, EventVendor } = initEventModels(sequelize);
+const { Event, EventType, ContractedVendor } = initEventModels(sequelize);
 const { Shift } = initScheduleModels(sequelize);
 
 const orm = {
@@ -22,9 +22,9 @@ const orm = {
     ContactMethod,
     RefreshToken,
     LoginAttempt,
-    Client,
+    Coordinator,
     Vendor,
-    VendorIndustry,
+    ServiceIndustry,
     VendorService,
     IndustryService,
     Worker,
@@ -33,12 +33,11 @@ const orm = {
     WorkerException,
     Event,
     EventType,
-    EventVendor,
+    ContractedVendor,
     Shift
 };
 
 associateUserModels(orm);
-associateClientModels(orm);
 associateVendorModels(orm);
 associateWorkerModels(orm);
 associateEventModels(orm);

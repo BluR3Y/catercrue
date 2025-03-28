@@ -84,28 +84,33 @@ export default async function() {
             lastName: "Ki Au"
         }, { transaction });
         console.log(secondUser);
-        const secondUserRole = await secondUser.createVendor({
-            business_name: "Rey's catering company",
-            business_address: { type: "Point", coordinates: [-73.935242, 40.730610] } as any,
-            industry_id: 1
-        },{transaction});
+        const secondUserRole = await secondUser.createCoordinator({},{transaction});
         console.log(secondUserRole);
+        const firstVendor = await secondUserRole.createVendor({
+            business_name: "Rey's catering company",
+            business_address: { type: "Point", coordinates: [-73.935242, 40.730610] } as any
+        },{transaction});
         const vendorServices = await orm.VendorService.bulkCreate([
             {
-                vendor_id: secondUserRole.id,
+                vendor_id: firstVendor.id,
                 service_id: 1
             },
             {
-                vendor_id: secondUserRole.id,
+                vendor_id: firstVendor.id,
                 service_id: 2
             },
             {
-                vendor_id: secondUserRole.id,
+                vendor_id: firstVendor.id,
                 service_id: 3
+            },
+            {
+                vendor_id: firstVendor.id,
+                service_id: 5
             }
         ], { transaction });
         console.log(vendorServices);
         const event = await orm.Event.create({
+            coordinator_id: firstVendor.id,
             type_id: 4,
             state: 'drafted' as any,
             location: { type: "Point", coordinates: [-73.935242, 40.730610] } as any,
@@ -113,23 +118,23 @@ export default async function() {
             end: (new Date(Date.now() + 1000))
         },{transaction})
         console.log(event)
-        const firstEventVendor = await event.createVendor({
-            vendor_id: secondUserRole.id,
-            services: [
-                'Food Preparation',
-                'Beverage Service'
-            ]
-        },{transaction})
-        console.log(firstEventVendor)
-        const firstShift = await event.createShift({
-            event_id: event.id,
-            assigner_type: 'vendor' as any,
-            assigner_id: firstEventVendor.id,
-            worker_id: firstUserRole.id,
-            role_id: 2,
-            shift_start: new Date(Date.now() + 1000),
-            shift_end: new Date(Date.now() + 10000)
-        }, {transaction});
+        // const firstEventVendor = await event.createVendor({
+        //     coordinator_id: firstVendor.id,
+        //     services: [
+        //         'Food Preparation',
+        //         'Beverage Service'
+        //     ]
+        // },{transaction})
+        // console.log(firstEventVendor)
+        // const firstShift = await event.createShift({
+        //     event_id: event.id,
+        //     assigner_type: 'vendor' as any,
+        //     assigner_id: firstEventVendor.id,
+        //     worker_id: firstUserRole.id,
+        //     role_id: 2,
+        //     shift_start: new Date(Date.now() + 1000),
+        //     shift_end: new Date(Date.now() + 10000)
+        // }, {transaction});
         // console.log(await orm.EventVendor.findOne({
         //     where: {
         //         event_id: event.id
@@ -152,21 +157,6 @@ export default async function() {
         //         }
         //     ]
         // }))
-        const managementWorker = await event.getShifts({
-            include: [
-                {
-                    model: orm.IndustryRole,
-                    as: 'role',
-                    include: [{
-                        model: orm.VendorIndustry,
-                        as: 'industry',
-                        where: { name: 'Event Planning & Management' }
-                    }]
-                }
-            ],
-            transaction
-        });
-        console.log(managementWorker)
     } catch (err) {
         console.log(err);
         await transaction.rollback();
