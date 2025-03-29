@@ -1,5 +1,6 @@
 import { RequestHandler } from "express";
-import { odm, orm } from "@/models";
+import { orm } from "@/models";
+import type { Coordinator } from "@/models/sequelize/vendorModels/coordinator.model";
 
 export const getEventTypes: RequestHandler = async (req, res, next) => {
     try {
@@ -10,47 +11,34 @@ export const getEventTypes: RequestHandler = async (req, res, next) => {
     }
 }
 
-export const postEvent: RequestHandler = async (req, res, next) => {
+export const createEvent: RequestHandler = async (req, res, next) => {
     try {
-        const roleData = req.roleData;
+        const { roleData, body } = req;
         if (!roleData) {
-            res.status(401).json({ message: "Unauthorized request" });
-            return;
+            throw new Error("Failed to authenticate user");
         }
+        const { data } = roleData as { role: 'coordinator'; data: Coordinator };
 
         const {
-            eventType,
-            status,
-            location,
-            scheduledStart,
-            scheduledEnd
-        } = req.body;
+            type_id,
+            state,
+            coordinates,
+            start,
+            end
+        } = body;
 
-        const eventData = await odm.eventModel.create({
-            eventType,
-            status,
-            location,
-            scheduledStart,
-            scheduledEnd
+        const eventData = await data.createEvent({
+            type_id,
+            state,
+            location: { type: "Point", coordinates } as any,
+            start: new Date(start),
+            end: new Date(end)
         });
 
-        res.status(201).json({ message: "Event Successfully created" });
-    } catch (err) {
-        next(err);
-    }
-}
-
-export const getEvent: RequestHandler = async (req, res, next) => {
-    try {
-
-    } catch (err) {
-        next(err);
-    }
-}
-
-export const updateEvent: RequestHandler = async (req, res, next) => {
-    try {
-
+        res.status(201).json({
+            message: "Event Successfully created",
+            event: eventData.toJSON()
+        });
     } catch (err) {
         next(err);
     }

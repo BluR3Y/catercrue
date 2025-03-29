@@ -1,5 +1,5 @@
 import { Sequelize } from "sequelize";
-import { EventType, initEventTypeModel, associateEventTypeModel } from "./eventType.model";
+import { EventType, initEventTypeModel } from "./eventType.model";
 import { Event, initEventModel, associateEventModel } from "./event.model";
 import { ContractedVendor, initContractedVendorModel, associateContractedVendorModel } from "./contractedVendor.model";
 
@@ -17,7 +17,6 @@ export const initEventModels = (sequelize: Sequelize) => {
 }
 
 export const associateEventModels = (orm: any) => {
-    associateEventTypeModel(orm);
     associateEventModel(orm);
     associateContractedVendorModel(orm);
 }

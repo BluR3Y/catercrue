@@ -8,9 +8,7 @@ import {
     Sequelize,
     BelongsToGetAssociationMixin,
     HasManyGetAssociationsMixin,
-    HasManyCreateAssociationMixin,
-    HasManyCountAssociationsMixin,
-    HasOneGetAssociationMixin
+    HasManyCreateAssociationMixin
 } from "sequelize";
 
 import type { EventType } from "./eventType.model";
@@ -29,7 +27,7 @@ export class Event extends Model<InferAttributes<Event>, InferCreationAttributes
     public end!: Date;
 
     // Sequelize defined association methods
-    public getType!: HasOneGetAssociationMixin<EventType>;
+    public getType!: BelongsToGetAssociationMixin<EventType>;
 
     public getCoordinator!: BelongsToGetAssociationMixin<Coordinator>;
 
@@ -121,7 +119,7 @@ export const associateEventModel = (orm: {
         foreignKey: 'coordinator_id',
         as: 'coordinator'
     });
-    Event.hasOne(orm.EventType, {
+    Event.belongsTo(orm.EventType, {
         foreignKey: 'type_id',
         as: 'type'
     });

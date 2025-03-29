@@ -38,8 +38,8 @@ export const initEventTypeModel = (sequelize: Sequelize) => {
     );
 }
 
-export const associateEventTypeModel = (orm: {
+// export const associateEventTypeModel = (orm: {
 
-}) => {
+// }) => {
     
-}
+// }

@@ -46,7 +46,7 @@ async function startServer() {
         passportAuthMiddleware(app);
         restAPI(app);
         // Dev Test Data
-        // if (NODE_ENV === 'development') await devConfig();
+        if (NODE_ENV === 'development') await devConfig();
 
         const httpServer = createServer(app);
         // websocket(httpServer);

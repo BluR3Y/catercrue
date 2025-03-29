@@ -28,6 +28,7 @@ export class Coordinator extends Model<InferAttributes<Coordinator>, InferCreati
     public createVendor!: HasOneCreateAssociationMixin<Vendor>;
 
     public getEvents!: HasManyGetAssociationsMixin<Event>;
+    public createEvent!: HasManyCreateAssociationMixin<Event>;
 
     public getContractedEvents!: HasManyGetAssociationsMixin<ContractedVendor>;
 }

@@ -13,7 +13,7 @@ export const eventResolver = {
             // } else if (user.role === "vendor") {
                 
             // } else if (user.role === "worker")
-
+            // Last Here
             return new GraphQLError("Unauthorized Request", { extensions: { code: "UNAUTHORIZED" } });
         }
     }
