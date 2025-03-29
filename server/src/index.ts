@@ -8,7 +8,7 @@ import { redisReady, closeRedisConnection } from './config/redis';
 import { twilioReady } from './config/twilio';
 import { mailerReady } from './config/nodemailer';
 import { passportAuthMiddleware } from './auth';
-// import restAPI from './modules/restAPI';
+import restAPI from './modules/restAPI';
 import logger from './config/winston';
 import websocket from './modules/websocket';
 import graphql from './modules/graphql';
@@ -19,7 +19,7 @@ const devConfig = async () => {
     const force = false;
     await orm.sequelize.sync({force});
     logger.info("Postgres tables synchronized with sequelize models.");
-    await testDB();
+    // await testDB();
 }
 
 async function startServer() {
@@ -44,9 +44,9 @@ async function startServer() {
             credentials: true
         }));
         passportAuthMiddleware(app);
-        // restAPI(app);
+        restAPI(app);
         // Dev Test Data
-        if (NODE_ENV === 'development') await devConfig();
+        // if (NODE_ENV === 'development') await devConfig();
 
         const httpServer = createServer(app);
         // websocket(httpServer);

@@ -11,8 +11,9 @@ import {
     HasManyCountAssociationsMixin
 } from "sequelize";
 
-import type { Coordinator } from "../coordinatorModels/coordinator.model";
+import type { Coordinator } from "./coordinator.model";
 import type { VendorService } from "./vendorService.model";
+import type { Employee } from "./employee.model";
 
 export class Vendor extends Model<InferAttributes<Vendor>, InferCreationAttributes<Vendor>> {
     public id!: CreationOptional<string>;
@@ -29,6 +30,9 @@ export class Vendor extends Model<InferAttributes<Vendor>, InferCreationAttribut
 
     public getServices!: HasManyGetAssociationsMixin<VendorService>;
     public createService!: HasManyCreateAssociationMixin<VendorService>;
+
+    public getEmployees!: HasManyGetAssociationsMixin<Employee>;
+    public countEmployees!: HasManyCountAssociationsMixin;
 }
 
 export const initVendorModel = (sequelize: Sequelize) => {
@@ -82,6 +86,7 @@ export const initVendorModel = (sequelize: Sequelize) => {
 export const associateVendorModel = (orm: {
     Coordinator: typeof Coordinator;
     VendorService: typeof VendorService;
+    Employee: typeof Employee;
 }) => {
     Vendor.belongsTo(orm.Coordinator, {
         foreignKey: 'coordinator_id',
@@ -91,4 +96,8 @@ export const associateVendorModel = (orm: {
         foreignKey: 'vendor_id',
         as: 'services'
     });
+    // Vendor.hasMany(orm.Employee, {
+    //     foreignKey: 'vendor_id',
+    //     as: 'employees'
+    // });
 }

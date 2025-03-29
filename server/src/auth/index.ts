@@ -11,6 +11,7 @@ import { orm } from "@/models";
 import localStrategy from "./local.strategy";
 import jwtStrategy from "./jwt.strategy";
 import googleStrategy from "./google.strategy";
+import type { User } from "@/models/sequelize/userModels/user.model";
 
 // Configure passport authentication middleware
 export const passportAuthMiddleware = (app: Application) => {
@@ -33,10 +34,9 @@ export const passportAuthMiddleware = (app: Application) => {
 const standardErr = { message: "Unauthorized Request", code: "UNAUTHORIZED" };
 
 const authenticateStrategyCallback = (req: Request, res: Response, next: NextFunction) => {
-    return async (err: string | null, user: { role: 'coordinator' | 'worker'; userId: string } | null, info: { message: string; name: string } | null) => {
+    return async (err: string | null, user: User | null, info: { message: string; name: string } | null) => {
         if (err) return next(err);
         if (!user) return res.status(401).json({ message: info?.message || standardErr.message, code: info?.name || standardErr.code });
-        const { role, userId } = user;
 
         try {
             const userAgent = req.useragent;
@@ -44,7 +44,7 @@ const authenticateStrategyCallback = (req: Request, res: Response, next: NextFun
             // const uaparser = UAParser(userAgent?.source);
             const clientIp = req.clientIp;
             await orm.LoginAttempt.create({
-                user_id: userId,
+                user_id: user.id,
                 ipAddress: clientIp ?? "Unknown",
                 userAgent: userAgent?.source ?? "Unknown",
                 validation: !info,
@@ -53,24 +53,20 @@ const authenticateStrategyCallback = (req: Request, res: Response, next: NextFun
 
             // Info being populated, in addition to there being a user, indicates an error occured relating to said user
             if (info) return res.status(401).json({ message: info.message, code: info.name });
-
-            const userData = await orm.User.findByPk(user.userId);
-            if (!userData) return next(new Error(`Authenticated user not found: ${user}`));
+            const { role } = req.body as { role: 'coordinator' | 'worker' };
 
             let roleData;
             if (role === 'coordinator') {
-                roleData = await userData.getCoordinator();
+                roleData = await user.getCoordinator();
             } else if (role === 'worker') {
-                roleData = await userData.getWorker();
-            } else {
-                return next(new Error(`User with id '${userId}' has invalid role type '${role}'`));
+                roleData = await user.getWorker();
             }
             if (!roleData) {
                 return res.status(403).json({ message: "Not registered for role", code: "UNREGISTERED_ROLE" });
             }
 
             req.roleData = {
-                role: role,
+                role,
                 data: roleData
             }
             next();

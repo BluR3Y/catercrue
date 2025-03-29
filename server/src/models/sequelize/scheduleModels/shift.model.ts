@@ -9,7 +9,7 @@ import {
     HasOneGetAssociationMixin
 } from "sequelize";
 import type { Event } from "../eventModels/event.model";
-import type { Coordinator } from "../coordinatorModels/coordinator.model";
+import type { Coordinator } from "../vendorModels/coordinator.model";
 import type { Worker } from "../workerModels/worker.model";
 import type { IndustryRole } from "../workerModels/industryRole.model";
 

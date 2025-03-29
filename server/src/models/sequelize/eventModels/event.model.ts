@@ -14,7 +14,7 @@ import {
 } from "sequelize";
 
 import type { EventType } from "./eventType.model";
-import type { Coordinator } from "../coordinatorModels/coordinator.model";
+import type { Coordinator } from "../vendorModels/coordinator.model";
 import type { ContractedVendor } from "./contractedVendor.model";
 import type { Shift } from "../scheduleModels/shift.model";
 

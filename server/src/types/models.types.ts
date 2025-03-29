@@ -1,4 +1,4 @@
-import { Coordinator } from "@/models/sequelize/coordinatorModels/coordinator.model";
+import { Coordinator } from "@/models/sequelize/vendorModels/coordinator.model";
 import { Worker } from "@/models/sequelize/workerModels/worker.model";
 
 export enum EventState {

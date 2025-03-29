@@ -8,7 +8,7 @@ import {
     BelongsToGetAssociationMixin
 } from "sequelize";
 import type { Event } from "./event.model";
-import type { Coordinator } from "../coordinatorModels/coordinator.model";
+import type { Coordinator } from "../vendorModels/coordinator.model";
 
 export class ContractedVendor extends Model<InferAttributes<ContractedVendor>, InferCreationAttributes<ContractedVendor>> {
     public id!: CreationOptional<string>;

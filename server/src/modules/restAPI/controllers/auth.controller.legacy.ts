@@ -7,13 +7,13 @@ import { sendEmailOTP } from "@/services/emailService";
 
 const redisClient = getRedisInstance();
 
-const accessTokenDuration = process.env.ACCESS_TOKEN_DURATION ? Number(process.env.ACCESS_TOKEN_DURATION) : "1h"
 
 export const login: RequestHandler = async (req, res, next) => {
     try {
         const { roleData } = req;
         if (!roleData) {
-            throw new Error("Failed to authenticate user");
+            res.status(401).json({ message: "Authentication failed" });
+            return;
         }
         const { role, data } = roleData;
 
@@ -21,7 +21,7 @@ export const login: RequestHandler = async (req, res, next) => {
         const accessToken = generateJWT({ role, roleId: data.id }, accessTokenDuration);
 
         // Generate Refresh Token
-        const refreshToken = await orm.RefreshToken.create({ user_id: data.user_id });
+        const refreshToken = await orm.RefreshToken.create({ user_id: data.userId });
 
         res.status(201).json({
             accessToken,
@@ -66,10 +66,10 @@ export const logout: RequestHandler = async (req, res, next) => {
 
 export const identifierAvailability: RequestHandler = async (req, res, next) => {
     try {
-        const { identifierType, identifierValue } = req.params as { identifierType: 'phone' | 'email'; identifierValue: string }
-        const isIdentifierAvailable = await orm.User.count({
-            where: { [identifierType]: identifierValue }
-        }) == 0;
+        const { identifierType, identifierValue } = req.params;
+        const isIdentifierAvailable = await orm.ContactMethod.count({
+            where: {type: identifierType, value: identifierValue }
+        }) === 0;
         res.json({ available: isIdentifierAvailable });
     } catch (err) {
         next(err);
@@ -78,13 +78,9 @@ export const identifierAvailability: RequestHandler = async (req, res, next) => 
 
 export const refreshToken: RequestHandler = async (req, res, next) => {
     try {
-        const { roleData } = req;
-        if (!roleData) {
-            throw new Error("Failed to authenticate user");
-        }
-        const { role, data } = roleData;
-        
+        const { role, data } = req.roleData!;
         const refreshToken = req.cookies?.refreshToken;
+
         if (!refreshToken) {
             res.status(401).json({ message: "No refresh token provided" });
             return;
@@ -114,7 +110,7 @@ export const refreshToken: RequestHandler = async (req, res, next) => {
             // Check for imminent expiry (within 5 minutes)
             if (rtData.expiry.getTime() < new Date().getTime() + (5 * 60 * 1000)) {
                 // Generate a new refresh token
-                const newRefreshToken = await orm.RefreshToken.create({ user_id: data.user_id }, { transaction });
+                const newRefreshToken = await orm.RefreshToken.create({ user_id: data.userId }, { transaction });
                 // Remove the expiring token from the database
                 await rtData.destroy({ transaction });
                 // Assign the new token
@@ -143,15 +139,15 @@ export const refreshToken: RequestHandler = async (req, res, next) => {
 
 export const requestOTP: RequestHandler = async (req, res, next) => {
     try {
-        const { identifierType, identifierValue } = req.body as { identifierType: 'phone' | 'email'; identifierValue: string; };
+        const { identifierType, identifierValue } = req.body;
 
         // Generate OTP
         const otp = Math.floor(100000 + Math.random() * 900000).toString().padStart(6, "0");
         const otpKey = `otp:${identifierValue}`;
-        console.log("Generated OTP: ", otp);    // Debugging
+        console.log("Generated OTP: ", otp);   // Debugging
 
         // Store OTP in Redis (expires in 5 minutes)
-        await redisClient!.setex(otpKey, 5 * 60, otp);
+        await redisClient!.setex(otpKey, (5 * 60), otp);
 
         // Send OTP via SMS or Email
         if (identifierType === 'phone') {
@@ -159,8 +155,7 @@ export const requestOTP: RequestHandler = async (req, res, next) => {
         } else if (identifierType === 'email') {
             await sendEmailOTP(identifierValue, otp);
         }
-
-        res.status(201).json({ message: "OTP successfully sent" });
+        res.status(201).json({ message: "OTP sent successfully" });
     } catch (err) {
         next(err);
     }
@@ -168,9 +163,9 @@ export const requestOTP: RequestHandler = async (req, res, next) => {
 
 export const verifyOTP: RequestHandler = async (req, res, next) => {
     try {
-        const { otp, identifierType, identifierValue } = req.body;
+        const { identifierType, identifierValue, otp } = req.body;
 
-        // Check OTP in redis
+        // Check OTP in Redis
         const otpKey = `otp:${identifierValue}`;
         const storedOtp = await redisClient!.get(otpKey);
 
@@ -197,42 +192,44 @@ export const registerUser: RequestHandler = async (req, res, next) => {
             lastName,
             password
         } = req.body;
+        const otpData = req.otpData!;
 
-        const otpData = req.otpData;
-        if (!otpData) throw new Error('Request did not properly include OTP token');
-        if (otpData.identifierType !== 'phone') {
-            res.status(403).json({ message: "Registration requires phone number" });
-            return;
-        }
-
-        const isUserRegistered = await orm.User.count({
-            where: { phone: otpData.identifierValue }
-        }) !== 0;
+        const isUserRegistered = await orm.ContactMethod.count({
+            where: { type: otpData.identifierType, value: otpData.identifierValue }
+        });
         if (isUserRegistered) {
-            res.status(401).json({ message: "User is already registered" });
+            res.status(401).json({ message: "User already registered with contact method" });
             return;
         }
 
         const transaction = await orm.sequelize.transaction();
         try {
-            // Create User
+            // Create user
             const user = await orm.User.create({
                 firstName,
-                lastName,
-                phone: otpData.identifierValue
+                lastName
             }, { transaction });
 
             // Create password
-            await user.createPassword({
+            await orm.Password.create({
+                user_id: user.id,
                 password
             }, { transaction });
-            
-            // Commit transactions if all create operations succeed
+
+            // Create contact method
+            await orm.ContactMethod.create({
+                user_id: user.id,
+                type: otpData.identifierType,
+                value: otpData.identifierValue,
+                isPrimary: true
+            }, { transaction });
+
+            // Commit transaction if all create operations succeed
             await transaction.commit();
 
             res.status(201).json({ message: "User successfully registered" });
         } catch (err) {
-            // Rollback transactions if any operations fail
+            // Rollback transaction if any operations fail
             await transaction.rollback();
             throw err;
         }
@@ -241,38 +238,35 @@ export const registerUser: RequestHandler = async (req, res, next) => {
     }
 }
 
-export const registerCoordinator: RequestHandler = async (req, res, next) => {
+export const registerVendor: RequestHandler = async (req, res, next) => {
     try {
-        const otpData = req.otpData;
-        if (!otpData) throw new Error('Request did not properly include OTP token');
-        if (otpData.identifierType !== 'phone') {
-            res.status(403).json({ message: "Registration requires phone number" });
-            return;
-        }
+        const { identifierType, identifierValue } = req.otpData!;
 
         // Find user by contact method
-        const user = await orm.User.findOne({
-            where: { phone: otpData.identifierValue },
-            include: [{
-                model: orm.Coordinator,
-                as: 'coordinator'
-            }]
+        const contactMethod = await orm.ContactMethod.findOne({
+            where: { type: identifierType, value: identifierValue }
         });
-        if (!user) {
-            res.status(404).json({ message: "User could not be found" });
+        if (!contactMethod) {
+            res.status(401).json({ message: "Invalid credentials" });
             return;
-        } else if ((user as any).coordinator) {
-            res.status(401).json({ message: "User is already registered as a coordinator" });
-            return;
-        }
-        
-        const roleData = await user.createCoordinator();
-        req.roleData = {
-            role: 'coordinator',
-            data: roleData
         }
 
-        // Remove registration otp token from request header
+        const isVendorRegistered = await odm.vendorModel.countDocuments({ userId: contactMethod.userId });
+        if (isVendorRegistered) {
+            res.status(401).json({ message: "User is already registered as a vendor" });
+            return;
+        }
+
+        const roleData = await odm.vendorModel.create({
+            userId: contactMethod.userId
+        });
+
+        req.roleData = {
+            role: 'vendor',
+            data: roleData
+        };
+
+        // Remove otp token header
         res.removeHeader('x-otp-token');
 
         login(req, res, next);
@@ -283,34 +277,31 @@ export const registerCoordinator: RequestHandler = async (req, res, next) => {
 
 export const registerWorker: RequestHandler = async (req, res, next) => {
     try {
-        const otpData = req.otpData;
-        if (!otpData) throw new Error('Request did not properly include OTP token');
-        if (otpData.identifierType !== 'phone') {
-            res.status(403).json({ message: "Registration requires phone number" });
+        const { identifierType, identifierValue } = req.otpData!;
+
+        // Find user by contact method
+        const contactMethod = await orm.ContactMethod.findOne({
+            where: { type: identifierType, value: identifierValue }
+        });
+        if (!contactMethod) {
+            res.status(401).json({ message: "Invalid credentials" });
             return;
         }
 
-        // Find user by contact method
-        const user = await orm.User.findOne({
-            where: { phone: otpData.identifierValue },
-            include: [{
-                model: orm.Worker,
-                as: 'worker'
-            }]
-        });
-        if (!user) {
-            res.status(404).json({ message: "User could not be found" });
-            return;
-        } else if ((user as any).worker) {
+        const isWorkerRegistered = await odm.workerModel.countDocuments({ userId: contactMethod.userId });
+        if (isWorkerRegistered) {
             res.status(401).json({ message: "User is already registered as a worker" });
             return;
         }
 
-        const roleData = await user.createWorker();
+        const worker = await odm.workerModel.create({
+            userId: contactMethod.userId
+        });
+
         req.roleData = {
             role: 'worker',
-            data: roleData
-        }
+            data: worker
+        };
 
         // Remove otp token header
         res.removeHeader('x-otp-token');
@@ -320,3 +311,8 @@ export const registerWorker: RequestHandler = async (req, res, next) => {
         next(err);
     }
 }
+
+// Suggestions:
+// * Link refresh tokens to devices for better tracking
+// * Implement Zod for validation
+// * Implement rate limiting to OTP handlers
