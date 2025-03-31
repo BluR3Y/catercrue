@@ -1,6 +1,6 @@
 import { createGlobalStyle } from "styled-components";
 
-const Themes = {
+const themes = {
   light: {
       colors: {
           primary: '#FF5733',
@@ -21,8 +21,8 @@ const Themes = {
           container: '#2a3647'
       },
   }
-} as const;
-export default Themes;
+};
+export default themes;
 
 export const GlobalStyles = createGlobalStyle`
   *,

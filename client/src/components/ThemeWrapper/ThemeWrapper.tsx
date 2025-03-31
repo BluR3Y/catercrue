@@ -2,20 +2,20 @@
 
 import React, { useState } from "react";
 import { ThemeProvider } from "styled-components";
-import Themes, { GlobalStyles } from "./ThemeContext.styles";
-import { IThemeContext, ThemeName } from "./ThemeContext.types";
+import themes, { GlobalStyles } from "./ThemeWrapper.styles";
+import { IThemeWrapper, ThemeName } from "./ThemeWrapper.types";
 
 export default function({
     children
-}: IThemeContext) {
+}: IThemeWrapper) {
     const [activeTheme, setActiveTheme] = useState<ThemeName>('dark');
 
     return (
         <ThemeProvider
-        theme={Themes[activeTheme]}
+        theme={themes[activeTheme]}
         >
             <GlobalStyles/>
             {children}
         </ThemeProvider>
-    )
+    );
 }

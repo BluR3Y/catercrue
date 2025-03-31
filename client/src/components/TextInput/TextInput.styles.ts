@@ -5,40 +5,26 @@ export const StyledTextInput = styled.div<IStyledTextInput>`
     display: flex;
     flex-direction: column;
     position: relative;
-    width: 100%;
-    max-width: 500px;   // Optional, for readability
-    min-width: 100px;
-    margin: 1.4em 0 1.3em 0;
-    border-radius: 3px;
-    border-width: 2px;
-    border-style: solid;
-    user-select: none;
-    
-    ${props => props.isFocused ? css`
-        border-color: ${props.theme.colors.secondary};
-        background-color: ${props.theme.colors.background};
-    ` : css`
-        border-color: ${props.isInvalid ? 'red' : props.theme.colors.accent};
-        &:hover {
-            background-color: ${props.theme.colors.background};
-        }
-    `}
+    width: inherit;
+    max-width: 500px;
+    min-width: 50px;
+    font-size: inherit;
+    padding-top: 1.4em;
 
     label {
         position: absolute;
         pointer-events: none;
-
         transition-duration: 0.15s;
         color: ${props => props.theme.colors.text};
         ${props => props.isFocused || !props.isEmpty ? css`
-            top: -90%;
-            opacity: 0.85;
+            top: 0;
             left: 0;
-            font-size: 110%;
+            opacity: 0.85;
+            font-size: 1.1em;
         ` : css`
-            left: 6px;
+            left: 8px;
             opacity: 0.7;
-            top: 50%;
+            top: 2.5em;
             font-size: 100%;
             transform: translateY(-50%);
         `}
@@ -46,22 +32,32 @@ export const StyledTextInput = styled.div<IStyledTextInput>`
 
     input {
         width: inherit;
-        height: 25px;
-        border: none;
+        height: 2.2em;
         box-sizing: border-box;
         outline: none;
-        padding: 0 6px;
-        background: transparent;
+        border-radius: 3px;
+        border-width: 2px;
+        padding: 0 8px;
+        border-style: solid;
+        background-color: transparent;
+        font-size: inherit;
         color: ${props => props.theme.colors.text};
-        font-size: 1em;
+
+        ${props => props.isFocused ? css`
+            border-color: ${props.theme.colors.secondary};
+            background-color: ${props.theme.colors.background};
+        ` : css`
+            border-color: ${props.isInvalid ? 'red' : props.theme.colors.accent};
+            &:hover {
+                background-color: ${props.theme.colors.background};
+            }
+        `}
     }
 
     h1 {
-        position: absolute;
-        font-size: 0.9em;
+        font-size: 0.85em;
         font-weight: normal;
-        top: 120%;
-        left: 0;
         color: red;
     }
 `;
+// Last Here

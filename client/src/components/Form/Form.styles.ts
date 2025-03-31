@@ -6,6 +6,7 @@ export const StyledForm = styled.form<IStyledForm>`
     flex-direction: column;
     border-radius: 5px;
     max-width: 500px;
+    width: inherit;
     align-items: center;
     padding: 15px 25px;
 

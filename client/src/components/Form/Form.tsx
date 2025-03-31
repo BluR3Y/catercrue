@@ -1,3 +1,5 @@
+'use client';
+
 import { StyledForm } from "./Form.styles";
 import { IForm } from "./Form.types";
 import Button from "../Button/Button";

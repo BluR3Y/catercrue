@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import ThemeContext from "@/components/ThemeContext/ThemeContext";
+import { ThemeWrapper } from "@/components/ThemeWrapper";
 
 
 export const metadata: Metadata = {
@@ -17,9 +17,9 @@ export default function RootLayout({
     return (
       <html lang="en">
         <body>
-          <ThemeContext>
+          <ThemeWrapper>
             {children}
-          </ThemeContext>
+          </ThemeWrapper>
         </body>
       </html>
     );
