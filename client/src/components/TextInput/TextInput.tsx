@@ -1,6 +1,11 @@
 import { useState } from "react";
-import { StyledTextInput } from "./TextInput.styles";
 import { ITextInput } from "./TextInput.types";
+import {
+    StyledWrapper,
+    StyledLabel,
+    StyledInput,
+    StyledError
+} from "./TextInput.styles";
 
 export default function({
     id,
@@ -12,24 +17,25 @@ export default function({
     const [isFocused, setIsFocused] = useState(false);
 
     return(
-        <StyledTextInput
-            isFocused={isFocused}
-            isEmpty={!inputValue.length}
-            isInvalid={!!errorText}
-        >
-            <label htmlFor={id}>{labelText}</label>
-            <input
-                type="text"
+        <StyledWrapper>
+            <StyledLabel
+                htmlFor={id}
+                isEmpty={!inputValue.length}
+                isFocused={isFocused}
+            >{labelText}</StyledLabel>
+            <StyledInput
                 id={id}
                 name={id}
+                type="text"
                 value={inputValue}
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
-                onChange={(event) => inputCallback(event.target.value)}
+                onChange={(e) => inputCallback(e.target.value)}
+                isInvalid={!!errorText}
             />
-            { errorText && (
-                <h1>{errorText}</h1>
-            ) }
-        </StyledTextInput>
+            {errorText && (
+                <StyledError role="alert">{errorText}</StyledError>
+            )}
+        </StyledWrapper>
     );
 }

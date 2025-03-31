@@ -7,8 +7,11 @@ export interface ITextInput {
     inputCallback: any;
 }
 
-export interface IStyledTextInput {
+export interface IStyledLabel {
     isFocused: boolean;
     isEmpty: boolean;
+}
+
+export interface IStyledInput {
     isInvalid: boolean;
 }

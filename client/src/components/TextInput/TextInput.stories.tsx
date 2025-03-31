@@ -28,5 +28,5 @@ const Template = (args:any) => {
 export const Primary = Template.bind({}) as any;
 Primary.args = {
     labelText: "Hello",
-    errorText: ""
+    errorText: "Test Error"
 }

@@ -1,63 +1,60 @@
 import styled, { css } from "styled-components";
-import { IStyledTextInput } from "./TextInput.types";
+import { IStyledInput, IStyledLabel } from "./TextInput.types";
 
-export const StyledTextInput = styled.div<IStyledTextInput>`
+export const StyledWrapper = styled.div`
     display: flex;
     flex-direction: column;
     position: relative;
     width: inherit;
     max-width: 500px;
-    min-width: 50px;
+    min-width: 100px;
     font-size: inherit;
-    padding-top: 1.4em;
+    padding-top: 1.2rem;
+`;
 
-    label {
-        position: absolute;
-        pointer-events: none;
-        transition-duration: 0.15s;
-        color: ${props => props.theme.colors.text};
-        ${props => props.isFocused || !props.isEmpty ? css`
-            top: 0;
-            left: 0;
-            opacity: 0.85;
-            font-size: 1.1em;
-        ` : css`
-            left: 8px;
-            opacity: 0.7;
-            top: 2.5em;
-            font-size: 100%;
-            transform: translateY(-50%);
-        `}
+export const StyledLabel = styled.label<IStyledLabel>`
+    position: absolute;
+    transition: 0.2s ease;
+    color: ${props => props.theme.colors.text};
+    user-select: none;
+    ${props => (props.isFocused || !props.isEmpty) ? css`
+        top: 0;
+        left: 0;
+        opacity: 1;
+        font-size: 1rem;
+    ` : css`
+        left: 8px;
+        opacity: 0.7;
+        top: 2.3rem;
+        font-size: 1.2rem;
+        transform: translateY(-50%);
+    `}
+`;
+
+export const StyledInput = styled.input<IStyledInput>`
+    font-size: 1.1rem;
+    width: inherit;
+    height: 2.2rem;
+    padding: 0 8px;
+    border: 2px solid ${props => props.isInvalid ? props.theme.colors.error || 'red' : props.theme.colors.accent};
+    border-radius: 3px;
+    outline: none;
+    background-color: transparent;
+    color: ${props => props.theme.colors.text};
+
+    &:hover {
+        background-color: ${props => props.theme.colors.background};
     }
 
-    input {
-        width: inherit;
-        height: 2.2em;
-        box-sizing: border-box;
-        outline: none;
-        border-radius: 3px;
-        border-width: 2px;
-        padding: 0 8px;
-        border-style: solid;
-        background-color: transparent;
-        font-size: inherit;
-        color: ${props => props.theme.colors.text};
-
-        ${props => props.isFocused ? css`
-            border-color: ${props.theme.colors.secondary};
-            background-color: ${props.theme.colors.background};
-        ` : css`
-            border-color: ${props.isInvalid ? 'red' : props.theme.colors.accent};
-            &:hover {
-                background-color: ${props.theme.colors.background};
-            }
-        `}
-    }
-
-    h1 {
-        font-size: 0.85em;
-        font-weight: normal;
-        color: red;
+    &:focus {
+        border-color: ${props => props.theme.colors.secondary};
+        background-color: ${props => props.theme.colors.background};
     }
 `;
-// Last Here
+
+export const StyledError = styled.span`
+    font-size: 0.85rem;
+    font-weight: normal;
+    color: ${props => props.theme.colors.error || 'red'};
+    margin-top: 0.3rem;
+`;
