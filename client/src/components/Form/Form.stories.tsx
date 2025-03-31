@@ -15,43 +15,56 @@ const meta = {
 export default meta;
 
 const Template = (args:any) => {
-    const [firstName, setFirstName] = useState("John")
-    const [lastName, setLastName] = useState("Doe");
-    const [email, setEmail] = useState("johndoe@gmail.com");
-    const [errorText, setErrorText] = useState("Email is already taken");
+    const [firstName, setFirstName] = useState(args.firstName)
+    const [firstNameError, setFirstNameError] = useState(args.firstNameError);
+    const [lastName, setLastName] = useState(args.lastName);
+    const [lastNameError, setLastNameError] = useState(args.lastNameError);
+    const [email, setEmail] = useState(args.email);
+    const [emailError, setEmailError] = useState(args.emailError);
 
     const handleSubmit = (event:any) => {
         event.preventDefault();
-        fn(event)
+        fn()
     }
 
     return (
         <Form
+            labelText="Register"
             onSubmit={handleSubmit}
         >
             <div className="related">
                 <TextInput
+                    id="fName"
                     labelText="First Name"
                     inputValue={firstName}
                     inputCallback={setFirstName}
-                    errorText="Hehe"
+                    errorText={firstNameError}
                 />
                 <TextInput
+                    id="lName"
                     labelText="Last Name"
                     inputValue={lastName}
                     inputCallback={setLastName}
-                    errorText="Haha"
+                    errorText={lastNameError}
                 />
             </div>
             <TextInput
+                id="email"
                 labelText="Email"
                 inputValue={email}
                 inputCallback={setEmail}
-                errorText={errorText}
+                errorText={emailError}
             />
         </Form>
     )
 }
 // Last Here - Working on form component
 export const Primary = Template.bind({}) as any;
-Primary.args = {}
+Primary.args = {
+    firstName: "John",
+    firstNameError: "Missing First name",
+    lastName: "",
+    lastNameError: "",
+    email: "",
+    emailError: "Missing Email"
+}

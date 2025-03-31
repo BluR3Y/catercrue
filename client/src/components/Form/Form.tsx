@@ -1,14 +1,15 @@
 import { StyledForm } from "./Form.styles";
 import { IForm } from "./Form.types";
 import Button from "../Button/Button";
-import { useRef } from "react";
+import { useRef, MouseEvent } from "react";
 
 export default function({
     children,
-    onSubmit
+    onSubmit,
+    labelText
 }: IForm) {
     const formRef = useRef(null);
-    const handleClick = (event:any) => {
+    const handleClick = (event:MouseEvent<HTMLButtonElement>) => {
         (formRef as any).current.requestSubmit();
     }
 
@@ -17,6 +18,7 @@ export default function({
             ref={formRef}
             onSubmit={onSubmit}
         >
+            <h1 className="form-name">{labelText}</h1>
             {children}
             <Button
                 labelText="Submit"

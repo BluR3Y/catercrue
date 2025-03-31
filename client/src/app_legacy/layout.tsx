@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import ThemeContext from "@/components/ThemeContext/ThemeContext";
-
+import StyledGlobal from "./global.styles";
+import StyledTheme from "./theme.styled";
 
 export const metadata: Metadata = {
     title: "Crue - Event Management & Staffing Platform",
@@ -17,9 +17,10 @@ export default function RootLayout({
     return (
       <html lang="en">
         <body>
-          <ThemeContext>
+          <StyledTheme>
+            <StyledGlobal/>
             {children}
-          </ThemeContext>
+          </StyledTheme>
         </body>
       </html>
     );

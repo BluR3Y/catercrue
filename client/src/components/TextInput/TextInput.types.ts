@@ -1,5 +1,6 @@
 
 export interface ITextInput {
+    id: string;
     labelText: string;
     inputValue: string;
     errorText: string;

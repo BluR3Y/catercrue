@@ -3,6 +3,7 @@ import { StyledTextInput } from "./TextInput.styles";
 import { ITextInput } from "./TextInput.types";
 
 export default function({
+    id,
     labelText,
     inputValue,
     errorText,
@@ -16,11 +17,11 @@ export default function({
             isEmpty={!inputValue.length}
             isInvalid={!!errorText}
         >
-            <label htmlFor="input">{labelText}</label>
+            <label htmlFor={id}>{labelText}</label>
             <input
                 type="text"
-                id={labelText}
-                name={labelText}
+                id={id}
+                name={id}
                 value={inputValue}
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}

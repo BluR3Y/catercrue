@@ -31,13 +31,15 @@ export const StyledTextInput = styled.div<IStyledTextInput>`
         transition-duration: 0.15s;
         color: ${props => props.theme.colors.text};
         ${props => props.isFocused || !props.isEmpty ? css`
-            top: -80%;
+            top: -90%;
             opacity: 0.85;
             left: 0;
+            font-size: 110%;
         ` : css`
             left: 6px;
             opacity: 0.7;
             top: 50%;
+            font-size: 100%;
             transform: translateY(-50%);
         `}
     }
@@ -56,7 +58,7 @@ export const StyledTextInput = styled.div<IStyledTextInput>`
 
     h1 {
         position: absolute;
-        font-size: 0.95em;
+        font-size: 0.9em;
         font-weight: normal;
         top: 120%;
         left: 0;

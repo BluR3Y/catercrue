@@ -1,6 +1,7 @@
 import type { Preview } from '@storybook/react'
-import StyledGlobal from "../src/app/global.styles";
-import StyledTheme from "../src/app/theme.styled";
+// import StyledGlobal from "../src/app/global.styles";
+// import StyledTheme from "../src/app/theme.styled";
+import { ThemeConte }
 import { withThemeFromJSXProvider } from "@storybook/addon-themes";
 
 const preview: Preview = {
