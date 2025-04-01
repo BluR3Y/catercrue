@@ -1,4 +1,10 @@
-<h1 align="center">CaterCrue: The Ultimate Event Coordination and Food-Service Platform</h1> <br>
+<h1 align="center">CaterCrue: The Ultimate Event Coordination and Food-Service Platform</h1>
+<img src="./notes/diagrams/crue_landing_page.png" alt="Landing Page"/>
+
+## Table of Contents
+- [Introduction](#introduction)
+- [Technical Architecture Diagram](#technical-architecture-diagram)
+- [Tech Stack](#tech-stack)
 
 <!-- About the Project -->
 ## Introduction
@@ -11,4 +17,12 @@ In addition, CaterCrue serves as a dedicated marketplace for food-service indust
 Discover the power of streamlined event management and contract work opportunities with CaterCrue—where efficiency meets opportunity in the world of events.
 <br>
 ## Technical Architecture Diagram
-![Alt text](./notes/diagrams/CaterCrue_Technical_Architecture_Diagram.png?raw=true "Technical Architecture Diagram")
+The CaterCrue platform is built on a distributed microservices architecture designed for scalability, reliability, and modular deployment. It uses a combination of REST and gRPC APIs behind an API Gateway, integrates with PostgreSQL and NoSQL databases, and supports real-time messaging through Kafka and WebSockets.
+![Technical Architecture Diagram](./notes/diagrams/CaterCrue_Technical_Architecture_Diagram.png?raw=true "Technical Architecture Diagram")
+
+## Tech Stack
+- **Frontend**: Next.js, Redux, Styled-Components, Storybook
+- **Backend**: Node.js, Express, GraphQL, Passport (Oauth2, JWT)
+- **Database**: Postgres, MongoDB, Elasticsearch, Redis
+- **Messaging & Notifications**: WebSockets, Kafka
+- **DevOps**: AWS (CodePipeline, EC2, S3, CloudFront), Terraform, Ansible, Jenkins, Docker, Kubernetes
