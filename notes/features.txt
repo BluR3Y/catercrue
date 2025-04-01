@@ -1,0 +1,88 @@
+* The architecture of the application should follow "microservice" practices rather than "monolith" ones
+    * The reason for this is because the ambition of the developer to implement countless complex features leads to the application being relatively large-scale and complex with diverse functionality and high scalability requirements typically benefit from a microservice approach.
+* In regard to organizing and storing the microservice application, the platform should follow a "Monorepo" approach rather than a "Polyrepo" one
+
+* When developing a platform with a microservice architecture, communication occurs with two types of entities: clients and services. The approach to handling communication between client and service should be different from the method between service and other services. 
+    - Client-to-Service: REST API
+    - Service-to-Service: Message Brokers (RabbitMQ, Kafka)
+
+Mission: Develop a platform for event coordinators to assist with various stages of the event coordination process, including booking, scheduling, recruiting, execution, and analysis. Additionally, provide food-service industry workers with a platform to find contract work arrangements.
+
+* Independent deployable services:
+    - Base:
+        * User Management Service (RDBMS:Postgres):
+            - User registration and authentication
+            - Profile creation and management
+            - User roles
+            - Account settings and privacy controls
+            - Password recover
+        * Venue Management Service (RDBMS:Postgres):
+            - Venue registration and profile management
+            - Menu Management
+            - Venue availability and status updates
+        * Event Management Service (RDBMS:Postgres):
+            - Event placement and tracking
+            - Event status updates
+            - Event order history and recipts
+        * Job Posting Service (RDBMS:Postgres):
+            - Job creation and management by employers
+            - Job categorization, tagging, and scheduling
+            - Job posting updates and archiving
+        * Job Search and Discovery Service (Search Engine:Elasticsearch):
+            - Job search with filtering and sorting capabilities
+            - Keyword-based and location-based search
+            - Personalized job recommendations based on user profiles and preferences
+        * Application Management Service (RDBMS:Postgres):
+            - Job application submission and tracking
+            - Application status updates and notifications
+            - Application history and management
+        * Messaging Service(NoSQL:MongoDB):
+            - Communication between job seekers and employers
+            - Communication between Coordinators and staff
+            - Communication history and moderation
+        * Payment and Billing Service (RDBMS:Postgres):
+            - Payment processing
+            - Refunds, cancellation, and billing history
+            - Subscription and invoicing management
+        * Review and Rating Service (NoSQL:MongoDB):
+            - Coordinator reviews and ratings
+            - Venue feedback
+            - Worker reviews and ratings
+            - Moderation of reviews
+        * Notification Service (Message Queue/Streaming Platform:RabbitMQ):
+            - Sending notifications (email, SMS, push notifications) for:
+                * Promotions
+                * Event updates
+                * Application updates
+                * Message alerts
+        * Promotions and Discounts Service (NoSQL:Redis):
+            - Management of coupons and discounts
+            - Loyalty programs
+            - Seasonal offers
+        * Analytics and Reporting Service (Data Warehouse:Amazon Redshift):
+            - Generate reports, business metrics, user analutics, sales analytics, performance tracking
+            - Collects and analyzes data to improve service, optimize, routes, and predict demand
+        * Customer Support Service (RDBMS:Postgres):
+            - Issue tracking and resolution
+            - Live chat and helpdesk integration
+            - FAQ and knowledge base
+        * Security Service (RDBMS:Postgres):
+            - Fraud detection and prevention
+            - Data encryption and protection
+            - Access control management
+
+    - Carpool:
+        * Carpool Mapping and Navigation Service:
+            - Real-time routing
+            - Traffic updates
+            - Route optimization
+            - Estimated time of arrival
+
+    
+ChatGPT conversation link: 
+    * Main - https://chatgpt.com/share/c8e463cf-64d9-4b4d-9164-9d59951a46ab
+    * Business - https://chatgpt.com/share/d8636e25-b700-43b2-849f-7239863027d8
+    * Geolocation - https://chatgpt.com/share/b690e4a4-5850-4df0-a1f9-0aa4a0722bb1
+
+Ideas:
+    * For `hosts` - In addition to selecting catering staff, venues can also be selected and reserved for events that aren't managed by host.
