@@ -1,0 +1,10 @@
+{
+    "name": "Crue - Event Management & Staffing Platform",
+    "short_name": "Crue",
+    "description": "",
+    "icons": [],
+    "start_url": "/",
+    "background_color": "#ffffff",
+    "theme_color": "#000000",
+    "display": "standalone"
+}

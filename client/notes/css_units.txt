@@ -1,0 +1,5 @@
+Type	Units	Use When...
+Fixed	px, pt, cm, mm, in	You want exact size
+Font-based	em, rem, %	For scalable, consistent spacing
+Viewport	vw, vh, vmin, vmax	For full-screen, responsive designs
+Character-based	ch, ex	For form fields, monospace precision

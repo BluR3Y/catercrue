@@ -1,7 +1,0 @@
-* Postgres program path: /usr/share/postgresql/16
-* Postgres configuration path: /var/lib/postgresql/data/
-
-* Reload database: SELECT pg_reload_conf();
-* Get configuration file path: SHOW config_file;
-
-* Define Environment variable in linux: export var_name=var_value;

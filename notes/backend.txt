@@ -1,8 +1,0 @@
-* When structuring a platform as micro-services, one must take into consideration how communication with each service will be handled (Inter-Service Communcation). Some solutions are to use REST APIs or message brokers (e.g., Kafka, RabbitMQ) to communcate between microservices. Additionally, implementing a caching layer may aid in reduing the load on the users' microservice when validating user Ids.
-* Research "Event-Driven Architecture"
-* In a micro-service structured application, caching (Redis) is your best friend. Reduces latency
-
-Articles:
-    * Ideal package for file uploads: https://bytearcher.com/articles/formidable-vs-busboy-vs-multer-vs-multiparty/
-    * https://virtualspirit.me/insights/276/the-difference-between-development-staging-and-production
-    * https://www.geopostcodes.com/blog/best-practices-storing-addresses/

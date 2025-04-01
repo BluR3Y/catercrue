@@ -1,0 +1,53 @@
+src/
+├── app/                       # Next.js 13 App Router
+│   ├── (routes)/              # Optional: Route groups
+│   │   ├── dashboard/
+│   │   │   ├── page.tsx
+│   │   │   └── layout.tsx
+│   │   ├── login/
+│   │   │   └── page.tsx
+│   │   └── ...
+│   ├── layout.tsx
+│   └── globals.css
+│
+├── components/                # Reusable UI components (with stories, styles, tests)
+│   ├── Button/
+│   ├── Card/
+│   └── ...
+│
+├── features/                  # Feature-based architecture (domain-driven)
+│   ├── auth/                  # e.g., Auth logic + pages + hooks
+│   │   ├── hooks/
+│   │   ├── components/
+│   │   ├── services/
+│   │   └── types.ts
+│   ├── dashboard/
+│   └── ...
+│
+├── hooks/                     # Reusable custom hooks (not domain-specific)
+│   └── useDebounce.ts
+│
+├── lib/                       # Utility functions, helpers, config
+│   ├── api/                   # API utilities
+│   ├── constants.ts
+│   └── analytics.ts
+│
+├── styles/                    # Global and shared styled-components (or theme)
+│   ├── GlobalStyle.ts
+│   ├── theme.ts
+│   └── mixins.ts
+│
+├── types/                     # Global TypeScript types/interfaces
+│   └── next.d.ts
+│
+├── context/                   # React Contexts (e.g., AuthProvider, ThemeProvider)
+│   └── AuthContext.tsx
+│
+├── store/                     # State management (if using Redux/Zustand/etc)
+│   └── authStore.ts
+│
+├── tests/                     # Global test setup or test utils
+│   └── setup.ts
+│
+└── utils/                     # Generic utility functions
+    └── formatDate.ts
